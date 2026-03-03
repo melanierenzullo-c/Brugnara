@@ -1,0 +1,80 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "produkte": "Prodotti",
+    "admin": "Admin",
+    "backToHome": "Torna alla pagina iniziale"
+  },
+  "ProductCategories": {
+    "eisenwaren": "Ferramenta",
+    "haushaltsartikel": "Casalinghi",
+    "werkzeug": "Utensili",
+    "elektrogeraete": "Elettrodomestici",
+    "gartengeraete": "Attrezzi da giardino",
+    "oefen-herde": "Stufe e cucine"
+  },
+  "Home": {
+    "heroTitle": "Qualità da generazioni",
+    "heroSubtitle": "Il vostro negozio specializzato a Merano per ferramenta, casalinghi, utensili e molto altro.",
+    "mehrErfahren": "Scopri di più",
+    "ueberUns": "Chi siamo",
+    "beratung": "Consulenze professionali e personalizzate",
+    "dienstleistungen": "Servizi e prodotti di alta qualità",
+    "bekannt": "Conosciuti in tutto l'Alto Adige",
+    "unsereProdukte": "I nostri prodotti",
+    "unserTeam": "Il nostro team"
+  },
+  "Products": {
+    "title": "Prodotti della categoria {category}",
+    "noProducts": "Nessun prodotto in questa categoria.",
+    "loading": "Caricamento...",
+    "breadcrumbHome": "Home",
+    "breadcrumbProdukte": "Prodotti"
+  },
+
+  "Footer": {
+    "kontakt": "Contatto",
+    "adresse": "Via Roma 31/A Merano",
+    "telefon": "Telefono: 0473 232755",
+    "email": "E-Mail: info@brugnara.bz.it",
+    "oeffnungszeiten": "Orari di apertura",
+    "geschlossen": "CHIUSO",
+    "impressum": "Impressum & Privacy"
+  },
+  "Cookies": {
+    "title": "Cookies Consent",
+    "text": "Questo sito web utilizza i cookie per aiutarti ad avere un'esperienza di navigazione migliore e più pertinente.",
+    "readMore": "Leggi di più...",
+    "accept": "Accetta",
+    "decline": "Rifiuta"
+  },
+  "Admin": {
+    "greeting": "Ciao! Cosa vuoi cambiare?",
+    "produkte": "Prodotti",
+    "news": "Notizie",
+    "oeffnungszeiten": "Orari di apertura",
+    "marken": "Marche",
+    "hinzufuegen": "AGGIUNGERE",
+    "oeffnungszeitenHinweis": "Attenzione: se modifichi l'orario di un giorno, tutti gli orari per quel giorno devono essere reinseriti.",
+    "dbPlaceholder": "Il modulo orari sarà disponibile quando il database sarà collegato.",
+    "produktName": "Nome prodotto (DE):",
+    "produktBeschreibung": "Descrizione (DE):",
+    "produktNameIt": "Nome prodotto (IT):",
+    "produktBeschreibungIt": "Descrizione (IT):",
+    "kategorieWaehlen": "Scegli categoria:",
+    "bitteWaehlen": "Seleziona…",
+    "fotDateiname": "Nome file foto:",
+    "produktSpeichern": "Salva prodotto",
+    "newsTitel": "Titolo news (DE):",
+    "newsBeschreibung": "Descrizione (DE):",
+    "newsTitelIt": "Titolo news (IT):",
+    "newsBeschreibungIt": "Descrizione (IT):",
+    "newsSpeichern": "Salva news",
+    "bitteKategorie": "Seleziona una categoria!",
+    "bitteFoto": "Inserisci un nome file foto!",
+    "dbNichtVerbunden": "Il database non è ancora collegato. Può essere salvato solo quando il database è attivo."
+  },
+  "LanguageToggle": {
+    "switchTo": "DE"
+  }
+}

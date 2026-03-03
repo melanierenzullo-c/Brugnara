@@ -1,0 +1,80 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "produkte": "Produkte",
+    "admin": "Admin",
+    "backToHome": "Zurück zur Startseite"
+  },
+  "ProductCategories": {
+    "eisenwaren": "Eisenwaren",
+    "haushaltsartikel": "Haushalt",
+    "werkzeug": "Werkzeuge",
+    "elektrogeraete": "Elektrogeräte",
+    "gartengeraete": "Gartengeräte",
+    "oefen-herde": "Öfen und Herde"
+  },
+  "Home": {
+    "heroTitle": "Qualität seit Generationen",
+    "heroSubtitle": "Ihr Fachgeschäft in Meran für Eisenwaren, Haushalt, Werkzeug und mehr.",
+    "mehrErfahren": "Mehr erfahren",
+    "ueberUns": "Über uns",
+    "beratung": "Professionelle & individuelle Beratungen",
+    "dienstleistungen": "Hochwertige Dienstleistungen und Produkte",
+    "bekannt": "Landesweit bekannt",
+    "unsereProdukte": "Unsere Produkte",
+    "unserTeam": "Unser Team"
+  },
+  "Products": {
+    "title": "Produkte der Kategorie {category}",
+    "noProducts": "Keine Produkte in dieser Kategorie vorhanden.",
+    "loading": "Laden...",
+    "breadcrumbHome": "Home",
+    "breadcrumbProdukte": "Produkte"
+  },
+
+  "Footer": {
+    "kontakt": "Kontakt",
+    "adresse": "Romstraße 31/A Meran",
+    "telefon": "Telefon: 0473 232755",
+    "email": "E-Mail: info@brugnara.bz.it",
+    "oeffnungszeiten": "Öffnungszeiten",
+    "geschlossen": "GESCHLOSSEN",
+    "impressum": "Impressum & Datenschutz"
+  },
+  "Cookies": {
+    "title": "Cookies Consent",
+    "text": "This website uses cookies to help you have a superior and more relevant browsing experience on the website.",
+    "readMore": "Read more...",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "Admin": {
+    "greeting": "Hallo! Was möchtest du verändern?",
+    "produkte": "Produkte",
+    "news": "News",
+    "oeffnungszeiten": "Öffnungszeiten",
+    "marken": "Marken",
+    "hinzufuegen": "HINZUFÜGEN",
+    "oeffnungszeitenHinweis": "Bitte beachte: Wenn du die Öffnungszeit eines Tages änderst, müssen alle Zeiten für diesen Tag erneut eingegeben werden.",
+    "dbPlaceholder": "Öffnungszeiten-Formular wird verfügbar, sobald die Datenbank verbunden ist.",
+    "produktName": "Produktname (DE):",
+    "produktBeschreibung": "Beschreibung (DE):",
+    "produktNameIt": "Produktname (IT):",
+    "produktBeschreibungIt": "Beschreibung (IT):",
+    "kategorieWaehlen": "Kategorie wählen:",
+    "bitteWaehlen": "Bitte wählen…",
+    "fotDateiname": "Foto-Dateiname:",
+    "produktSpeichern": "Produkt speichern",
+    "newsTitel": "Überschrift der News (DE):",
+    "newsBeschreibung": "Beschreibung (DE):",
+    "newsTitelIt": "Überschrift der News (IT):",
+    "newsBeschreibungIt": "Beschreibung (IT):",
+    "newsSpeichern": "News speichern",
+    "bitteKategorie": "Bitte eine Kategorie wählen!",
+    "bitteFoto": "Bitte einen Foto-Dateinamen angeben!",
+    "dbNichtVerbunden": "Datenbank ist noch nicht verbunden. Kann erst gespeichert werden, wenn die Datenbank aktiv ist."
+  },
+  "LanguageToggle": {
+    "switchTo": "IT"
+  }
+}
