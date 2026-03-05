@@ -41,7 +41,7 @@ export default function NewsPage() {
       <div className="mx-auto max-w-4xl px-6 py-12">
         <div
           ref={cardRef}
-          className="overflow-hidden rounded-2xl border-l-4 border-[#5A759E] bg-white p-8 shadow-sm"
+          className="overflow-hidden rounded-lg border-l-4 border-[#5A759E] bg-white p-8 shadow-sm"
         >
           <p className="mb-4 text-[16px] font-semibold leading-relaxed text-[#1A1A2E]">
             {t("oeffnungszeiten")}

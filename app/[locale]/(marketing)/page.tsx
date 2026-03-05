@@ -78,7 +78,7 @@ export default function HomePage() {
                 const el = document.getElementById("produkte-section");
                 if (el) el.scrollIntoView({ behavior: "smooth" });
               }}
-              className="inline-block cursor-pointer rounded-full border-none bg-white px-8 py-3.5 text-[15px] font-semibold text-[#3A537E] shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+              className="inline-block cursor-pointer rounded-md border-none bg-white px-8 py-3.5 text-[15px] font-semibold text-[#3A537E] shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
             >
               {t("mehrErfahren")}
             </button>
@@ -92,14 +92,14 @@ export default function HomePage() {
           <h2 className="mb-3 text-center text-sm font-semibold uppercase tracking-[0.15em] text-[#5A759E]">
             {t("unsereProdukte")}
           </h2>
-          <div className="mx-auto mb-12 h-[3px] w-12 rounded-full bg-[#5A759E]" />
+          <div className="mx-auto mb-12 h-[3px] w-12 rounded-md bg-[#5A759E]" />
           <div ref={productsRef} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {PRODUCT_CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
                 href={{ pathname: "/produkte/[slug]", params: { slug: cat.slug } }}
                 data-card
-                className="group relative overflow-hidden rounded-2xl bg-white no-underline shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-lg bg-white no-underline shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <Image
@@ -129,8 +129,8 @@ export default function HomePage() {
           <h2 className="mb-3 text-center text-sm font-semibold uppercase tracking-[0.15em] text-[#5A759E]">
             {t("unserTeam")}
           </h2>
-          <div className="mx-auto mb-10 h-[3px] w-12 rounded-full bg-[#5A759E]" />
-          <div className="overflow-hidden rounded-2xl shadow-lg">
+          <div className="mx-auto mb-10 h-[3px] w-12 rounded-md bg-[#5A759E]" />
+          <div className="overflow-hidden rounded-lg shadow-lg">
             <Image
               src="/images/home/team.jpg"
               alt={t("unserTeam")}
@@ -141,6 +141,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   );
 }

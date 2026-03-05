@@ -31,7 +31,11 @@
     "breadcrumbHome": "Home",
     "breadcrumbProdukte": "Prodotti"
   },
-
+  "ProductsOverview": {
+    "heroTitle": "Il nostro mondo di prodotti",
+    "heroSubtitle": "Scoprite il nostro vasto assortimento – dalla ferramenta agli articoli per la casa, fino agli attrezzi da giardino e agli elettrodomestici.",
+    "sectionTitle": "Tutte le categorie"
+  },
   "Footer": {
     "kontakt": "Contatto",
     "adresse": "Via Roma 31/A Merano",

@@ -11,10 +11,11 @@ export default defineSchema({
   produkte: defineTable({
     name: v.string(),
     beschreibung: v.string(),
-    foto: v.string(),
+    foto: v.id("_storage"),
     nameIt: v.string(),
     beschreibungIt: v.string(),
     kategorieId: v.id("kategorien"),
+    slug: v.string(),
   }).index("by_kategorie", ["kategorieId"]),
 
   news: defineTable({

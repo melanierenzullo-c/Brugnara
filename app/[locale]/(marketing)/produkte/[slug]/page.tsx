@@ -1,56 +1,20 @@
 "use client";
 
 import Image from "next/image";
+
 import { Link } from "@/i18n/navigation";
 import { use, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Locale } from "@/i18n/routing";
 
-const CATEGORY_MAP: Record<string, string> = {
-  eisenwaren: "eisenwaren",
-  haushaltsartikel: "haushaltsartikel",
-  werkzeug: "werkzeug",
-  elektrogeraete: "elektrogeraete",
-  gartengeraete: "gartengeraete",
-  "oefen-herde": "oefen-herde",
-};
-
-interface LocalizedString {
-  de: string;
-  it: string;
-}
-
-interface ProductData {
-  name: LocalizedString;
-  beschreibung: LocalizedString;
-  foto: string;
-}
-
-const STATIC_PRODUKTE: Record<string, ProductData[]> = {
-  eisenwaren: [
-    { name: { de: "Vorhangschlösser", it: "Lucchetti" }, beschreibung: { de: "Robuste und zuverlässige Schlösser für Schutz und Sicherheit.", it: "Lucchetti robusti e affidabili per protezione e sicurezza." }, foto: "1765552153_Schlösser.jpeg" },
-    { name: { de: "Schlüsselanhänger", it: "Portachiavi" }, beschreibung: { de: "Praktisch und stilvoll – perfekt, um Schlüssel sicher zu organisieren.", it: "Pratici e stilosi – perfetti per organizzare le chiavi in modo sicuro." }, foto: "1765553526_Schlüsselanhänger.jpeg" },
-    { name: { de: "Taschenlampen", it: "Torce" }, beschreibung: { de: "Helle und zuverlässige Lichtquelle für Zuhause, Outdoor oder Notfälle.", it: "Fonte di luce brillante e affidabile per casa, outdoor o emergenze." }, foto: "1765553682_Taschenlampen .jpeg" },
-    { name: { de: "Atac", it: "Atac" }, beschreibung: { de: "Vielseitige Befestigungslösungen für Holz, Metall, Kunststoff und mehr.", it: "Soluzioni di fissaggio versatili per legno, metallo, plastica e altro." }, foto: "1765555041_Atack.jpeg" },
-  ],
-  werkzeug: [
-    { name: { de: "Schraubenzieher", it: "Cacciaviti" }, beschreibung: { de: "Präzise und langlebige Werkzeuge für Heim und Profi.", it: "Strumenti precisi e durevoli per casa e professionisti." }, foto: "1765552411_Schraubenzieher.jpeg" },
-    { name: { de: "Steckschlüsselsatz", it: "Set di chiavi a bussola" }, beschreibung: { de: "Robuste und vielseitige Steckschlüssel.", it: "Chiavi a bussola robuste e versatili." }, foto: "1765556528_Set .jpeg" },
-    { name: { de: "Inbusschlüssel Set", it: "Set chiavi a brugola" }, beschreibung: { de: "Robustes und praktisches Set für präzise Schraubarbeiten.", it: "Set robusto e pratico per lavori di avvitamento precisi." }, foto: "1765635276_Imbusschlüsselset.jpeg" },
-  ],
-  gartengeraete: [
-    { name: { de: "Gartenhandschuhe", it: "Guanti da giardino" }, beschreibung: { de: "Bequeme und robuste Handschuhe zum Schutz bei Gartenarbeiten.", it: "Guanti comodi e robusti per la protezione durante i lavori in giardino." }, foto: "1765635778_Handschuhe .jpeg" },
-  ],
-  haushaltsartikel: [
-    { name: { de: "Servietten", it: "Tovaglioli" }, beschreibung: { de: "Praktische und saugfähige Servietten.", it: "Tovaglioli pratici e assorbenti." }, foto: "1765635879_Servietten .jpeg" },
-    { name: { de: "Stechformen für Kekse", it: "Formine per biscotti" }, beschreibung: { de: "Praktische Ausstechformen zum Backen.", it: "Formine pratiche per preparare biscotti." }, foto: "1765636075_Stechformen .jpeg" },
-    { name: { de: "Glücksbringer", it: "Portafortuna" }, beschreibung: { de: "Kleine Geschenkideen mit symbolischer Bedeutung.", it: "Piccole idee regalo dal significato simbolico." }, foto: "1765636135_Glücksbringer.jpeg" },
-  ],
-  elektrogeraete: [],
-  "oefen-herde": [],
-};
+/**
+ * Product detail page – shows all products for a given category slug.
+ * Data is fetched in real-time from the Convex database.
+ */
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -63,9 +27,21 @@ export default function ProduktePage({ params }: ProductPageProps) {
   const locale = useLocale() as Locale;
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const categoryKey = CATEGORY_MAP[slug] ?? slug;
-  const categoryName = tCat(categoryKey);
-  const produkte = STATIC_PRODUKTE[slug] ?? [];
+  /* Fetch category by slug to get its _id and display name */
+  const kategorie = useQuery(api.kategorien.getBySlug, { slug });
+
+  /* Fetch all products for this category (skip if kategorie not loaded yet) */
+  const produkte = useQuery(
+    api.produkte.listByKategorie,
+    kategorie ? { kategorieId: kategorie._id } : "skip"
+  );
+
+  /* Determine the localised category name */
+  const categoryName = kategorie
+    ? locale === "it"
+      ? kategorie.nameIt
+      : kategorie.name
+    : tCat(slug);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -92,7 +68,7 @@ export default function ProduktePage({ params }: ProductPageProps) {
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
-  }, []);
+  }, [produkte]);
 
   return (
     <div className="min-h-screen bg-[#F4F6F9]">
@@ -106,7 +82,9 @@ export default function ProduktePage({ params }: ProductPageProps) {
               {t("breadcrumbHome")}
             </Link>
             <span>|</span>
-            <span>{t("breadcrumbProdukte")}</span>
+            <Link href="/produkte" className="text-white/60 no-underline transition-colors hover:text-white">
+              {t("breadcrumbProdukte")}
+            </Link>
             <span>|</span>
             <span className="font-semibold text-white">{categoryName}</span>
           </nav>
@@ -118,31 +96,50 @@ export default function ProduktePage({ params }: ProductPageProps) {
 
       {/* Product grid */}
       <div className="mx-auto max-w-6xl px-6 py-12">
-        {produkte.length === 0 ? (
+        {produkte === undefined ? (
+          /* Loading state */
+          <p className="py-20 text-center text-lg text-[#6B7280]">
+            {t("loading")}
+          </p>
+        ) : produkte.length === 0 ? (
           <p className="py-20 text-center text-lg text-[#6B7280]">
             {t("noProducts")}
           </p>
         ) : (
           <div ref={gridRef} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {produkte.map((produkt, index) => (
-              <div
-                key={index}
-                data-card
-                className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="flex aspect-[4/3] w-full items-center justify-center bg-gray-50">
-                  <span className="text-gray-300">📷 {produkt.name[locale]}</span>
+            {produkte.map((produkt) => {
+              const productName = locale === "it" ? produkt.nameIt : produkt.name;
+              return (
+                <div
+                  key={produkt._id}
+                  data-card
+                  className="group overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="relative mb-4 aspect-square w-full overflow-hidden rounded-md bg-[#F0F4F8]">
+                    {produkt.imageUrl ? (
+                      <Image
+                        src={produkt.imageUrl}
+                        alt={productName || 'Produktbild'}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-[#A5BDD8] opacity-50">
+                        {productName ? productName.substring(0, 1).toUpperCase() : 'P'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-5">
+                    <h4 className="mb-2 text-lg font-bold text-[#1A1A2E]">
+                      {productName}
+                    </h4>
+                    <p className="text-[14px] leading-relaxed text-[#6B7280]">
+                      {locale === "it" ? produkt.beschreibungIt : produkt.beschreibung}
+                    </p>
+                  </div>
                 </div>
-                <div className="p-5">
-                  <h4 className="mb-2 text-lg font-bold text-[#1A1A2E]">
-                    {produkt.name[locale]}
-                  </h4>
-                  <p className="text-[14px] leading-relaxed text-[#6B7280]">
-                    {produkt.beschreibung[locale]}
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -4,11 +4,21 @@ import { v } from "convex/values";
 export const listByKategorie = query({
   args: { kategorieId: v.id("kategorien") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const produkte = await ctx.db
       .query("produkte")
       .withIndex("by_kategorie", (q) => q.eq("kategorieId", args.kategorieId))
-      .order("desc")
       .collect();
+
+    // Attach the resolved image URL to each product
+    return Promise.all(
+      produkte.map(async (produkt) => {
+        const imageUrl = await ctx.storage.getUrl(produkt.foto);
+        return {
+          ...produkt,
+          imageUrl,
+        };
+      })
+    );
   },
 });
 
@@ -16,10 +26,11 @@ export const create = mutation({
   args: {
     name: v.string(),
     beschreibung: v.string(),
-    foto: v.string(),
+    foto: v.id("_storage"),
     nameIt: v.string(),
     beschreibungIt: v.string(),
     kategorieId: v.id("kategorien"),
+    slug: v.string(),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("produkte", {
@@ -29,6 +40,7 @@ export const create = mutation({
       nameIt: args.nameIt,
       beschreibungIt: args.beschreibungIt,
       kategorieId: args.kategorieId,
+      slug: args.slug,
     });
   },
 });

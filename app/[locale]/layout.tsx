@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { getMessages } from "next-intl/server";
 import { GsapProvider } from "@/components/gsap-provider";
+import { ConvexClientProvider } from "@/components/convex-client-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,12 +36,15 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <html lang={locale}>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <NextIntlClientProvider messages={messages}>
-          <GsapProvider>
-            {children}
-          </GsapProvider>
-        </NextIntlClientProvider>
+        <ConvexClientProvider>
+          <NextIntlClientProvider messages={messages}>
+            <GsapProvider>
+              {children}
+            </GsapProvider>
+          </NextIntlClientProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   );
 }
+

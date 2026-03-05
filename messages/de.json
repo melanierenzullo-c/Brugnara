@@ -31,7 +31,11 @@
     "breadcrumbHome": "Home",
     "breadcrumbProdukte": "Produkte"
   },
-
+  "ProductsOverview": {
+    "heroTitle": "Unsere Produktwelt",
+    "heroSubtitle": "Entdecken Sie unser vielfältiges Sortiment – von Eisenwaren über Haushaltsartikel bis hin zu Gartengeräten und Elektrogeräten.",
+    "sectionTitle": "Alle Kategorien"
+  },
   "Footer": {
     "kontakt": "Kontakt",
     "adresse": "Romstraße 31/A Meran",

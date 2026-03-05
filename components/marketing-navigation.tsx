@@ -37,7 +37,6 @@ export function MarketingNavigation() {
     const newLocale = locale === "de" ? "it" : "de";
     if (params?.slug) {
       router.replace(
-        // @ts-expect-error -- next-intl typing expects exact pathname literals
         { pathname: "/produkte/[slug]", params: { slug: params.slug as string } },
         { locale: newLocale }
       );
@@ -50,9 +49,8 @@ export function MarketingNavigation() {
   return (
     <>
       <header
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
-          scrolled ? "bg-white shadow-md" : "bg-white/95 backdrop-blur-md"
-        }`}
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${scrolled ? "bg-white shadow-md" : "bg-white/95 backdrop-blur-md"
+          }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
           {/* Logo */}
@@ -97,11 +95,10 @@ export function MarketingNavigation() {
 
               {/* Dropdown panel */}
               <div
-                className={`absolute left-1/2 top-full pt-2 transition-all duration-200 ${
-                  dropdownOpen
+                className={`absolute left-1/2 top-full pt-2 transition-all duration-200 ${dropdownOpen
                     ? "pointer-events-auto -translate-x-1/2 translate-y-0 opacity-100"
                     : "pointer-events-none -translate-x-1/2 -translate-y-2 opacity-0"
-                }`}
+                  }`}
               >
                 <div className="grid w-[480px] grid-cols-2 gap-1 rounded-2xl border border-gray-100 bg-white p-3 shadow-2xl">
                   {PRODUCT_CATEGORIES.map((cat) => (
@@ -113,10 +110,10 @@ export function MarketingNavigation() {
                     >
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#5A759E]/10 text-[16px]">
                         {cat.slug === "eisenwaren" ? "🔧" :
-                         cat.slug === "haushaltsartikel" ? "🏠" :
-                         cat.slug === "werkzeug" ? "🛠️" :
-                         cat.slug === "elektrogeraete" ? "⚡" :
-                         cat.slug === "gartengeraete" ? "🌿" : "🔥"}
+                          cat.slug === "haushaltsartikel" ? "🏠" :
+                            cat.slug === "werkzeug" ? "🛠️" :
+                              cat.slug === "elektrogeraete" ? "⚡" :
+                                cat.slug === "gartengeraete" ? "🌿" : "🔥"}
                       </span>
                       {tCat(cat.slug)}
                     </Link>
@@ -131,17 +128,15 @@ export function MarketingNavigation() {
             <div className="ml-4 flex overflow-hidden rounded-full border border-[#3A537E]/15 bg-[#F4F6F9]">
               <button
                 onClick={locale === "it" ? switchLocale : undefined}
-                className={`cursor-pointer border-none px-3.5 py-1.5 text-[12px] font-bold tracking-wide transition-all duration-200 ${
-                  locale === "de" ? "bg-[#3A537E] text-white shadow-sm" : "bg-transparent text-[#3A537E]/60 hover:text-[#3A537E]"
-                }`}
+                className={`cursor-pointer border-none px-3.5 py-1.5 text-[12px] font-bold tracking-wide transition-all duration-200 ${locale === "de" ? "bg-[#3A537E] text-white shadow-sm" : "bg-transparent text-[#3A537E]/60 hover:text-[#3A537E]"
+                  }`}
               >
                 DE
               </button>
               <button
                 onClick={locale === "de" ? switchLocale : undefined}
-                className={`cursor-pointer border-none px-3.5 py-1.5 text-[12px] font-bold tracking-wide transition-all duration-200 ${
-                  locale === "it" ? "bg-[#3A537E] text-white shadow-sm" : "bg-transparent text-[#3A537E]/60 hover:text-[#3A537E]"
-                }`}
+                className={`cursor-pointer border-none px-3.5 py-1.5 text-[12px] font-bold tracking-wide transition-all duration-200 ${locale === "it" ? "bg-[#3A537E] text-white shadow-sm" : "bg-transparent text-[#3A537E]/60 hover:text-[#3A537E]"
+                  }`}
               >
                 IT
               </button>
