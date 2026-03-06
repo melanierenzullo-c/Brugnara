@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
+import { requireEmployeeOrAdmin } from "./authz";
 
 export const listByKategorie = query({
   args: { kategorieId: v.id("kategorien") },
@@ -33,6 +34,13 @@ export const create = mutation({
     slug: v.string(),
   },
   handler: async (ctx, args) => {
+    await requireEmployeeOrAdmin(ctx);
+
+    const slug = args.slug.trim();
+    if (!slug) {
+      throw new ConvexError("slug required");
+    }
+
     return await ctx.db.insert("produkte", {
       name: args.name,
       beschreibung: args.beschreibung,
@@ -40,7 +48,7 @@ export const create = mutation({
       nameIt: args.nameIt,
       beschreibungIt: args.beschreibungIt,
       kategorieId: args.kategorieId,
-      slug: args.slug,
+      slug,
     });
   },
 });

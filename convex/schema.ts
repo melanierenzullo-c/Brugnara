@@ -2,6 +2,31 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  users: defineTable({
+    authUserId: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+    role: v.union(v.literal("admin"), v.literal("employee")),
+    disabled: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_auth_user_id", ["authUserId"])
+    .index("by_email", ["email"]),
+
+  invites: defineTable({
+    email: v.string(),
+    role: v.union(v.literal("admin"), v.literal("employee")),
+    tokenHash: v.string(),
+    expiresAt: v.number(),
+    createdAt: v.number(),
+    createdByUserId: v.optional(v.id("users")),
+    usedAt: v.optional(v.number()),
+    usedByAuthUserId: v.optional(v.string()),
+  })
+    .index("by_token_hash", ["tokenHash"])
+    .index("by_email", ["email"]),
+
   kategorien: defineTable({
     name: v.string(),
     nameIt: v.string(),

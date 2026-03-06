@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "../globals.css";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
@@ -7,12 +6,7 @@ import { routing } from "@/i18n/routing";
 import { getMessages } from "next-intl/server";
 import { GsapProvider } from "@/components/gsap-provider";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+import { getToken } from "@/lib/auth-server";
 
 export const metadata: Metadata = {
   title: "M. Brugnara GmbH",
@@ -32,19 +26,19 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
 
   const messages = await getMessages();
+  let initialToken: string | null = null;
+  try {
+    initialToken = await getToken();
+  } catch {
+    initialToken = null;
+  }
 
   return (
-    <html lang={locale}>
-      <body className={`${inter.variable} font-sans antialiased`}>
-        <ConvexClientProvider>
-          <NextIntlClientProvider messages={messages}>
-            <GsapProvider>
-              {children}
-            </GsapProvider>
-          </NextIntlClientProvider>
-        </ConvexClientProvider>
-      </body>
-    </html>
+    <ConvexClientProvider initialToken={initialToken}>
+      <NextIntlClientProvider messages={messages}>
+        <GsapProvider>{children}</GsapProvider>
+      </NextIntlClientProvider>
+    </ConvexClientProvider>
   );
 }
 

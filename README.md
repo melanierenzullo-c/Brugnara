@@ -34,7 +34,56 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# Brugnara" 
-"# Brugnara" 
-"# Brugnara" 
-"# Brugnara" 
+
+## Auth (Admin + Mitarbeiter)
+
+Dieses Projekt nutzt **Better Auth** als Auth-System, integriert über Convex.
+
+### Lokales Setup
+
+- **Next.js** starten:
+
+```bash
+npm run dev
+```
+
+- **Convex** starten (separates Terminal):
+
+```bash
+npx convex dev
+```
+
+### Environment Variablen
+
+- **`/.env.local`** wird von `npx convex dev` erstellt und muss mindestens enthalten:
+  - `NEXT_PUBLIC_CONVEX_URL`
+  - `NEXT_PUBLIC_CONVEX_SITE_URL`
+  - `NEXT_PUBLIC_SITE_URL` (z.B. `http://localhost:3000`)
+
+- **Convex Environment** (Deployment-Variablen):
+  - `SITE_URL` (z.B. `http://localhost:3000`)
+  - `BETTER_AUTH_SECRET` (random secret)
+  - `INITIAL_ADMIN_EMAIL` (E-Mail, die den ersten Admin bootstrappen darf)
+
+Beispiel:
+
+```bash
+npx convex env set SITE_URL http://localhost:3000
+npx convex env set BETTER_AUTH_SECRET "<random-secret>"
+npx convex env set INITIAL_ADMIN_EMAIL "admin@example.com"
+```
+
+### Rollenmodell
+
+- **Admin**:
+  - kann Mitarbeiter einladen, aktivieren/deaktivieren
+  - kann alle Admin-Funktionen ausführen
+- **Mitarbeiter**:
+  - kann Produkte anlegen (z.B. `/admin/produkte`)
+  - kann keine Mitarbeiter verwalten
+
+### Invite Flow
+
+1. Admin erstellt Invite unter `/admin/mitarbeiter`
+2. Mitarbeiter öffnet den Link `/accept-invite?token=...` und erstellt ein Konto
+3. Danach ist Zugriff auf `/admin/**` möglich (Role-basierte Beschränkungen greifen serverseitig)

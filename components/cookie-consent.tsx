@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 const COOKIE_NAME = "cookieConsent";
 const COOKIE_MAX_AGE_DAYS = 30;
@@ -36,9 +37,12 @@ export function CookieConsent() {
       <div className="mt-4">
         <p className="text-[#333]">
           {t("text")}{" "}
-          <a href="/impressum" className="text-[#4070f4] no-underline hover:underline">
+          <Link
+            href="/impressum"
+            className="text-[#4070f4] no-underline hover:underline"
+          >
             {t("readMore")}
-          </a>
+          </Link>
         </p>
       </div>
       <div className="mt-4 flex items-center justify-between gap-4">

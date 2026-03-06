@@ -7,6 +7,7 @@ export const config = {
   matcher: [
     "/",
     "/(de|it)/:path*",
-    "/((?!_next|_vercel|.*\\..*).*)"
+    // Alle Routen außer API, Next-Interna und statischen Dateien
+    "/((?!api|_next|_vercel|.*\\..*).*)",
   ],
 };

@@ -125,7 +125,7 @@ export default function ImpressumPage() {
             • Auskunft über deine gespeicherten personenbezogenen Daten
             <br />
             • Berichtigung oder Löschung deiner Daten („Recht auf
-            Vergessenwerden")
+            Vergessenwerden“)
             <br />
             • Einschränkung oder Widerspruch gegen die Verarbeitung
             <br />

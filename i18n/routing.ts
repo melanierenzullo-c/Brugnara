@@ -16,6 +16,7 @@ export const routing = defineRouting({
     },
 
     "/impressum": "/impressum",
+    "/login": "/login",
     "/admin": "/admin",
     "/admin/produkte": {
       de: "/admin/produkte",
@@ -25,6 +26,11 @@ export const routing = defineRouting({
       de: "/admin/news",
       it: "/admin/notizie",
     },
+    "/admin/mitarbeiter": {
+      de: "/admin/mitarbeiter",
+      it: "/admin/dipendenti",
+    },
+    "/accept-invite": "/accept-invite",
   },
 });
 

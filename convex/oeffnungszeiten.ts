@@ -1,5 +1,6 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdmin } from "./authz";
 
 export const update = mutation({
     args: {
@@ -11,6 +12,7 @@ export const update = mutation({
         geschlossen: v.boolean(),
     },
     handler: async (ctx, args) => {
+        await requireAdmin(ctx);
         // Check if the entry for this day already exists.
         const existing = await ctx.db
             .query("oeffnungszeiten")
