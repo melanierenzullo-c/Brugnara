@@ -72,30 +72,40 @@ export default function ProduktePage({ params }: ProductPageProps) {
 
   return (
     <div className="min-h-screen bg-[#F4F6F9]">
-      {/* Category hero banner */}
-      <div className="relative flex h-[30vh] items-end overflow-hidden bg-[#3A537E]">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#3A537E] to-[#5A759E]" />
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-8">
+      {/* ═══ Category hero banner ═══ */}
+      <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-16">
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
           {/* Breadcrumb */}
-          <nav className="mb-3 flex items-center gap-2 text-[14px] text-white/60">
-            <Link href="/" className="text-white/60 no-underline transition-colors hover:text-white">
+          <nav className="mb-8 flex items-center gap-3 text-[12px] font-bold uppercase tracking-widest text-muted-foreground/60">
+            <Link href="/" className="transition-colors hover:text-primary">
               {t("breadcrumbHome")}
             </Link>
-            <span>|</span>
-            <Link href="/produkte" className="text-white/60 no-underline transition-colors hover:text-white">
+            <span className="opacity-30">/</span>
+            <Link href="/produkte" className="transition-colors hover:text-primary">
               {t("breadcrumbProdukte")}
             </Link>
-            <span>|</span>
-            <span className="font-semibold text-white">{categoryName}</span>
+            <span className="opacity-30">/</span>
+            <span className="text-primary">{categoryName}</span>
           </nav>
-          <h1 className="text-3xl font-bold text-white sm:text-4xl">
-            {categoryName}
-          </h1>
-        </div>
-      </div>
 
-      {/* Product grid */}
-      <div className="mx-auto max-w-6xl px-6 py-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient">
+              {categoryName}
+            </h1>
+            <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 h-fit">
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+                {produkte?.length || 0} Produkte gefunden
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="relative mx-auto max-w-6xl px-6 py-20 pb-40">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-border to-transparent" />
         {produkte === undefined ? (
           /* Loading state */
           <p className="py-20 text-center text-lg text-[#6B7280]">
@@ -113,27 +123,28 @@ export default function ProduktePage({ params }: ProductPageProps) {
                 <div
                   key={produkt._id}
                   data-card
-                  className="group overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                  className="group relative overflow-hidden rounded-[2.5rem] bg-white border border-border/50 p-4 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] hover:border-primary/20"
                 >
-                  <div className="relative mb-4 aspect-square w-full overflow-hidden rounded-md bg-[#F0F4F8]">
+                  <div className="relative aspect-square w-full overflow-hidden rounded-[1.8rem] bg-[#F8FAFC]">
                     {produkt.imageUrl ? (
                       <Image
                         src={produkt.imageUrl}
                         alt={productName || 'Produktbild'}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="object-contain p-6 transition-transform duration-700 group-hover:scale-110"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-[#A5BDD8] opacity-50">
+                      <div className="flex h-full w-full items-center justify-center text-4xl font-black text-primary/10">
                         {productName ? productName.substring(0, 1).toUpperCase() : 'P'}
                       </div>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                   </div>
-                  <div className="p-5">
-                    <h4 className="mb-2 text-lg font-bold text-[#1A1A2E]">
+                  <div className="px-4 py-8">
+                    <h4 className="mb-3 text-xl font-bold text-foreground">
                       {productName}
                     </h4>
-                    <p className="text-[14px] leading-relaxed text-[#6B7280]">
+                    <p className="text-[15px] leading-relaxed text-muted-foreground font-medium">
                       {locale === "it" ? produkt.beschreibungIt : produkt.beschreibung}
                     </p>
                   </div>

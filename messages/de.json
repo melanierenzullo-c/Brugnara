@@ -3,6 +3,7 @@
     "home": "Home",
     "produkte": "Produkte",
     "admin": "Admin",
+    "entdecken": "Entdecken",
     "backToHome": "Zurück zur Startseite"
   },
   "ProductCategories": {
@@ -22,6 +23,7 @@
     "dienstleistungen": "Hochwertige Dienstleistungen und Produkte",
     "bekannt": "Landesweit bekannt",
     "unsereProdukte": "Unsere Produkte",
+    "entdecken": "Entdecken",
     "unserTeam": "Unser Team"
   },
   "Products": {

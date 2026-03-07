@@ -15,6 +15,11 @@ export const routing = defineRouting({
       it: "/prodotti/[slug]",
     },
 
+    "/news": {
+      de: "/news",
+      it: "/novita",
+    },
+    "/marken": "/marken",
     "/impressum": "/impressum",
     "/login": "/login",
     "/admin": "/admin",

@@ -1,158 +1,98 @@
 export default function ImpressumPage() {
   return (
-    <div className="bg-[#5A759E]">
-      <div className="mx-auto min-h-screen px-5 py-5 lg:w-[80%]">
-        <br />
-        <h1 className="text-center text-white">📄 Impressum</h1>
-
-        <div className="mx-12 text-white">
-          <h5 className="text-[1.7em]">
-            M. Brugnara GmbH
-            <br />
-            📍 Romstraße 31/A
-            <br />
-            📞 0473 232523
-            <br />
-            📧 info@brugnara.bz.it
-            <br />
-            Steuernummer / Mehrwertsteuer-Nummer (Partita IVA): 00035170216
-            <br />
-            Handelsregister / Wirtschaftskammer (Registro delle Imprese)
-            <br />
-            Verantwortliche: Beatrix Brugnara
-          </h5>
+    <div className="min-h-screen bg-[#fafbff]">
+      {/* ═══ Header ═══ */}
+      <section className="relative overflow-hidden bg-background pt-32 pb-20">
+        <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-6">
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Rechtliches</span>
+          </div>
+          <h1 className="mb-6 text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient">
+            Impressum & Datenschutz
+          </h1>
         </div>
+      </section>
 
-        <br />
-        <h1 className="text-center text-white">
-          🛡️ Datenschutzerklärung (gemäß EU-Verordnung 2016/679 – DSGVO)
-        </h1>
-        <br />
+      {/* ═══ Content ═══ */}
+      <div className="mx-auto max-w-4xl px-6 pb-32">
+        <div className="space-y-12">
 
-        <div className="mx-12 text-white">
-          <h5 className="text-[1.7em]">
-            1. Verantwortlicher für die Datenverarbeitung
-          </h5>
-          <p className="mx-12">
-            Verantwortlich für die Verarbeitung der personenbezogenen Daten ist:
-            M. Brugnara
-            <br />
-            Adresse: Romstraße 31/A
-            <br />
-            E-Mail: info@brugnara.bz.it
-          </p>
+          {/* Impressum Card */}
+          <div className="rounded-[2.5rem] bg-white border border-border/50 p-8 sm:p-12 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.05)]">
+            <h2 className="mb-10 flex items-center gap-3 text-2xl font-black text-foreground">
+              <span className="p-2 rounded-xl bg-primary/10">📄</span>
+              Impressum
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-10">
+              <div className="space-y-6">
+                <div>
+                  <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-primary mb-2">Unternehmen</span>
+                  <p className="text-lg font-bold text-foreground">M. Brugnara GmbH</p>
+                  <p className="text-muted-foreground">Romstraße 31/A, Meran</p>
+                </div>
+                <div>
+                  <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-primary mb-2">Kontakt</span>
+                  <p className="text-foreground font-medium">📞 0473 232523</p>
+                  <p className="text-foreground font-medium">✉️ info@brugnara.bz.it</p>
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-primary mb-2">Steuern</span>
+                  <p className="text-muted-foreground">MwSt-Nr: 00035170216</p>
+                  <p className="text-muted-foreground">Handelsregister BZ</p>
+                </div>
+                <div>
+                  <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-primary mb-2">Verantwortung</span>
+                  <p className="text-foreground font-medium text-lg">Beatrix Brugnara</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <h5 className="text-[1.7em]">2. Art der erhobenen Daten</h5>
-          <p className="mx-12">
-            Über diese Website können folgende personenbezogene Daten erhoben
-            werden:
-            <br />
-            • Identifikationsdaten (Name, E-Mail-Adresse, Telefonnummer)
-            <br />
-            • Technische Daten (IP-Adresse, Browsertyp, Besuchszeit, Cookies)
-            <br />• Freiwillig übermittelte Daten durch Kontaktformular oder
-            E-Mail
-          </p>
+          {/* Privacy Card */}
+          <div className="rounded-[2.5rem] bg-white border border-border/50 p-8 sm:p-12 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.05)]">
+            <h2 className="mb-10 flex items-center gap-3 text-2xl font-black text-foreground">
+              <span className="p-2 rounded-xl bg-primary/10">🛡️</span>
+              Datenschutzerklärung
+            </h2>
 
-          <h5 className="text-[1.7em]">3. Zweck der Datenverarbeitung</h5>
-          <p className="mx-12">
-            Die personenbezogenen Daten werden zu folgenden Zwecken verarbeitet:
-            <br />
-            • Beantwortung von Anfragen über das Kontaktformular oder per E-Mail
-            <br />
-            • Verbesserung der Funktionalität und Sicherheit der Website
-            <br />
-            • Erfüllung gesetzlicher oder vertraglicher Pflichten
-            <br />• Zusendung von Informationen oder Newslettern – nur mit
-            Zustimmung
-          </p>
+            <div className="prose prose-slate max-w-none text-muted-foreground leading-relaxed">
+              <p className="mb-8 font-medium">Gemäß EU-Verordnung 2016/679 – DSGVO</p>
 
-          <h5 className="text-[1.7em]">4. Rechtsgrundlage der Verarbeitung</h5>
-          <p className="mx-12">
-            Die Verarbeitung erfolgt auf Grundlage von:
-            <br />
-            • der Erfüllung eines Vertrags oder vorvertraglicher Maßnahmen
-            <br />
-            • der Erfüllung gesetzlicher Verpflichtungen
-            <br />• der Einwilligung der betroffenen Person (z. B. bei
-            Newslettern oder Cookies)
-          </p>
+              <div className="space-y-10">
+                <section>
+                  <h3 className="text-lg font-bold text-foreground mb-4">1. Verantwortlicher</h3>
+                  <p>M. Brugnara, Romstraße 31/A, Meran. E-Mail: info@brugnara.bz.it</p>
+                </section>
 
-          <h5 className="text-[1.7em]">
-            5. Art und Weise der Verarbeitung
-          </h5>
-          <p className="mx-12">
-            Die Daten werden mithilfe von elektronischen und/oder manuellen
-            Verfahren verarbeitet. Es werden geeignete technische und
-            organisatorische Sicherheitsmaßnahmen getroffen, um den Schutz der
-            Daten zu gewährleisten und unbefugten Zugriff zu verhindern.
-          </p>
+                <section>
+                  <h3 className="text-lg font-bold text-foreground mb-4">2. Art der Daten</h3>
+                  <p>Identifikationsdaten (Name, E-Mail, Telefon), Technische Daten (IP-Adresse, Cookies) und freiwillig übermittelte Daten.</p>
+                </section>
 
-          <h5 className="text-[1.7em]">6. Weitergabe von Daten</h5>
-          <p className="mx-12">
-            Die Daten können an folgende Empfänger weitergegeben werden:
-            <br />
-            • Mitarbeiter oder Dienstleister, die im Auftrag von M. Brugnara
-            tätig sind (z. B. Hosting-Provider)
-            <br />
-            • IT-Dienstleister und technische Partner
-            <br />
-            • Öffentliche Behörden, sofern dies gesetzlich vorgeschrieben ist
-            <br />
-            Es erfolgt keine Weitergabe an unbefugte Dritte.
-          </p>
+                <section>
+                  <h3 className="text-lg font-bold text-foreground mb-4">3. Zweck</h3>
+                  <p>Beantwortung von Anfragen, Verbesserung der Website, Erfüllung gesetzlicher Pflichten.</p>
+                </section>
 
-          <h5 className="text-[1.7em]">7. Übermittlung in Drittländer</h5>
-          <p className="mx-12">
-            Eine Übermittlung personenbezogener Daten außerhalb der Europäischen
-            Union findet nicht statt, es sei denn, es wird ein angemessenes
-            Datenschutzniveau gemäß Art. 46 DSGVO gewährleistet.
-          </p>
+                <section>
+                  <h3 className="text-lg font-bold text-foreground mb-4">4. Speicherdauer</h3>
+                  <p>Daten werden nur so lange gespeichert, wie es für den Zweck erforderlich oder gesetzlich vorgeschrieben ist.</p>
+                </section>
 
-          <h5 className="text-[1.7em]">8. Speicherdauer</h5>
-          <p className="mx-12">
-            Die personenbezogenen Daten werden nur so lange gespeichert, wie es
-            für die Zwecke ihrer Erhebung erforderlich ist oder wie es gesetzlich
-            vorgeschrieben ist.
-          </p>
+                <section>
+                  <h3 className="text-lg font-bold text-foreground mb-4">5. Ihre Rechte</h3>
+                  <p>Auskunft, Berichtigung, Löschung, Einschränkung, Widerspruch und Datenübertragbarkeit.</p>
+                </section>
+              </div>
+            </div>
 
-          <h5 className="text-[1.7em]">
-            9. Rechte der betroffenen Personen
-          </h5>
-          <p className="mx-12">
-            Du hast das Recht auf:
-            <br />
-            • Auskunft über deine gespeicherten personenbezogenen Daten
-            <br />
-            • Berichtigung oder Löschung deiner Daten („Recht auf
-            Vergessenwerden“)
-            <br />
-            • Einschränkung oder Widerspruch gegen die Verarbeitung
-            <br />
-            • Datenübertragbarkeit
-            <br />
-            • Widerruf einer erteilten Einwilligung jederzeit
-            <br />
-            Zur Ausübung dieser Rechte kannst du dich per E-Mail an
-            info@brugnara.it wenden.
-          </p>
-
-          <h5 className="text-[1.7em]">
-            10. Cookies und Tracking-Tools
-          </h5>
-          <p className="mx-12">
-            Diese Website verwendet technische Cookies, die für den Betrieb der
-            Seite notwendig sind. Wenn Analyse- oder Marketing-Cookies (z. B.
-            Google Analytics) verwendet werden, erfolgt dies nur nach vorheriger
-            Zustimmung durch den Nutzer. Weitere Informationen findest du in der
-            Cookie-Richtlinie.
-          </p>
-
-          <h5 className="text-[1.7em]">11. Aktualisierung</h5>
-          <p className="mx-12">
-            Diese Datenschutzerklärung wurde zuletzt aktualisiert am 10.10.2025.
-            Änderungen werden auf dieser Seite veröffentlicht.
-          </p>
+            <div className="mt-12 pt-8 border-t border-border/50 text-sm italic opacity-60">
+              Letzte Aktualisierung: 10.10.2025
+            </div>
+          </div>
         </div>
       </div>
     </div>

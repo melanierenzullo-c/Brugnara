@@ -3,6 +3,7 @@
     "home": "Home",
     "produkte": "Prodotti",
     "admin": "Admin",
+    "entdecken": "Scopri",
     "backToHome": "Torna alla pagina iniziale"
   },
   "ProductCategories": {
@@ -22,6 +23,7 @@
     "dienstleistungen": "Servizi e prodotti di alta qualità",
     "bekannt": "Conosciuti in tutto l'Alto Adige",
     "unsereProdukte": "I nostri prodotti",
+    "entdecken": "Scopri",
     "unserTeam": "Il nostro team"
   },
   "Products": {
