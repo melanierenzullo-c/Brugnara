@@ -93,36 +93,13 @@ export default function HomePage() {
             </span>
           </div>
 
-          <h1 data-animate className="mb-8 text-5xl font-black tracking-tight text-white sm:text-7xl lg:text-8xl leading-[1.05] drop-shadow-2xl">
+          <h1 data-animate className="mb-6 text-5xl font-black tracking-tight text-white sm:text-7xl lg:text-8xl leading-[1.05] drop-shadow-2xl">
             {t("heroTitle")}
           </h1>
 
-          <p data-animate className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl font-medium">
+          <p data-animate className="mx-auto max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl font-medium">
             {t("heroSubtitle")}
           </p>
-
-          <div data-animate className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <button
-              onClick={() => {
-                const el = document.getElementById("produkte-section");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-primary px-10 py-4 text-[16px] font-bold text-white shadow-2xl transition-all hover:scale-105 active:scale-95"
-            >
-              <span className="relative z-10">{t("mehrErfahren")}</span>
-              <svg className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-primary via-white/20 to-primary transition-transform duration-500 group-hover:translate-x-full" />
-            </button>
-
-            <Link
-              href="/news"
-              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-white/50 px-10 py-4 text-[16px] font-bold text-foreground backdrop-blur-md transition-all hover:bg-white/80 active:scale-95"
-            >
-              Aktuelles
-            </Link>
-          </div>
         </div>
       </section>
 

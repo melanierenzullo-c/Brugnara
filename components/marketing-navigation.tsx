@@ -269,7 +269,6 @@ export function MarketingNavigation() {
           </nav>
         </div>
       </header>
-      <div className="h-[76px] sm:h-[100px]" />
     </>
   );
 }
