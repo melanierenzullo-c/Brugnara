@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useTranslations } from "next-intl";
 
 export function OpeningHoursForm() {
   const [tag, setTag] = useState("Mo-Fr");
@@ -12,6 +13,7 @@ export function OpeningHoursForm() {
   const [bis2, setBis2] = useState("");
   const [geschlossen, setGeschlossen] = useState(false);
   const [meldung, setMeldung] = useState("");
+  const t = useTranslations("OpeningHoursForm");
 
   const updateHours = useMutation(api.oeffnungszeiten.update);
 
@@ -31,23 +33,19 @@ export function OpeningHoursForm() {
 
     if (!geschlossen) {
       if (!von1 && !bis1 && !von2 && !bis2) {
-        setMeldung(
-          "Bitte mindestens eine Öffnungszeit eingeben oder geschlossen auswählen!"
-        );
+        setMeldung(t("errorMissing"));
         return;
       }
       if ((von1 && !bis1) || (!von1 && bis1)) {
-        setMeldung("Bitte sowohl 'Vormittag von' als auch 'Vormittag bis' ausfüllen!");
+        setMeldung(t("errorMorning"));
         return;
       }
       if ((von2 && !bis2) || (!von2 && bis2)) {
-        setMeldung("Bitte sowohl 'Nachmittag von' als auch 'Nachmittag bis' ausfüllen!");
+        setMeldung(t("errorAfternoon"));
         return;
       }
       if ((von2 || bis2) && (!von1 || !bis1)) {
-        setMeldung(
-          "Nachmittagszeiten dürfen nur eingegeben werden, wenn Vormittagszeiten vorhanden sind!"
-        );
+        setMeldung(t("errorAfternoonSequence"));
         return;
       }
     }
@@ -61,7 +59,7 @@ export function OpeningHoursForm() {
       geschlossen,
     });
 
-    setMeldung("Öffnungszeiten wurden erfolgreich verändert!");
+    setMeldung(t("successUpdate"));
   };
 
   return (
@@ -74,19 +72,19 @@ export function OpeningHoursForm() {
           <p className="text-center font-bold">{meldung}</p>
         )}
 
-        <label>Tag:</label>
+        <label>{t("tagLabel")}</label>
         <select
           value={tag}
           onChange={(e) => setTag(e.target.value)}
           required
           className="w-full rounded p-2.5 text-[16px]"
         >
-          <option value="Mo-Fr">Montag bis Freitag</option>
-          <option value="Sa">Samstag</option>
-          <option value="So">Sonntag</option>
+          <option value="Mo-Fr">{t("monToFri")}</option>
+          <option value="Sa">{t("sat")}</option>
+          <option value="So">{t("sun")}</option>
         </select>
 
-        <label>Vormittag von:</label>
+        <label>{t("morningFrom")}</label>
         <input
           type="time"
           value={von1}
@@ -95,7 +93,7 @@ export function OpeningHoursForm() {
           className="w-full rounded p-2.5 text-[16px]"
         />
 
-        <label>Vormittag bis:</label>
+        <label>{t("morningTo")}</label>
         <input
           type="time"
           value={bis1}
@@ -104,7 +102,7 @@ export function OpeningHoursForm() {
           className="w-full rounded p-2.5 text-[16px]"
         />
 
-        <label>Nachmittag von:</label>
+        <label>{t("afternoonFrom")}</label>
         <input
           type="time"
           value={von2}
@@ -113,7 +111,7 @@ export function OpeningHoursForm() {
           className="w-full rounded p-2.5 text-[16px]"
         />
 
-        <label>Nachmittag bis:</label>
+        <label>{t("afternoonTo")}</label>
         <input
           type="time"
           value={bis2}
@@ -123,7 +121,7 @@ export function OpeningHoursForm() {
         />
 
         <div className="flex items-center gap-2.5">
-          <label htmlFor="geschlossen">Geschlossen</label>
+          <label htmlFor="geschlossen">{t("closed")}</label>
           <input
             type="checkbox"
             id="geschlossen"
@@ -133,15 +131,14 @@ export function OpeningHoursForm() {
         </div>
 
         <p className="text-center">
-          Zum Zurücksetzen der Zeiten einfach auf &quot;Geschlossen&quot;
-          doppelklicken.
+          {t("resetHint")}
         </p>
 
         <button
           type="submit"
           className="w-full cursor-pointer rounded bg-[#A5BDD8] p-2.5 text-[16px] transition-all hover:scale-105 hover:bg-[#B3D0EB]"
         >
-          Speichern
+          {t("save")}
         </button>
       </form>
     </div>

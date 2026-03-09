@@ -146,7 +146,7 @@ export default function ProdukteOverviewPage() {
                       {tCat(cat.slug)}
                     </h3>
                     <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                      Kollektion ansehen
+                      {t("viewCollection")}
                     </span>
                   </div>
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary/10 text-primary transition-all duration-500 group-hover:bg-primary group-hover:text-white group-hover:rotate-45">

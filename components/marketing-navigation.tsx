@@ -137,7 +137,7 @@ export function MarketingNavigation() {
                       className="flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-bold text-primary no-underline transition-all hover:bg-primary/5"
                       onClick={() => setDropdownOpen(false)}
                     >
-                      Alle Produkte ansehen
+                      {t("allProducts")}
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
@@ -243,7 +243,7 @@ export function MarketingNavigation() {
             </div>
 
             <div className="mt-4 border-t border-border/20 pt-4">
-              <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">Sprache</p>
+              <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">{t("language")}</p>
               {LANGUAGES.map((lang) => (
                 <button
                   key={lang.code}

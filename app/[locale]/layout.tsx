@@ -3,15 +3,20 @@ import "../globals.css";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import { GsapProvider } from "@/components/gsap-provider";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { getToken } from "@/lib/auth-server";
 
-export const metadata: Metadata = {
-  title: "M. Brugnara GmbH",
-  description: "M. Brugnara GmbH – Ihr Fachgeschäft in Meran für Eisenwaren, Haushalt, Werkzeug, Elektrogeräte, Gartengeräte, Öfen und Herde.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Metadata" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 interface LocaleLayoutProps {
   children: React.ReactNode;

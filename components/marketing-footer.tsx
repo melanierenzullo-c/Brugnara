@@ -5,9 +5,9 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 const STATIC_OEFFNUNGSZEITEN = [
-  { tag: "Mo-Fr", von1: "08:00", bis1: "12:00", von2: "14:30", bis2: "18:30", geschlossen: false },
-  { tag: "Sa", von1: "08:00", bis1: "12:00", von2: null, bis2: null, geschlossen: false },
-  { tag: "So", von1: null, bis1: null, von2: null, bis2: null, geschlossen: true },
+  { tag: "mondayToFriday", von1: "08:00", bis1: "12:00", von2: "14:30", bis2: "18:30", geschlossen: false },
+  { tag: "saturday", von1: "08:00", bis1: "12:00", von2: null, bis2: null, geschlossen: false },
+  { tag: "sunday", von1: null, bis1: null, von2: null, bis2: null, geschlossen: true },
 ];
 
 export function MarketingFooter() {
@@ -23,7 +23,7 @@ export function MarketingFooter() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
         <div className="grid gap-16 lg:grid-cols-12 lg:gap-12 border-b border-white/10 pb-20">
-          
+
           {/* Brand Info (Span 5) */}
           <div className="lg:col-span-4 flex flex-col gap-8">
             <Link href="/" className="inline-block transition-transform duration-300 hover:-translate-y-1 w-fit">
@@ -36,13 +36,13 @@ export function MarketingFooter() {
               />
             </Link>
             <p className="max-w-sm text-[16px] leading-relaxed text-white/60 font-medium tracking-wide">
-              Seit Generationen Ihr verlässlicher Fachhandel für Eisenwaren, Haushalt und Gartengeräte im Herzen von Meran.
+              {t("description")}
             </p>
-            <Link 
-              href="/produkte" 
+            <Link
+              href="/produkte"
               className="group inline-flex items-center gap-3 text-[14px] font-bold uppercase tracking-widest text-white/80 transition-all hover:text-primary mt-2"
             >
-              Zu den Produkten
+              {t("toProducts")}
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 transition-colors group-hover:bg-primary/20">
                 <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -94,11 +94,10 @@ export function MarketingFooter() {
               <div className="flex flex-col gap-4">
                 {STATIC_OEFFNUNGSZEITEN.map((zeit) => (
                   <div key={zeit.tag} className="flex justify-between items-center text-[15px] border-b border-white/5 pb-4 last:border-0 last:pb-0">
-                    <span className="font-bold text-white/90">{zeit.tag}</span>
+                    <span className="font-bold text-white/90">{t(zeit.tag)}</span>
                     <span className="text-white/60 font-medium">
                       {zeit.geschlossen ? (
-                        <span className="flex items-center gap-2 text-rose-400/90 text-[12px] font-bold tracking-[0.15em] uppercase px-3 py-1 bg-rose-500/10 rounded-lg">
-                          <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+                        <span className="flex items-center gap-2 text-rose-400/90 text-[12px] font-bold tracking-[0.15em] uppercase px-3 py-1 rounded-lg">
                           {t("geschlossen")}
                         </span>
                       ) : (
@@ -128,15 +127,15 @@ export function MarketingFooter() {
           <div className="flex items-center gap-4">
             <span>© {new Date().getFullYear()} M. Brugnara GmbH</span>
             <span className="hidden md:inline-block w-1.5 h-1.5 rounded-full bg-primary/40" />
-            <span className="hidden md:inline-block tracking-[0.15em] uppercase text-[11px] font-bold text-white/30">Meran</span>
+            <span className="hidden md:inline-block tracking-[0.15em] uppercase text-[11px] font-bold text-white/30">{t("city")}</span>
           </div>
 
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
-            <Link href="/marken" className="transition-colors hover:text-white">Marken</Link>
-            <Link href="/news" className="transition-colors hover:text-white">News</Link>
-            <Link href="/impressum" className="transition-colors hover:text-white">Datenschutz</Link>
-            <Link href="/impressum" className="transition-colors hover:text-white">Impressum</Link>
-            <Link href="/admin" className="transition-colors hover:text-primary">Admin</Link>
+            <Link href="/marken" className="transition-colors hover:text-white">{t("marken")}</Link>
+            <Link href="/news" className="transition-colors hover:text-white">{t("news")}</Link>
+            <Link href="/impressum" className="transition-colors hover:text-white">{t("datenschutz")}</Link>
+            <Link href="/impressum" className="transition-colors hover:text-white">{t("impressum")}</Link>
+            <Link href="/admin" className="transition-colors hover:text-primary">{t("admin")}</Link>
           </div>
         </div>
       </div>

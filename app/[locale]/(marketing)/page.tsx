@@ -69,15 +69,10 @@ export default function HomePage() {
             priority
             className="object-cover opacity-60 mix-blend-overlay"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
         </div>
 
-        {/* Animated Accents */}
-        <div className="absolute inset-0 z-0 opacity-50">
-          <div className="absolute -left-[10%] -top-[10%] h-[60%] w-[60%] rounded-full bg-primary/40 blur-[120px] animate-pulse" />
-          <div className="absolute -right-[10%] -bottom-[10%] h-[50%] w-[50%] rounded-full bg-secondary/30 blur-[100px] animate-pulse [animation-delay:2s]" />
-        </div>
 
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
@@ -113,7 +108,7 @@ export default function HomePage() {
               {t("unsereProdukte")}
             </h2>
             <h3 className="text-3xl font-black text-foreground sm:text-5xl tracking-tight">
-              Qualität für Haus & Handwerk
+              {t("qualityTitle")}
             </h3>
           </div>
 
@@ -164,10 +159,10 @@ export default function HomePage() {
                 {t("unserTeam")}
               </h2>
               <h3 className="mb-6 text-4xl font-black text-foreground sm:text-5xl tracking-tight">
-                Gemeinsam für Ihren Erfolg
+                {t("teamTitle")}
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                Seit Jahrzehnten stehen wir als Familienbetrieb in Meran für Kompetenz und Leidenschaft. Unser Team berät Sie fachkundig bei all Ihren Projekten.
+                {t("teamDescription")}
               </p>
 
             </div>

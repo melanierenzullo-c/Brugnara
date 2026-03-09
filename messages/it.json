@@ -4,7 +4,9 @@
     "produkte": "Prodotti",
     "admin": "Admin",
     "entdecken": "Scopri",
-    "backToHome": "Torna alla pagina iniziale"
+    "backToHome": "Torna alla pagina iniziale",
+    "allProducts": "Vedi tutti i prodotti",
+    "language": "Lingua"
   },
   "ProductCategories": {
     "eisenwaren": "Ferramenta",
@@ -24,7 +26,10 @@
     "bekannt": "Conosciuti in tutto l'Alto Adige",
     "unsereProdukte": "I nostri prodotti",
     "entdecken": "Scopri",
-    "unserTeam": "Il nostro team"
+    "unserTeam": "Il nostro team",
+    "qualityTitle": "Qualità per la casa e l'artigianato",
+    "teamTitle": "Insieme per il vostro successo",
+    "teamDescription": "Da decenni, come azienda familiare a Merano, siamo sinonimo di competenza e passione. Il nostro team vi fornirà una consulenza esperta per tutti i vostri progetti."
   },
   "Products": {
     "title": "Prodotti della categoria {category}",
@@ -36,7 +41,8 @@
   "ProductsOverview": {
     "heroTitle": "Il nostro mondo di prodotti",
     "heroSubtitle": "Scoprite il nostro vasto assortimento – dalla ferramenta agli articoli per la casa, fino agli attrezzi da giardino e agli elettrodomestici.",
-    "sectionTitle": "Tutte le categorie"
+    "sectionTitle": "Tutte le categorie",
+    "viewCollection": "Vedi collezione"
   },
   "Footer": {
     "kontakt": "Contatto",
@@ -45,7 +51,17 @@
     "email": "E-Mail: info@brugnara.bz.it",
     "oeffnungszeiten": "Orari di apertura",
     "geschlossen": "CHIUSO",
-    "impressum": "Impressum & Privacy"
+    "impressum": "Impressum",
+    "description": "Da generazioni il vostro negozio specializzato di fiducia per ferramenta, casalinghi e attrezzi da giardino nel cuore di Merano.",
+    "toProducts": "Ai prodotti",
+    "marken": "Marche",
+    "news": "Notizie",
+    "datenschutz": "Protezione dati",
+    "admin": "Admin",
+    "city": "Merano",
+    "mondayToFriday": "Lun-Ven",
+    "saturday": "Sab",
+    "sunday": "Dom"
   },
   "Cookies": {
     "title": "Cookies Consent",
@@ -115,5 +131,28 @@
   },
   "LanguageToggle": {
     "switchTo": "DE"
+  },
+  "OpeningHoursForm": {
+    "title": "Gestisci orari di apertura",
+    "tagLabel": "Giorno:",
+    "monToFri": "Lunedì al venerdì",
+    "sat": "Sabato",
+    "sun": "Domenica",
+    "morningFrom": "Mattina dalle:",
+    "morningTo": "Mattina alle:",
+    "afternoonFrom": "Pomeriggio dalle:",
+    "afternoonTo": "Pomeriggio alle:",
+    "closed": "Chiuso",
+    "resetHint": "Per azzerare gli orari, fare doppio clic su \"Chiuso\".",
+    "save": "Salva",
+    "errorMissing": "Inserire almeno un orario di apertura o selezionare chiuso!",
+    "errorMorning": "Compilare sia 'Mattina dalle' che 'Mattina alle'!",
+    "errorAfternoon": "Compilare sia 'Pomeriggio dalle' che 'Pomeriggio alle'!",
+    "errorAfternoonSequence": "Gli orari pomeridiani possono essere inseriti solo se sono presenti gli orari mattutini!",
+    "successUpdate": "Gli orari di apertura sono stati modificati con successo!"
+  },
+  "Metadata": {
+    "title": "M. Brugnara Srl",
+    "description": "M. Brugnara Srl – Il vostro negozio specializzato a Merano per ferramenta, casalinghi, utensili, elettrodomestici, attrezzi da giardino, stufe e cucine."
   }
 }

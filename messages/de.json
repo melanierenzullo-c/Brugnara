@@ -4,7 +4,9 @@
     "produkte": "Produkte",
     "admin": "Admin",
     "entdecken": "Entdecken",
-    "backToHome": "Zurück zur Startseite"
+    "backToHome": "Zurück zur Startseite",
+    "allProducts": "Alle Produkte ansehen",
+    "language": "Sprache"
   },
   "ProductCategories": {
     "eisenwaren": "Eisenwaren",
@@ -24,7 +26,10 @@
     "bekannt": "Landesweit bekannt",
     "unsereProdukte": "Unsere Produkte",
     "entdecken": "Entdecken",
-    "unserTeam": "Unser Team"
+    "unserTeam": "Unser Team",
+    "qualityTitle": "Qualität für Haus & Handwerk",
+    "teamTitle": "Gemeinsam für Ihren Erfolg",
+    "teamDescription": "Seit Jahrzehnten stehen wir als Familienbetrieb in Meran für Kompetenz und Leidenschaft. Unser Team berät Sie fachkundig bei all Ihren Projekten."
   },
   "Products": {
     "title": "Produkte der Kategorie {category}",
@@ -36,7 +41,8 @@
   "ProductsOverview": {
     "heroTitle": "Unsere Produktwelt",
     "heroSubtitle": "Entdecken Sie unser vielfältiges Sortiment – von Eisenwaren über Haushaltsartikel bis hin zu Gartengeräten und Elektrogeräten.",
-    "sectionTitle": "Alle Kategorien"
+    "sectionTitle": "Alle Kategorien",
+    "viewCollection": "Kollektion ansehen"
   },
   "Footer": {
     "kontakt": "Kontakt",
@@ -45,14 +51,24 @@
     "email": "E-Mail: info@brugnara.bz.it",
     "oeffnungszeiten": "Öffnungszeiten",
     "geschlossen": "GESCHLOSSEN",
-    "impressum": "Impressum & Datenschutz"
+    "impressum": "Impressum",
+    "description": "Seit Generationen Ihr verlässlicher Fachhandel für Eisenwaren, Haushalt und Gartengeräte im Herzen von Meran.",
+    "toProducts": "Zu den Produkten",
+    "marken": "Marken",
+    "news": "News",
+    "datenschutz": "Datenschutz",
+    "admin": "Admin",
+    "city": "Meran",
+    "mondayToFriday": "Mo-Fr",
+    "saturday": "Sa",
+    "sunday": "So"
   },
   "Cookies": {
-    "title": "Cookies Consent",
-    "text": "This website uses cookies to help you have a superior and more relevant browsing experience on the website.",
-    "readMore": "Read more...",
-    "accept": "Accept",
-    "decline": "Decline"
+    "title": "Cookie-Einwilligung",
+    "text": "Diese Website verwendet Cookies, um Ihnen ein erstklassiges und relevantes Surferlebnis auf der Website zu ermöglichen.",
+    "readMore": "Mehr lesen...",
+    "accept": "Akzeptieren",
+    "decline": "Ablehnen"
   },
   "Auth": {
     "loginTitle": "Login",
@@ -115,5 +131,28 @@
   },
   "LanguageToggle": {
     "switchTo": "IT"
+  },
+  "OpeningHoursForm": {
+    "title": "Öffnungszeiten verwalten",
+    "tagLabel": "Tag:",
+    "monToFri": "Montag bis Freitag",
+    "sat": "Samstag",
+    "sun": "Sonntag",
+    "morningFrom": "Vormittag von:",
+    "morningTo": "Vormittag bis:",
+    "afternoonFrom": "Nachmittag von:",
+    "afternoonTo": "Nachmittag bis:",
+    "closed": "Geschlossen",
+    "resetHint": "Zum Zurücksetzen der Zeiten einfach auf \"Geschlossen\" doppelklicken.",
+    "save": "Speichern",
+    "errorMissing": "Bitte mindestens eine Öffnungszeit eingeben oder geschlossen auswählen!",
+    "errorMorning": "Bitte sowohl 'Vormittag von' als auch 'Vormittag bis' ausfüllen!",
+    "errorAfternoon": "Bitte sowohl 'Nachmittag von' als auch 'Nachmittag bis' ausfüllen!",
+    "errorAfternoonSequence": "Nachmittagszeiten dürfen nur eingegeben werden, wenn Vormittagszeiten vorhanden sind!",
+    "successUpdate": "Öffnungszeiten wurden erfolgreich verändert!"
+  },
+  "Metadata": {
+    "title": "M. Brugnara GmbH",
+    "description": "M. Brugnara GmbH – Ihr Fachgeschäft in Meran für Eisenwaren, Haushalt, Werkzeug, Elektrogeräte, Gartengeräte, Öfen und Herde."
   }
 }
