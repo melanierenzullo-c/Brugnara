@@ -8,7 +8,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const PRODUCT_CATEGORIES = [
-  { slug: "eisenwaren", image: "/images/home/eisenwaren/1.jpg" },
+  { slug: "eisenwaren", image: "/images/home/eisenwaren/2.jpg" },
   { slug: "haushaltsartikel", image: "/images/home/haushalt/1.jpg" },
   { slug: "oefen-herde", image: "/images/home/herde/1.jpg" },
   { slug: "gartengeraete", image: "/images/home/gartengeraete/1.jpg" },
@@ -84,7 +84,7 @@ export default function HomePage() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
             </span>
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">
-              M. Brugnara GmbH — Meran
+            {t("heroBild")}
             </span>
           </div>
 

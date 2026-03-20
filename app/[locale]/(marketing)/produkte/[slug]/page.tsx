@@ -75,7 +75,7 @@ export default function ProduktePage({ params }: ProductPageProps) {
       {/* ═══ Category hero banner ═══ */}
       <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-16">
         {/* Subtle grid pattern */}
-        <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+        <div className="absolute inset-0 z-0 opacity-[0.03]"  />
 
         <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
           {/* Breadcrumb */}
@@ -92,14 +92,9 @@ export default function ProduktePage({ params }: ProductPageProps) {
           </nav>
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient">
-              {categoryName}
-            </h1>
-            <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 h-fit">
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
-                {produkte?.length || 0} Produkte gefunden
-              </span>
-            </div>
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-foreground text-gradient leading-tight">
+  {categoryName}
+</h1>
           </div>
         </div>
       </section>
@@ -111,11 +106,7 @@ export default function ProduktePage({ params }: ProductPageProps) {
           <p className="py-20 text-center text-lg text-[#6B7280]">
             {t("loading")}
           </p>
-        ) : produkte.length === 0 ? (
-          <p className="py-20 text-center text-lg text-[#6B7280]">
-            {t("noProducts")}
-          </p>
-        ) : (
+        )  : (
           <div ref={gridRef} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {produkte.map((produkt) => {
               const productName = locale === "it" ? produkt.nameIt : produkt.name;

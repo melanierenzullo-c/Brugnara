@@ -13,11 +13,12 @@
     "haushaltsartikel": "Casalinghi",
     "werkzeug": "Utensili",
     "elektrogeraete": "Elettrodomestici",
-    "gartengeraete": "Attrezzi da giardino",
+    "gartengeraete": "Attrezzi da giardinaggio",
     "oefen-herde": "Stufe e cucine"
   },
   "Home": {
     "heroTitle": "Qualità da generazioni",
+    "heroBild": " M. Brugnara GmbH — Merano",
     "heroSubtitle": "Il vostro negozio specializzato a Merano per ferramenta, casalinghi, utensili e molto altro.",
     "mehrErfahren": "Scopri di più",
     "ueberUns": "Chi siamo",
@@ -49,7 +50,7 @@
     "adresse": "Via Roma 31/A Merano",
     "telefon": "Telefono: 0473 232755",
     "email": "E-Mail: info@brugnara.bz.it",
-    "oeffnungszeiten": "Orari di apertura",
+    "oeffnungszeiten": "Orari d'apertura",
     "geschlossen": "CHIUSO",
     "impressum": "Impressum",
     "description": "Da generazioni il vostro negozio specializzato di fiducia per ferramenta, casalinghi e attrezzi da giardino nel cuore di Merano.",
