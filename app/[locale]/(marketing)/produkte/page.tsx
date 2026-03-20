@@ -33,31 +33,35 @@ export default function ProdukteOverviewPage() {
     /* Hero entrance animation */
     if (heroRef.current) {
       const els = heroRef.current.querySelectorAll("[data-animate]");
-      gsap.fromTo(
-        els,
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: "power3.out" }
-      );
+      if (els.length > 0) {
+        gsap.fromTo(
+          els,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: "power3.out" }
+        );
+      }
     }
 
     /* Category card stagger animation */
     if (gridRef.current) {
       const cards = gridRef.current.querySelectorAll("[data-card]");
-      gsap.fromTo(
-        cards,
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.5,
-          stagger: 0.1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: gridRef.current,
-            start: "top 85%",
-          },
-        }
-      );
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.5,
+            stagger: 0.1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: gridRef.current,
+              start: "top 85%",
+            },
+          }
+        );
+      }
     }
 
     return () => {
@@ -103,7 +107,7 @@ export default function ProdukteOverviewPage() {
       </section>
 
       {/* ═══ Categories Grid ═══ */}
-      <section className="relative py-20 sm:py-28 overflow-hidden bg-[#fafbff]">
+      <section className="relative py-16 sm:py-28 overflow-hidden bg-[#fafbff]">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-border to-transparent" />
 
         <div className="mx-auto max-w-7xl px-6">
@@ -133,6 +137,7 @@ export default function ProdukteOverviewPage() {
                     src={cat.image}
                     alt={tCat(cat.slug)}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   {/* Gradient overlay on hover */}

@@ -21,6 +21,8 @@ export const routing = defineRouting({
     },
     "/marken": "/marken",
     "/impressum": "/impressum",
+    "/datenschutz": "/datenschutz",
+    "/kontakt": "/kontakt",
     "/login": "/login",
     "/admin": "/admin",
     "/admin/produkte": {
@@ -35,6 +37,7 @@ export const routing = defineRouting({
       de: "/admin/mitarbeiter",
       it: "/admin/dipendenti",
     },
+    "/admin/aktivitaeten": "/admin/aktivitaeten",
     "/accept-invite": "/accept-invite",
   },
 });

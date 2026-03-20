@@ -44,19 +44,22 @@ export default defineSchema({
   }).index("by_kategorie", ["kategorieId"]),
 
   news: defineTable({
-    name: v.string(),
-    beschreibung: v.string(),
-    foto: v.string(),
-    nameIt: v.string(),
-    beschreibungIt: v.string(),
-  }),
+    titel: v.string(),
+    inhalt: v.string(),
+    foto: v.id("_storage"),
+    titelIt: v.string(),
+    inhaltIt: v.string(),
+    createdAt: v.number(),
+  }).index("by_createdAt", ["createdAt"]),
 
-  oeffnungszeiten: defineTable({
-    tag: v.string(),
-    von1: v.optional(v.string()),
-    bis1: v.optional(v.string()),
-    von2: v.optional(v.string()),
-    bis2: v.optional(v.string()),
-    geschlossen: v.boolean(),
-  }).index("by_tag", ["tag"]),
+  aktivitaeten: defineTable({
+    userId: v.id("users"),
+    aktion: v.string(),
+    entity: v.string(),
+    entityName: v.string(),
+    details: v.optional(v.string()),
+    timestamp: v.number(),
+  })
+    .index("by_timestamp", ["timestamp"])
+    .index("by_user", ["userId", "timestamp"]),
 });

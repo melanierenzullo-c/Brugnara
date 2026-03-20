@@ -5,7 +5,7 @@ import schema from "./schema";
 import { api } from "./_generated/api";
 import { modules } from "./test.setup";
 
-describe("misc coverage: clearProducts/files/oeffnungszeiten/bootstrap/users", () => {
+describe("misc coverage: clearProducts/files/bootstrap/users", () => {
   it("covers clearProducts delete loop", async () => {
     const t = convexTest(schema, modules);
 
@@ -48,44 +48,6 @@ describe("misc coverage: clearProducts/files/oeffnungszeiten/bootstrap/users", (
       return await ctx.db.query("produkte").collect();
     });
     expect(remaining).toHaveLength(0);
-  });
-
-  it("covers oeffnungszeiten insert and patch branches", async () => {
-    const t = convexTest(schema, modules);
-
-    process.env.INITIAL_ADMIN_EMAIL = "admin@example.com";
-    const asAdmin = t.withIdentity({
-      subject: "sub_admin",
-      email: "admin@example.com",
-      name: "Admin",
-    });
-    await asAdmin.mutation(api.bootstrap.bootstrapInitialAdmin, {});
-
-    await asAdmin.mutation(api.oeffnungszeiten.update, {
-      tag: "Mo",
-      von1: "08:00",
-      bis1: "12:00",
-      von2: "14:00",
-      bis2: "18:00",
-      geschlossen: false,
-    });
-
-    await asAdmin.mutation(api.oeffnungszeiten.update, {
-      tag: "Mo",
-      von1: "09:00",
-      bis1: "12:30",
-      von2: "14:30",
-      bis2: "18:30",
-      geschlossen: false,
-    });
-
-    const doc = await t.run(async (ctx) => {
-      return await ctx.db
-        .query("oeffnungszeiten")
-        .withIndex("by_tag", (q) => q.eq("tag", "Mo"))
-        .unique();
-    });
-    expect(doc).toMatchObject({ tag: "Mo", von1: "09:00", bis2: "18:30" });
   });
 
   it("covers files.getImageUrl query", async () => {

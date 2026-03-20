@@ -1,137 +1,372 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useQuery, useMutation } from "convex/react";
+import Image from "next/image";
 
-export default function AdminNewsPage() {
-  const t = useTranslations("Admin");
-  const [name, setName] = useState("");
-  const [beschreibung, setBeschreibung] = useState("");
-  const [nameIt, setNameIt] = useState("");
-  const [beschreibungIt, setBeschreibungIt] = useState("");
-  const [foto, setFoto] = useState("");
-  const [meldung, setMeldung] = useState("");
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import { AdminHeader } from "@/components/admin-header";
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setMeldung("");
+/* ─────────────────── shared types ─────────────────── */
 
-    if (!foto) {
-      setMeldung(t("bitteFoto"));
-      return;
-    }
+type Lang = "de" | "it";
 
-    setMeldung(t("dbNichtVerbunden"));
-  };
+interface NewsRow {
+  _id: Id<"news">;
+  titel: string;
+  inhalt: string;
+  titelIt: string;
+  inhaltIt: string;
+  foto: Id<"_storage">;
+  imageUrl: string | null;
+  createdAt: number;
+}
 
+/* ─────────────────── small UI pieces ─────────────────── */
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="bg-slate-950">
-      <div className="mx-auto min-h-screen max-w-4xl px-4 py-6 lg:px-8 lg:py-10">
-        <header className="mb-6">
-          <h1 className="text-xl font-semibold text-sky-100">
-            {t("news")}
-          </h1>
-          <p className="mt-1 text-xs text-slate-400">
-            Newsbeiträge für die Website vorbereiten (Datenbank‑Anbindung folgt).
-          </p>
-        </header>
-
-        {meldung && (
-          <p className="mb-4 rounded-md border border-sky-500/40 bg-sky-950/40 px-3 py-2 text-sm text-sky-100">
-            {meldung}
-          </p>
-        )}
-
-        <div className="space-y-4 rounded-xl border border-sky-900/60 bg-slate-900/70 p-5 text-sm text-slate-100">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-sky-100">
-                  {t("newsTitel")}
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-sky-100">
-                  {t("newsTitelIt")}
-                </label>
-                <input
-                  type="text"
-                  value={nameIt}
-                  onChange={(e) => setNameIt(e.target.value)}
-                  required
-                  className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-sky-100">
-                  {t("newsBeschreibung")}
-                </label>
-                <textarea
-                  value={beschreibung}
-                  onChange={(e) => setBeschreibung(e.target.value)}
-                  maxLength={500}
-                  required
-                  className="min-h-[120px] w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                />
-                <p className="text-[10px] text-slate-500">
-                  {beschreibung.length}/500
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-sky-100">
-                  {t("newsBeschreibungIt")}
-                </label>
-                <textarea
-                  value={beschreibungIt}
-                  onChange={(e) => setBeschreibungIt(e.target.value)}
-                  maxLength={500}
-                  required
-                  className="min-h-[120px] w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                />
-                <p className="text-[10px] text-slate-500">
-                  {beschreibungIt.length}/500
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-sky-100">
-                {t("fotDateiname")}
-              </label>
-              <input
-                type="text"
-                value={foto}
-                onChange={(e) => setFoto(e.target.value)}
-                required
-                placeholder="z.B. news-foto.jpg"
-                className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              />
-              <p className="text-[10px] text-slate-500">
-                Hier aktuell nur Referenz: Upload‑Flow folgt später.
-              </p>
-            </div>
-
-            <button
-              type="submit"
-              className="inline-flex min-w-[180px] items-center justify-center rounded-md bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 shadow-sm transition hover:bg-sky-400"
-            >
-              {t("newsSpeichern")}
-            </button>
-          </form>
-        </div>
-      </div>
+    <div className="space-y-1.5">
+      <label className="block text-sm font-semibold text-foreground">{label}</label>
+      {children}
     </div>
   );
 }
 
+function LangTabInput({
+  label, valueDe, valueIt, onChangeDe, onChangeIt,
+  multiline = false, required = false, maxLength,
+}: {
+  label: string; valueDe: string; valueIt: string;
+  onChangeDe: (v: string) => void; onChangeIt: (v: string) => void;
+  multiline?: boolean; required?: boolean; maxLength?: number;
+}) {
+  const [lang, setLang] = useState<Lang>("de");
+  const value = lang === "de" ? valueDe : valueIt;
+  const onChange = lang === "de" ? onChangeDe : onChangeIt;
+
+  const cls =
+    "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-foreground placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition";
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-semibold text-foreground">{label}</label>
+        <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
+          {(["de", "it"] as Lang[]).map((l) => (
+            <button key={l} type="button" onClick={() => setLang(l)}
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+      {multiline ? (
+        <>
+          <textarea value={value} onChange={(e) => onChange(e.target.value)}
+            maxLength={maxLength} required={required && lang === "de"}
+            className={`${cls} min-h-[110px] resize-none`} />
+          {maxLength && (
+            <p className="text-xs text-slate-400 text-right">{value.length} / {maxLength}</p>
+          )}
+        </>
+      ) : (
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
+          required={required && lang === "de"} className={cls} />
+      )}
+    </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+    </svg>
+  );
+}
+
+function Alert({ text, ok }: { text: string; ok: boolean }) {
+  return (
+    <div className={`mb-6 flex items-center gap-3 rounded-xl border px-4 py-3 text-sm ${ok ? "border-green-200 bg-green-50 text-green-800" : "border-red-200 bg-red-50 text-red-700"}`}>
+      {ok
+        ? <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+        : <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      }
+      {text}
+    </div>
+  );
+}
+
+/* ─────────────────── main page ─────────────────── */
+
+export default function AdminNewsPage() {
+  const t = useTranslations("Admin");
+  const newsItems = useQuery(api.news.list) as NewsRow[] | undefined;
+
+  const createNews = useMutation(api.news.create);
+  const updateNews = useMutation(api.news.update);
+  const removeNews = useMutation(api.news.remove);
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+
+  /* ── form state (shared for create & edit) ── */
+  const [editingId, setEditingId] = useState<Id<"news"> | null>(null);
+  const [titel, setTitel] = useState("");
+  const [inhalt, setInhalt] = useState("");
+  const [titelIt, setTitelIt] = useState("");
+  const [inhaltIt, setInhaltIt] = useState("");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [meldung, setMeldung] = useState<{ text: string; ok: boolean } | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  /* ── delete state ── */
+  const [deletingId, setDeletingId] = useState<Id<"news"> | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const isEditing = editingId !== null;
+
+  const resetForm = useCallback(() => {
+    setEditingId(null);
+    setTitel("");
+    setInhalt("");
+    setTitelIt("");
+    setInhaltIt("");
+    setSelectedImage(null);
+    const fi = document.getElementById("news-foto-upload") as HTMLInputElement | null;
+    if (fi) fi.value = "";
+  }, []);
+
+  const startEdit = useCallback((n: NewsRow) => {
+    setEditingId(n._id);
+    setTitel(n.titel);
+    setInhalt(n.inhalt);
+    setTitelIt(n.titelIt);
+    setInhaltIt(n.inhaltIt);
+    setSelectedImage(null);
+    setMeldung(null);
+    const fi = document.getElementById("news-foto-upload") as HTMLInputElement | null;
+    if (fi) fi.value = "";
+    setTimeout(() => document.getElementById("news-form")?.scrollIntoView({ behavior: "smooth" }), 50);
+  }, []);
+
+  const handleDelete = async (id: Id<"news">) => {
+    setDeleting(true);
+    try {
+      await removeNews({ id });
+      setMeldung({ text: "News-Beitrag erfolgreich gelöscht.", ok: true });
+      if (editingId === id) resetForm();
+    } catch (error) {
+      setMeldung({ text: error instanceof Error ? error.message : "Fehler beim Löschen", ok: false });
+    } finally {
+      setDeleting(false);
+      setDeletingId(null);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setMeldung(null);
+    if (!isEditing && !selectedImage) { setMeldung({ text: t("bitteFoto"), ok: false }); return; }
+
+    try {
+      setSaving(true);
+      let storageId: Id<"_storage"> | undefined;
+      if (selectedImage) {
+        const postUrl = await generateUploadUrl();
+        const result = await fetch(postUrl, { method: "POST", headers: { "Content-Type": selectedImage.type }, body: selectedImage });
+        if (!result.ok) throw new Error("Fehler beim Hochladen des Bildes");
+        const json = await result.json();
+        storageId = json.storageId as Id<"_storage">;
+      }
+
+      if (isEditing) {
+        await updateNews({
+          id: editingId,
+          titel,
+          inhalt,
+          titelIt,
+          inhaltIt,
+          ...(storageId ? { foto: storageId } : {}),
+        });
+        setMeldung({ text: "News-Beitrag erfolgreich aktualisiert.", ok: true });
+        resetForm();
+      } else {
+        if (!storageId) throw new Error("Kein Bild ausgewählt");
+        await createNews({ titel, inhalt, foto: storageId, titelIt, inhaltIt });
+        setMeldung({ text: "News-Beitrag erfolgreich gespeichert.", ok: true });
+        resetForm();
+      }
+    } catch (error) {
+      setMeldung({ text: error instanceof Error ? error.message : "Unbekannter Fehler", ok: false });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <AdminHeader title="News" backHref="/admin" backLabel="Dashboard" />
+
+      <div className="mx-auto max-w-6xl px-6 py-10 lg:px-8">
+
+        {meldung && <Alert text={meldung.text} ok={meldung.ok} />}
+
+        {/* ────────── News list ────────── */}
+        <section className="mb-10">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Alle News-Beiträge</h1>
+              <p className="mt-0.5 text-sm text-slate-500">
+                {newsItems ? `${newsItems.length} Beiträge` : "Laden…"}
+              </p>
+            </div>
+          </div>
+
+          {!newsItems ? (
+            <div className="flex items-center justify-center py-16 text-slate-400 text-sm gap-2">
+              <Spinner /> Laden…
+            </div>
+          ) : newsItems.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center text-sm text-slate-400">
+              Noch keine News-Beiträge vorhanden.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {newsItems.map((n) => (
+                <div key={n._id}
+                  className={`flex items-center gap-5 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition hover:border-primary/20 ${editingId === n._id ? "ring-2 ring-primary/20" : ""}`}>
+                  {/* Thumbnail */}
+                  {n.imageUrl ? (
+                    <Image src={n.imageUrl} alt={n.titel} width={80} height={56}
+                      className="h-14 w-20 rounded-xl object-cover shrink-0" />
+                  ) : (
+                    <div className="flex h-14 w-20 items-center justify-center rounded-xl bg-slate-100 text-slate-300 shrink-0">
+                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+                    </div>
+                  )}
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground truncate">{n.titel}</p>
+                    <p className="text-xs text-slate-400 truncate max-w-[400px]">{n.inhalt}</p>
+                    <p className="mt-1 text-[11px] text-slate-300">
+                      {new Date(n.createdAt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                    </p>
+                  </div>
+                  {/* Actions */}
+                  <div className="shrink-0">
+                    {deletingId === n._id ? (
+                      <div className="inline-flex items-center gap-2">
+                        <span className="text-xs text-red-600 font-semibold">Löschen?</span>
+                        <button type="button" disabled={deleting}
+                          onClick={() => handleDelete(n._id)}
+                          className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 disabled:opacity-50">
+                          {deleting ? <Spinner /> : "Ja"}
+                        </button>
+                        <button type="button" onClick={() => setDeletingId(null)}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">
+                          Nein
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center gap-1.5">
+                        <button type="button" onClick={() => startEdit(n)}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-primary/30 hover:text-primary">
+                          Bearbeiten
+                        </button>
+                        <button type="button" onClick={() => setDeletingId(n._id)}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-red-200 hover:text-red-600">
+                          Löschen
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ────────── Create / Edit form ────────── */}
+        <section id="news-form">
+          <div className="mb-5">
+            <h2 className="text-xl font-bold text-foreground">
+              {isEditing ? "Beitrag bearbeiten" : "Neuen News-Beitrag anlegen"}
+            </h2>
+            <p className="mt-0.5 text-sm text-slate-500">
+              {isEditing
+                ? "Ändere die Daten und speichere."
+                : "Füge einen neuen Beitrag in Deutsch und Italienisch hinzu."}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+
+              {/* Main card */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+
+                <LangTabInput
+                  label="Titel"
+                  valueDe={titel} valueIt={titelIt}
+                  onChangeDe={setTitel} onChangeIt={setTitelIt}
+                  required
+                />
+
+                <LangTabInput
+                  label="Inhalt"
+                  valueDe={inhalt} valueIt={inhaltIt}
+                  onChangeDe={setInhalt} onChangeIt={setInhaltIt}
+                  multiline required maxLength={1000}
+                />
+
+                <Field label={isEditing ? "Neues Beitragsbild (optional)" : "Beitragsbild"}>
+                  <input id="news-foto-upload" type="file" accept="image/*"
+                    onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+                    required={!isEditing}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-foreground file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200 transition cursor-pointer" />
+                  <p className="text-xs text-slate-400 mt-1">
+                    {isEditing ? "Nur wählen wenn du das Bild ändern möchtest." : "Querformat empfohlen, max. 2 MB"}
+                  </p>
+                </Field>
+              </div>
+
+              {/* Sidebar */}
+              <div className="space-y-4">
+                {/* Save card */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+                  <button type="submit" disabled={saving}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
+                    {saving && <Spinner />}
+                    {saving
+                      ? "Wird gespeichert…"
+                      : isEditing
+                        ? "Änderungen speichern"
+                        : "Beitrag speichern"}
+                  </button>
+                  {isEditing && (
+                    <button type="button" onClick={resetForm}
+                      className="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                      Abbrechen
+                    </button>
+                  )}
+                  <p className="text-xs text-center text-slate-400">Beide Sprachen müssen ausgefüllt sein.</p>
+                </div>
+
+                {/* Language reminder */}
+                <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <p className="text-xs font-bold text-primary">Zweisprachig</p>
+                  </div>
+                  <p className="text-xs text-primary/80 leading-relaxed">Mit den <strong>DE / IT</strong>-Tabs zwischen den Sprachen wechseln.</p>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  );
+}

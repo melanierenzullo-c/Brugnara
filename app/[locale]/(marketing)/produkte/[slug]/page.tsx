@@ -48,21 +48,23 @@ export default function ProduktePage({ params }: ProductPageProps) {
 
     if (gridRef.current) {
       const cards = gridRef.current.querySelectorAll("[data-card]");
-      gsap.fromTo(
-        cards,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.5,
-          stagger: 0.1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: gridRef.current,
-            start: "top 85%",
-          },
-        }
-      );
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.5,
+            stagger: 0.1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: gridRef.current,
+              start: "top 85%",
+            },
+          }
+        );
+      }
     }
 
     return () => {
@@ -99,7 +101,7 @@ export default function ProduktePage({ params }: ProductPageProps) {
         </div>
       </section>
 
-      <div className="relative mx-auto max-w-6xl px-6 py-20 pb-40">
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20 pb-40">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-border to-transparent" />
         {produkte === undefined ? (
           /* Loading state */

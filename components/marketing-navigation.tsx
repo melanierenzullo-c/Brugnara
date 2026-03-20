@@ -214,8 +214,8 @@ export function MarketingNavigation() {
         </div>
 
         {/* Mobile drawer */}
-        <div className={`overflow-hidden transition-all duration-500 lg:hidden ${mobileMenuOpen ? "max-h-[600px] translate-y-2 opacity-100" : "max-h-0 -translate-y-4 opacity-0"}`}>
-          <nav className="mx-4 mt-2 flex flex-col gap-1 rounded-3xl glass px-4 py-4 dark:bg-black/90">
+        <div className={`overflow-hidden transition-all duration-500 lg:hidden ${mobileMenuOpen ? "max-h-[800px] translate-y-2 opacity-100" : "max-h-0 -translate-y-4 opacity-0"}`}>
+          <nav className="mx-4 mt-2 flex flex-col gap-1 rounded-3xl bg-white/95 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-xl px-4 py-4 dark:bg-black/95">
             <Link href="/" className="rounded-2xl px-4 py-3 text-[15px] font-semibold text-foreground no-underline transition-all hover:bg-primary/5 active:scale-95" onClick={() => setMobileMenuOpen(false)}>{t("home")}</Link>
 
             <div className="mt-2 space-y-1">

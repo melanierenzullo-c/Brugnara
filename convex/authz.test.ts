@@ -106,17 +106,6 @@ describe("authz + invites flow", () => {
     );
 
     await expect(
-      asEmployee.mutation(api.oeffnungszeiten.update, {
-        tag: "Mo-Fr",
-        von1: "08:00",
-        bis1: "12:00",
-        von2: "14:30",
-        bis2: "18:30",
-        geschlossen: false,
-      })
-    ).rejects.toThrowError(/Admin access required/i);
-
-    await expect(
       asEmployee.mutation(api.clearProducts.clearProducts, {})
     ).rejects.toThrowError(/Admin access required/i);
   });

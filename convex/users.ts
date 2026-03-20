@@ -2,6 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 
 import { getCurrentUserOrThrow, requireAdmin } from "./authz";
+import { internal } from "./_generated/api";
 
 const INVITE_TOKEN_BYTES = 32;
 const INVITE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
@@ -157,6 +158,50 @@ export const setUserDisabled = mutation({
 
     const now = Date.now();
     await ctx.db.patch(args.userId, { disabled: args.disabled, updatedAt: now });
+
+    await ctx.runMutation(internal.aktivitaeten.logActivity, {
+      userId: admin._id,
+      aktion: args.disabled ? "Mitarbeiter deaktiviert" : "Mitarbeiter aktiviert",
+      entity: "Mitarbeiter",
+      entityName: existing.name ?? existing.email,
+      details: `E-Mail: ${existing.email} · Rolle: ${existing.role === "admin" ? "Administrator" : "Mitarbeiter"}`,
+    });
+  },
+});
+
+export const setUserRole = mutation({
+  args: {
+    userId: v.id("users"),
+    role: v.union(v.literal("admin"), v.literal("employee")),
+  },
+  handler: async (ctx, args) => {
+    const admin = await requireAdmin(ctx);
+    if (admin._id === args.userId) {
+      throw new ConvexError("Cannot change own role");
+    }
+
+    const existing = await ctx.db.get(args.userId);
+    if (!existing) {
+      throw new ConvexError("User not found");
+    }
+
+    if (existing.role === args.role) {
+      return; // nothing to change
+    }
+
+    const now = Date.now();
+    await ctx.db.patch(args.userId, { role: args.role, updatedAt: now });
+
+    const roleLabel = args.role === "admin" ? "Administrator" : "Mitarbeiter";
+    const oldRoleLabel = existing.role === "admin" ? "Administrator" : "Mitarbeiter";
+
+    await ctx.runMutation(internal.aktivitaeten.logActivity, {
+      userId: admin._id,
+      aktion: "Rolle geändert",
+      entity: "Mitarbeiter",
+      entityName: existing.name ?? existing.email,
+      details: `${oldRoleLabel} → ${roleLabel} · E-Mail: ${existing.email}`,
+    });
   },
 });
 
@@ -192,6 +237,14 @@ export const createEmployeeInvite = mutation({
       expiresAt,
       createdAt: now,
       createdByUserId: admin._id,
+    });
+
+    await ctx.runMutation(internal.aktivitaeten.logActivity, {
+      userId: admin._id,
+      aktion: "Einladung erstellt",
+      entity: "Einladung",
+      entityName: email,
+      details: `Rolle: Mitarbeiter · Läuft ab: ${new Date(expiresAt).toLocaleDateString("de-DE")}`,
     });
 
     return { token, expiresAt, email, role: "employee" as const };

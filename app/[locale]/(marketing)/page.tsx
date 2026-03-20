@@ -29,25 +29,31 @@ export default function HomePage() {
     // Hero entrance
     if (heroRef.current) {
       const els = heroRef.current.querySelectorAll("[data-animate]");
-      gsap.fromTo(els, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: "power3.out" });
+      if (els.length > 0) {
+        gsap.fromTo(els, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: "power3.out" });
+      }
     }
 
     // About cards
     if (aboutRef.current) {
       const cards = aboutRef.current.querySelectorAll("[data-card]");
-      gsap.fromTo(cards, { y: 40, opacity: 0 }, {
-        y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out",
-        scrollTrigger: { trigger: aboutRef.current, start: "top 80%" },
-      });
+      if (cards.length > 0) {
+        gsap.fromTo(cards, { y: 40, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out",
+          scrollTrigger: { trigger: aboutRef.current, start: "top 80%" },
+        });
+      }
     }
 
     // Product cards
     if (productsRef.current) {
       const cards = productsRef.current.querySelectorAll("[data-card]");
-      gsap.fromTo(cards, { y: 40, opacity: 0 }, {
-        y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: "power2.out",
-        scrollTrigger: { trigger: productsRef.current, start: "top 80%" },
-      });
+      if (cards.length > 0) {
+        gsap.fromTo(cards, { y: 40, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: "power2.out",
+          scrollTrigger: { trigger: productsRef.current, start: "top 80%" },
+        });
+      }
     }
 
     return () => { ScrollTrigger.getAll().forEach((st) => st.kill()); };
@@ -67,6 +73,7 @@ export default function HomePage() {
             alt="M. Brugnara Storefront"
             fill
             priority
+            sizes="100vw"
             className="object-cover opacity-60 mix-blend-overlay"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/60 to-transparent" />
@@ -88,7 +95,7 @@ export default function HomePage() {
             </span>
           </div>
 
-          <h1 data-animate className="mb-6 text-5xl font-black tracking-tight text-white sm:text-7xl lg:text-8xl leading-[1.05] drop-shadow-2xl">
+          <h1 data-animate className="mb-6 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-8xl leading-[1.05] drop-shadow-2xl">
             {t("heroTitle")}
           </h1>
 
@@ -99,7 +106,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ Produkte Grid ═══ */}
-      <section id="produkte-section" className="relative bg-[#fafbff] py-24 sm:py-32 overflow-hidden">
+      <section id="produkte-section" className="relative bg-[#fafbff] py-16 sm:py-32 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-border to-transparent" />
 
         <div className="mx-auto max-w-7xl px-6">
@@ -125,6 +132,7 @@ export default function HomePage() {
                     src={cat.image}
                     alt={tCat(cat.slug)}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -151,14 +159,14 @@ export default function HomePage() {
       </section>
 
       {/* ═══ Team ═══ */}
-      <section className="bg-white py-24 sm:py-32">
+      <section className="bg-white py-16 sm:py-32">
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col lg:flex-row items-center gap-16">
             <div className="lg:w-1/2">
               <h2 className="mb-4 text-sm font-bold uppercase tracking-[0.25em] text-primary/70">
                 {t("unserTeam")}
               </h2>
-              <h3 className="mb-6 text-4xl font-black text-foreground sm:text-5xl tracking-tight">
+              <h3 className="mb-6 text-3xl font-black text-foreground sm:text-5xl tracking-tight">
                 {t("teamTitle")}
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8">
