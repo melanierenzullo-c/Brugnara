@@ -94,7 +94,7 @@ export default function ProduktePage({ params }: ProductPageProps) {
           </nav>
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-foreground text-gradient leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-medium text-foreground tracking-tight">
   {categoryName}
 </h1>
           </div>

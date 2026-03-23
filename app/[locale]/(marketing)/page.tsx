@@ -9,7 +9,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const PRODUCT_CATEGORIES = [
   { slug: "eisenwaren", image: "/images/home/eisenwaren/2.jpg" },
-  { slug: "haushaltsartikel", image: "/images/home/haushalt/1.jpg" },
+  { slug: "haushaltsartikel", image: "/images/home/haushalt/4.5.jpg" },
   { slug: "oefen-herde", image: "/images/home/herde/1.jpg" },
   { slug: "gartengeraete", image: "/images/home/gartengeraete/1.jpg" },
   { slug: "elektrogeraete", image: "/images/home/elektrogeraete/1.jpg" },
