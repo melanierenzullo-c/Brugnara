@@ -19,7 +19,6 @@ export const routing = defineRouting({
       de: "/news",
       it: "/novita",
     },
-    "/marken": "/marken",
     "/impressum": "/impressum",
     "/datenschutz": "/datenschutz",
     "/kontakt": "/kontakt",

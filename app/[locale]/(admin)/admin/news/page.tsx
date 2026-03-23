@@ -55,12 +55,16 @@ function LangTabInput({
       <div className="flex items-center justify-between">
         <label className="text-sm font-semibold text-foreground">{label}</label>
         <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
-          {(["de", "it"] as Lang[]).map((l) => (
-            <button key={l} type="button" onClick={() => setLang(l)}
-              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
-              {l.toUpperCase()}
-            </button>
-          ))}
+          {(["de", "it"] as Lang[]).map((l) => {
+            const isEmpty = required && (l === "de" ? valueDe : valueIt).trim() === "";
+            return (
+              <button key={l} type="button" onClick={() => setLang(l)}
+                className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
+                {l.toUpperCase()}
+                {isEmpty && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
+              </button>
+            );
+          })}
         </div>
       </div>
       {multiline ? (
@@ -169,6 +173,12 @@ export default function AdminNewsPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setMeldung(null);
+    if (!titel.trim() || !titelIt.trim()) {
+      setMeldung({ text: "Bitte Titel in Deutsch und Italienisch eingeben.", ok: false }); return;
+    }
+    if (!inhalt.trim() || !inhaltIt.trim()) {
+      setMeldung({ text: "Bitte Inhalt in Deutsch und Italienisch eingeben.", ok: false }); return;
+    }
     if (!isEditing && !selectedImage) { setMeldung({ text: t("bitteFoto"), ok: false }); return; }
 
     try {
