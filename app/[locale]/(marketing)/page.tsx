@@ -2,10 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useQuery } from "convex/react";
+
+import { api } from "@/convex/_generated/api";
+import type { Locale } from "@/i18n/routing";
 
 const PRODUCT_CATEGORIES = [
   { slug: "eisenwaren", image: "/images/home/eisenwaren/2.jpg" },
@@ -19,9 +23,12 @@ const PRODUCT_CATEGORIES = [
 export default function HomePage() {
   const t = useTranslations("Home");
   const tCat = useTranslations("ProductCategories");
+  const locale = useLocale() as Locale;
+  const newsItems = useQuery(api.news.listPublic);
   const heroRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
   const productsRef = useRef<HTMLDivElement>(null);
+  const newsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -52,6 +59,17 @@ export default function HomePage() {
         gsap.fromTo(cards, { y: 40, opacity: 0 }, {
           y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: "power2.out",
           scrollTrigger: { trigger: productsRef.current, start: "top 80%" },
+        });
+      }
+    }
+
+    // News cards
+    if (newsRef.current) {
+      const cards = newsRef.current.querySelectorAll("[data-card]");
+      if (cards.length > 0) {
+        gsap.fromTo(cards, { y: 40, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out",
+          scrollTrigger: { trigger: newsRef.current, start: "top 80%" },
         });
       }
     }
@@ -157,6 +175,74 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ═══ News ═══ */}
+      {newsItems && newsItems.length > 0 && (
+        <section className="bg-white py-16 sm:py-32">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+              <h2 className="mb-4 text-sm font-bold uppercase tracking-[0.25em] text-primary/70">
+                {t("newsSection")}
+              </h2>
+              <h3 className="text-3xl font-black text-foreground sm:text-5xl tracking-tight">
+                {t("newsSectionTitle")}
+              </h3>
+            </div>
+
+            <div ref={newsRef} className="space-y-6">
+              {newsItems.slice(0, 3).map((item) => {
+                const title = locale === "it" ? item.titelIt : item.titel;
+                const content = locale === "it" ? item.inhaltIt : item.inhalt;
+                return (
+                  <article
+                    key={item._id}
+                    data-card
+                    className="group relative overflow-hidden rounded-[2rem] bg-[#fafbff] border border-border/50 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500"
+                  >
+                    <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
+                    <div className="flex flex-col sm:flex-row">
+                      {item.imageUrl && (
+                        <div className="relative w-full sm:w-64 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[200px]">
+                          <Image
+                            src={item.imageUrl}
+                            alt={title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, 256px"
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 p-8">
+                        <p className="mb-2 text-xs text-muted-foreground">
+                          <time dateTime={new Date(item.createdAt).toISOString()}>
+                            {new Date(item.createdAt).toLocaleDateString(locale === "it" ? "it-IT" : "de-DE", {
+                              day: "2-digit", month: "long", year: "numeric",
+                            })}
+                          </time>
+                        </p>
+                        <h4 className="mb-3 text-xl font-black text-foreground">{title}</h4>
+                        <p className="text-[15px] leading-relaxed text-muted-foreground line-clamp-3">{content}</p>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link
+                href="/news"
+                className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-6 py-3 text-sm font-bold text-primary transition-all hover:bg-primary hover:text-white"
+              >
+                {t("newsReadMore")}
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ═══ Team ═══ */}
       <section className="bg-white py-16 sm:py-32">

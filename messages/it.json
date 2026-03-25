@@ -30,7 +30,10 @@
     "unserTeam": "Il nostro team",
     "qualityTitle": "Qualità per la casa e l'artigianato",
     "teamTitle": "Insieme per il vostro successo",
-    "teamDescription": "Da decenni, come azienda familiare a Merano, siamo sinonimo di competenza e passione. Il nostro team vi fornirà una consulenza esperta per tutti i vostri progetti."
+    "teamDescription": "Da decenni, come azienda familiare a Merano, siamo sinonimo di competenza e passione. Il nostro team vi fornirà una consulenza esperta per tutti i vostri progetti.",
+    "newsSection": "Attualità",
+    "newsSectionTitle": "Notizie & Offerte",
+    "newsReadMore": "Tutte le notizie"
   },
   "Products": {
     "title": "Prodotti della categoria {category}",
@@ -55,7 +58,6 @@
     "impressum": "Impressum",
     "description": "Da generazioni il vostro negozio specializzato di fiducia per ferramenta, casalinghi e attrezzi da giardino nel cuore di Merano.",
     "toProducts": "Ai prodotti",
-    "marken": "Marche",
     "news": "Notizie",
     "datenschutz": "Protezione dati",
     "admin": "Admin",
@@ -98,7 +100,6 @@
     "news": "Notizie",
     "mitarbeiter": "Dipendenti",
     "oeffnungszeiten": "Orari di apertura",
-    "marken": "Marche",
     "hinzufuegen": "AGGIUNGERE",
     "mitarbeiterVerwalten": "Gestisci dipendenti",
     "inviteEmail": "E-mail del dipendente",

@@ -168,12 +168,10 @@ export function MarketingFooter() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
-            <Link href="/marken" className="transition-colors hover:text-white">{t("marken")}</Link>
             <Link href="/news" className="transition-colors hover:text-white">{t("news")}</Link>
             <Link href="/kontakt" className="transition-colors hover:text-white">{t("kontakt")}</Link>
             <Link href="/datenschutz" className="transition-colors hover:text-white">{t("datenschutz")}</Link>
             <Link href="/impressum" className="transition-colors hover:text-white">{t("impressum")}</Link>
-            <Link href="/admin" className="transition-colors hover:text-primary">{t("admin")}</Link>
           </div>
         </div>
       </div>
