@@ -108,7 +108,7 @@ export default function ProduktePage({ params }: ProductPageProps) {
           <p className="py-20 text-center text-lg text-[#6B7280]">
             {t("loading")}
           </p>
-        )  : (
+        ) : (
           <div ref={gridRef} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {produkte.map((produkt) => {
               const productName = locale === "it" ? produkt.nameIt : produkt.name;
