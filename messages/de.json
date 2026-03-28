@@ -156,5 +156,10 @@
   "Metadata": {
     "title": "M. Brugnara GmbH",
     "description": "M. Brugnara GmbH – Ihr Fachgeschäft in Meran für Eisenwaren, Haushalt, Werkzeug, Elektrogeräte, Gartengeräte, Öfen und Herde."
+  },
+  "News": {
+    "title": "News & Angebote",
+    "description": "Aktuelles"
   }
+
 }

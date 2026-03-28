@@ -17,7 +17,7 @@ const PRODUCT_CATEGORIES = [
   { slug: "oefen-herde", image: "/images/home/herde/1.jpg" },
   { slug: "gartengeraete", image: "/images/home/gartengeraete/1.jpg" },
   { slug: "elektrogeraete", image: "/images/home/elektrogeraete/1.jpg" },
-  { slug: "werkzeug", image: "/images/home/werkzeug/1.jpg" },
+  { slug: "werkzeug", image: "/images/home/werkzeug/4.jpg" },
 ] as const;
 
 export default function HomePage() {

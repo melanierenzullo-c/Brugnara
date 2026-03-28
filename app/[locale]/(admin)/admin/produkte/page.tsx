@@ -417,7 +417,7 @@ export default function AdminProduktePage() {
                   <p className="text-sm font-semibold text-foreground">Bildtipps</p>
                   <ul className="space-y-2.5 text-xs text-slate-500">
                     {[
-                      "Format 1:1 oder 4:3",
+                      "Format 1:1",
                       "Helles, klares Produktfoto",
                       "Keine Logos im Bild",
                       "Max. 1–2 MB Dateigröße",

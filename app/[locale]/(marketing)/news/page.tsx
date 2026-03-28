@@ -48,14 +48,11 @@ export default function NewsPage() {
 
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <div data-animate className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-6">
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Aktuelles</span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{t("description")}</span>
           </div>
           <h1 data-animate className="mb-6 text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient">
-            News &amp; Angebote
-          </h1>
-          <p data-animate className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground font-medium">
             {t("title")}
-          </p>
+          </h1>
         </div>
       </section>
 

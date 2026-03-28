@@ -156,5 +156,10 @@
   "Metadata": {
     "title": "M. Brugnara Srl",
     "description": "M. Brugnara Srl – Il vostro negozio specializzato a Merano per ferramenta, casalinghi, utensili, elettrodomestici, attrezzi da giardino, stufe e cucine."
+  },
+  "News": {
+    "title": "Notizie & Offerte",
+    "description": "Attualità"
   }
+
 }
