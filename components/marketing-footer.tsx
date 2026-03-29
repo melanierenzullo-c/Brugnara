@@ -109,7 +109,7 @@ export function MarketingFooter() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </div>
-                <a href={`tel:${t("telefon")}`} className="transition-all text-white/70 group-hover:text-white group-hover:translate-x-1 inline-block">{t("telefon")}</a>
+                <a href="tel:+390473232755" className="transition-all text-white/70 group-hover:text-white group-hover:translate-x-1 inline-block">{t("telefon")}</a>
               </li>
               <li className="flex items-center gap-4 group">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 text-primary/80 transition-colors group-hover:bg-primary/20 group-hover:text-primary">
@@ -117,7 +117,7 @@ export function MarketingFooter() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <a href={`mailto:${t("email")}`} className="transition-all text-white/70 group-hover:text-white group-hover:translate-x-1 inline-block">{t("email")}</a>
+                <a href="mailto:info@brugnara.bz.it" className="transition-all text-white/70 group-hover:text-white group-hover:translate-x-1 inline-block">{t("email")}</a>
               </li>
             </ul>
           </div>

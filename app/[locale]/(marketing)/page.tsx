@@ -88,14 +88,13 @@ export default function HomePage() {
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/ferramenta.jpg"
-            alt="M. Brugnara Storefront"
+            alt={t("heroAlt", { fallback: "M. Brugnara Fachgeschäft für Eisenwaren und Haushaltsartikel in Meran" })}
             fill
             priority
             sizes="100vw"
-            className="object-cover opacity-60 mix-blend-overlay"
+            className="object-cover opacity-75 mix-blend-overlay"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/80" />
         </div>
 
 
@@ -113,11 +112,11 @@ export default function HomePage() {
             </span>
           </div>
 
-          <h1 data-animate className="mb-6 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-8xl leading-[1.05] drop-shadow-2xl">
+          <h1 data-animate className="mb-6 text-4xl font-black tracking-tighter text-white sm:text-6xl lg:text-8xl leading-[1.05] drop-shadow-2xl">
             {t("heroTitle")}
           </h1>
 
-          <p data-animate className="mx-auto max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl font-medium">
+          <p data-animate className="mx-auto max-w-2xl text-lg leading-relaxed text-white/90 sm:text-xl font-medium tracking-wide">
             {t("heroSubtitle")}
           </p>
         </div>
@@ -129,12 +128,12 @@ export default function HomePage() {
 
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-16">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-[0.25em] text-primary/70">
+            <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary/80">
               {t("unsereProdukte")}
-            </h2>
-            <h3 className="text-3xl font-black text-foreground sm:text-5xl tracking-tight">
+            </p>
+            <h2 className="text-4xl font-black text-foreground sm:text-5xl tracking-tighter">
               {t("qualityTitle")}
-            </h3>
+            </h2>
           </div>
 
           <div ref={productsRef} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -143,9 +142,9 @@ export default function HomePage() {
                 key={cat.slug}
                 href={{ pathname: "/produkte/[slug]", params: { slug: cat.slug } }}
                 data-card
-                className="group relative overflow-hidden rounded-[2rem] bg-white border border-border/50 p-3 no-underline transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] hover:border-primary/20"
+                className="group premium-card p-3 no-underline"
               >
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.5rem]">
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1rem]">
                   <Image
                     src={cat.image}
                     alt={tCat(cat.slug)}
@@ -181,12 +180,12 @@ export default function HomePage() {
         <section className="bg-white py-16 sm:py-32">
           <div className="mx-auto max-w-7xl px-6">
             <div className="text-center mb-16">
-              <h2 className="mb-4 text-sm font-bold uppercase tracking-[0.25em] text-primary/70">
+              <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary/80">
                 {t("newsSection")}
-              </h2>
-              <h3 className="text-3xl font-black text-foreground sm:text-5xl tracking-tight">
+              </p>
+              <h2 className="text-4xl font-black text-foreground sm:text-5xl tracking-tighter">
                 {t("newsSectionTitle")}
-              </h3>
+              </h2>
             </div>
 
             <div ref={newsRef} className="space-y-6">
@@ -197,18 +196,18 @@ export default function HomePage() {
                   <article
                     key={item._id}
                     data-card
-                    className="group relative overflow-hidden rounded-[2rem] bg-[#fafbff] border border-border/50 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500"
+                    className="group premium-card bg-white"
                   >
-                    <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
+                    <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                     <div className="flex flex-col sm:flex-row">
                       {item.imageUrl && (
-                        <div className="relative w-full sm:w-64 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[200px]">
+                        <div className="relative w-full sm:w-64 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[200px] overflow-hidden rounded-t-[1.5rem] sm:rounded-tr-none sm:rounded-l-[1.5rem]">
                           <Image
                             src={item.imageUrl}
                             alt={title}
                             fill
                             sizes="(max-width: 640px) 100vw, 256px"
-                            className="object-cover"
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         </div>
                       )}

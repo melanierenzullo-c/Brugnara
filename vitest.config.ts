@@ -12,7 +12,7 @@ export default defineConfig({
         "convex/bootstrap.ts",
         "convex/files.ts",
         "convex/produkte.ts",
-        "convex/oeffnungszeiten.ts",
+
         "convex/clearProducts.ts",
       ],
       exclude: ["convex/_generated/**"],

@@ -122,6 +122,7 @@ export function MarketingNavigation() {
                           src={cat.image}
                           alt={tCat(cat.slug)}
                           fill
+                          sizes="56px"
                           className="object-cover transition-transform duration-500 group-hover/item:scale-110"
                         />
                       </div>
@@ -233,6 +234,7 @@ export function MarketingNavigation() {
                         src={cat.image}
                         alt={tCat(cat.slug)}
                         fill
+                        sizes="40px"
                         className="object-cover"
                       />
                     </div>
