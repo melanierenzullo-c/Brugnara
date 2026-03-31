@@ -49,14 +49,14 @@
 
 :root {
   --radius: 1rem;
-  --background: oklch(0.99 0.01 240);
+  --background: oklch(0.985 0.005 240);
   --foreground: oklch(0.15 0.04 240);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0.04 240);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.04 240);
-  /* Brugnara Blue - Refined */
-  --primary: oklch(0.42 0.12 245);
+  /* Brugnara Premium Navy */
+  --primary: oklch(0.25 0.08 245);
   --primary-foreground: oklch(0.985 0 0);
   /* Brungara Light Blue / Accent */
   --secondary: oklch(0.82 0.08 240);
@@ -75,8 +75,8 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: hsl(240 5% 98%);
-  --sidebar-foreground: hl(240 5% 26%);
-  --sidebar-primary: oklch(0.42 0.12 245);
+  --sidebar-foreground: hsl(240 5% 26%);
+  --sidebar-primary: oklch(0.25 0.08 245);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.96 0.02 240);
   --sidebar-accent-foreground: oklch(0.25 0.1 245);
@@ -129,19 +129,48 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.04)];
   }
   .dark .glass {
     @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
   }
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary via-primary/80 to-foreground/70;
   }
   .premium-shadow {
-    @apply shadow-[0_20px_50px_rgba(8,_112,_184,_0.05)];
+    @apply shadow-[0_20px_50px_rgba(0,0,0,0.06)];
+  }
+  .premium-card {
+    @apply relative overflow-hidden rounded-[1.5rem] bg-white border border-border/40 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.03)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] hover:border-primary/20;
   }
   .hover-lift {
     @apply transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-xl;
+  }
+
+  /* Premium Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 rounded-full transition-colors;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/40;
+  }
+  
+  /* Firefox Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ring) transparent;
+  }
+
+  /* Better Global Focus States */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary/40 ring-offset-2 ring-offset-background transition-shadow duration-200;
   }
 }
 

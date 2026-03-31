@@ -70,7 +70,7 @@ export default function ProdukteOverviewPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9]">
+    <div className="min-h-screen bg-background">
       {/* ═══ Hero Banner ═══ */}
       <section
         ref={heroRef}
@@ -87,13 +87,13 @@ export default function ProdukteOverviewPage() {
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <div data-animate className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-6">
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">
               M. Brugnara GmbH
             </span>
           </div>
           <h1
             data-animate
-            className="mb-6 text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient"
+            className="mb-6 text-4xl font-black tracking-tighter text-foreground sm:text-6xl text-gradient"
           >
             {t("heroTitle")}
           </h1>
@@ -107,14 +107,14 @@ export default function ProdukteOverviewPage() {
       </section>
 
       {/* ═══ Categories Grid ═══ */}
-      <section className="relative py-16 sm:py-28 overflow-hidden bg-[#fafbff]">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-border to-transparent" />
+      <section className="relative py-16 sm:py-28 overflow-hidden bg-background">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-2/3 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-16">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-[0.25em] text-primary/70">
+            <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary/80">
               {t("sectionTitle")}
-            </h2>
+            </p>
           </div>
 
           <div
@@ -129,10 +129,10 @@ export default function ProdukteOverviewPage() {
                   params: { slug: cat.slug },
                 }}
                 data-card
-                className="group relative overflow-hidden rounded-[2.5rem] bg-white border border-border/50 p-4 no-underline transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] hover:border-primary/20"
+                className="group premium-card p-4 no-underline"
               >
                 {/* Category image */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.8rem]">
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1rem]">
                   <Image
                     src={cat.image}
                     alt={tCat(cat.slug)}
@@ -147,9 +147,9 @@ export default function ProdukteOverviewPage() {
                 {/* Category label */}
                 <div className="flex items-center justify-between px-4 py-6">
                   <div className="flex flex-col">
-                    <h3 className="text-xl font-bold text-foreground">
+                    <h2 className="text-xl font-bold text-foreground">
                       {tCat(cat.slug)}
-                    </h3>
+                    </h2>
                     <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
                       {t("viewCollection")}
                     </span>

@@ -48,11 +48,22 @@ export default function NewsPage() {
 
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <div data-animate className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-6">
+<<<<<<< HEAD
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{t("description")}</span>
           </div>
           <h1 data-animate className="mb-6 text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient">
             {t("title")}
           </h1>
+=======
+            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">{t("badge")}</span>
+          </div>
+          <h1 data-animate className="mb-6 text-4xl font-black tracking-tighter text-foreground sm:text-6xl text-gradient">
+            {t("title")}
+          </h1>
+          <p data-animate className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground font-medium tracking-wide">
+            {t("subtitle")}
+          </p>
+>>>>>>> eae30493f3f94cc1d3d6c296031f9e2c059cf189
         </div>
       </section>
 
@@ -80,21 +91,21 @@ export default function NewsPage() {
                 <article
                   key={item._id}
                   data-card
-                  className="group relative overflow-hidden rounded-[2.5rem] bg-white border border-border/50 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] transition-all duration-700"
+                  className="group premium-card bg-white"
                 >
                   {/* Accent border */}
-                  <div className="absolute top-0 left-0 h-2 w-full bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
+                  <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
                     {item.imageUrl && (
-                      <div className="relative w-full sm:w-72 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[240px]">
+                      <div className="relative w-full sm:w-72 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[240px] overflow-hidden rounded-t-[1.5rem] sm:rounded-tr-none sm:rounded-l-[1.5rem]">
                         <Image
                           src={item.imageUrl}
                           alt={title}
                           fill
                           sizes="(max-width: 640px) 100vw, 288px"
-                          className="object-cover"
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                       </div>
                     )}

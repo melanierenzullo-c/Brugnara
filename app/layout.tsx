@@ -7,14 +7,10 @@ const inter = Inter({
   display: "swap",
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
-  return (
-    <html lang="de">
-      <body className={`${inter.variable} font-sans antialiased`}>{children}</body>
-    </html>
-  );
+}
+
+export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
+  return children;
 }
