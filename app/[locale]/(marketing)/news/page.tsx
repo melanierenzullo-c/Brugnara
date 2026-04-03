@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Link } from "@/i18n/navigation";
 
 import { api } from "@/convex/_generated/api";
 import type { Locale } from "@/i18n/routing";
@@ -44,40 +45,32 @@ export default function NewsPage() {
     <div className="min-h-screen bg-background">
       {/* ═══ Header ═══ */}
      
-      <section
-        ref={headerRef}
-        className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-20 sm:pt-32 sm:pb-28"
-      
-      >
-        {/* Animated Background Gradients */}
-        <div className="absolute inset-0 z-0"> </div>
-
-        {/* Subtle grid pattern */}
-       
-
-      <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
-          <div data-animate className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-6">
-            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">
-              M. Brugnara GmbH
-            </span>
-          </div>
-          <h1
-            data-animate
-            className="mb-6 text-4xl font-black tracking-tighter text-foreground sm:text-6xl text-gradient"
-          >
-            {t("heroTitle")}
-          </h1>
-          <p
-            data-animate
-            className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground font-medium"
-          >
-            {t("heroSubtitle")}
-          </p>
-        </div>
-      </section>
+      <div className="min-h-screen bg-[#F4F6F9]">
+           {/* ═══ Category hero banner ═══ */}
+           <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-16">
+             {/* Subtle grid pattern */}
+             <div className="absolute inset-0 z-0 opacity-[0.03]"  />
+     
+             <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
+               {/* Breadcrumb */}
+               <nav className="mb-8 flex items-center gap-3 text-[12px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                 <Link href="/" className="transition-colors hover:text-primary">
+                   {t("Home")}
+                 </Link>
+                 <span className="opacity-30">/</span>
+                 <Link href="/produkte" className="transition-colors hover:text-primary">
+                   {t("News")}
+                 </Link>
+               </nav>
+     
+               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                 <h1 className="text-4xl sm:text-5xl font-medium text-foreground tracking-tight"> {t("title")}</h1>
+               </div>
+             </div>
+           </section>
 
       {/* ═══ News articles ═══ */}
-      <div className="mx-auto max-w-4xl px-6 pb-32">
+       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20 pb-40">
         {newsItems === undefined ? (
           <div className="flex items-center justify-center py-20 text-muted-foreground text-sm gap-2">
             <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -142,6 +135,7 @@ export default function NewsPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

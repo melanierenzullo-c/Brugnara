@@ -149,7 +149,11 @@
     "subtitle": "Bleiben Sie auf dem Laufenden über Neuigkeiten, Aktionen und Angebote von M. Brugnara.",
     "placeholder": "Derzeit sind keine Neuigkeiten vorhanden.",
     "metaTitle": "News & Angebote – M. Brugnara GmbH",
-    "metaDescription": "Aktuelle Neuigkeiten, Angebote und Aktionen von M. Brugnara GmbH in Meran. Eisenwaren, Haushalt, Werkzeug."
+    "metaDescription": "Aktuelle Neuigkeiten, Angebote und Aktionen von M. Brugnara GmbH in Meran. Eisenwaren, Haushalt, Werkzeug.",
+    "Home": "Home",
+    "breadcrumbProdukte": "Produkte",
+    "News": "News"
+    
   },
   "Footer": {
     "kontakt": "Kontakt",
