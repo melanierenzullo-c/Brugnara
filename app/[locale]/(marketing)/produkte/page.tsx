@@ -83,17 +83,13 @@ export default function ProdukteOverviewPage() {
         </div>
 
         {/* Subtle grid pattern */}
-        <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+        <div className="absolute inset-0 z-0 opacity-[0.03]"/>
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
-          <div data-animate className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-6">
-            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">
-              M. Brugnara GmbH
-            </span>
-          </div>
+          
           <h1
             data-animate
-            className="mb-6 text-4xl font-black tracking-tighter text-foreground sm:text-6xl text-gradient"
+            className="mb-6 text-4xl font-black tracking-tighter text-blue-950 sm:text-6xl"
           >
             {t("heroTitle")}
           </h1>
