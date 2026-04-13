@@ -27,18 +27,9 @@ export default function KontaktPage() {
     <div className="min-h-screen bg-[#fafbff]">
       {/* ═══ Header ═══ */}
       <section className="relative overflow-hidden bg-background pt-32 pb-20">
-        <div
-          className="absolute inset-0 z-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
+        
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-6">
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{t("badge")}</span>
-          </div>
+         
           <h1 className="mb-4 text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient">
             {t("title")}
           </h1>

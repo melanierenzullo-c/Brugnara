@@ -71,7 +71,7 @@ export default function NewsPage() {
 
       {/* ═══ News articles ═══ */}
        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20 pb-40">
-        {newsItems === undefined ? (
+        {newsItems === undefined ? (    
           <div className="flex items-center justify-center py-20 text-muted-foreground text-sm gap-2">
             <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -101,13 +101,13 @@ export default function NewsPage() {
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
                     {item.imageUrl && (
-                      <div className="relative w-full sm:w-72 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[240px] overflow-hidden rounded-t-[1.5rem] sm:rounded-tr-none sm:rounded-l-[1.5rem]">
+                      <div className="relative w-full sm:w-72 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[240px] overflow-hidden rounded-t-[1.5rem] sm:rounded-tr-none sm:rounded-l-[1.5rem]40">
                         <Image
                           src={item.imageUrl}
                           alt={title}
                           fill
                           sizes="(max-width: 640px) 100vw, 288px"
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          className="object-contain"
                         />
                       </div>
                     )}
@@ -125,7 +125,7 @@ export default function NewsPage() {
                       </div>
                       <h2 className="mb-4 text-2xl font-black text-foreground">{title}</h2>
                       <p className="text-[17px] leading-relaxed text-muted-foreground font-medium whitespace-pre-line">
-                        {content}
+                        {content.length > 150 ? content.slice(0, 150) + '...' : content}
                       </p>
                     </div>
                   </div>
