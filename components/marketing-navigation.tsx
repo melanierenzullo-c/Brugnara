@@ -152,6 +152,13 @@ export function MarketingNavigation() {
               {t("home")}
             </Link>
 
+            <Link href="/news" className="rounded-xl px-4 py-2 text-[15px] font-medium text-foreground no-underline transition-all hover:bg-primary/5">
+              {t("news")}
+            </Link>
+
+            <Link href="/kontakt" className="rounded-xl px-4 py-2 text-[15px] font-medium text-foreground no-underline transition-all hover:bg-primary/5">
+              {t("contact")}
+            </Link>
             {/* Language Switcher – Globe dropdown */}
             <div className="relative ml-4"
               onMouseEnter={() => setLangOpen(true)}

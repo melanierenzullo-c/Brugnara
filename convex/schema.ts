@@ -41,6 +41,7 @@ export default defineSchema({
     beschreibungIt: v.string(),
     kategorieId: v.id("kategorien"),
     slug: v.string(),
+    archiviertAm: v.optional(v.number()),
   }).index("by_kategorie", ["kategorieId"]),
 
   news: defineTable({
@@ -50,6 +51,7 @@ export default defineSchema({
     titelIt: v.string(),
     inhaltIt: v.string(),
     createdAt: v.number(),
+    archiviertAm: v.optional(v.number()),
   }).index("by_createdAt", ["createdAt"]),
 
   aktivitaeten: defineTable({

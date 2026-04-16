@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useQuery, useMutation } from "convex/react";
 import Image from "next/image";
 
+import Link from "next/link";
+
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { AdminHeader } from "@/components/admin-header";
@@ -40,10 +42,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function LangTabInput({
   label, valueDe, valueIt, onChangeDe, onChangeIt,
   multiline = false, required = false, maxLength,
+  onTranslate, translating = false,
 }: {
   label: string; valueDe: string; valueIt: string;
   onChangeDe: (v: string) => void; onChangeIt: (v: string) => void;
   multiline?: boolean; required?: boolean; maxLength?: number;
+  onTranslate?: () => void; translating?: boolean;
 }) {
   const [lang, setLang] = useState<Lang>("de");
   const value = lang === "de" ? valueDe : valueIt;
@@ -56,17 +60,25 @@ function LangTabInput({
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
         <label className="text-sm font-semibold text-foreground">{label}</label>
-        <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
-          {(["de", "it"] as Lang[]).map((l) => {
-            const isEmpty = required && (l === "de" ? valueDe : valueIt).trim() === "";
-            return (
-              <button key={l} type="button" onClick={() => setLang(l)}
-                className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
-                {l.toUpperCase()}
-                {isEmpty && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
-              </button>
-            );
-          })}
+        <div className="flex items-center gap-1.5">
+          {onTranslate && valueDe.trim() && (
+            <button type="button" onClick={onTranslate} disabled={translating}
+              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary transition hover:bg-primary/20 disabled:opacity-50">
+              {translating ? <Spinner /> : "DE → IT"}
+            </button>
+          )}
+          <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
+            {(["de", "it"] as Lang[]).map((l) => {
+              const isEmpty = required && (l === "de" ? valueDe : valueIt).trim() === "";
+              return (
+                <button key={l} type="button" onClick={() => setLang(l)}
+                  className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
+                  {l.toUpperCase()}
+                  {isEmpty && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
       {multiline ? (
@@ -133,6 +145,52 @@ export default function AdminProduktePage() {
   /* ── delete state ── */
   const [deletingId, setDeletingId] = useState<Id<"produkte"> | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  /* ── translation ── */
+  const [translatingField, setTranslatingField] = useState<string | null>(null);
+  const [translatingAll, setTranslatingAll] = useState(false);
+
+  const translate = async (text: string): Promise<string> => {
+    const res = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) throw new Error("Übersetzung fehlgeschlagen");
+    const data = await res.json();
+    return data.translation;
+  };
+
+  const handleTranslateField = async (field: string, value: string, setter: (v: string) => void) => {
+    if (!value.trim() || translatingField) return;
+    setTranslatingField(field);
+    try {
+      const translated = await translate(value);
+      setter(translated);
+    } catch {
+      setMeldung({ text: "Übersetzung fehlgeschlagen. Bitte versuche es erneut.", ok: false });
+    } finally {
+      setTranslatingField(null);
+    }
+  };
+
+  const handleTranslateAll = async () => {
+    if (translatingAll) return;
+    setTranslatingAll(true);
+    try {
+      const [translatedName, translatedBeschreibung] = await Promise.all([
+        name.trim() ? translate(name) : Promise.resolve(nameIt),
+        beschreibung.trim() ? translate(beschreibung) : Promise.resolve(beschreibungIt),
+      ]);
+      if (name.trim()) setNameIt(translatedName);
+      if (beschreibung.trim()) setBeschreibungIt(translatedBeschreibung);
+      setMeldung({ text: "Alle Felder wurden übersetzt.", ok: true });
+    } catch {
+      setMeldung({ text: "Übersetzung fehlgeschlagen. Bitte versuche es erneut.", ok: false });
+    } finally {
+      setTranslatingAll(false);
+    }
+  };
 
   const isEditing = editingId !== null;
 
@@ -251,6 +309,13 @@ export default function AdminProduktePage() {
                 {produkte ? `${produkte.length} Produkte` : "Laden…"}
               </p>
             </div>
+            <Link href="/admin/produkte/papierkorb"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+              Papierkorb
+            </Link>
           </div>
 
           {!produkte ? (
@@ -295,7 +360,8 @@ export default function AdminProduktePage() {
                       </td>
                       {/* Name IT */}
                       <td className="px-4 py-3 hidden md:table-cell">
-                        <p className="text-foreground">{p.nameIt}</p>
+                        <p className="font-semibold text-foreground">{p.nameIt}</p>
+                        <p className="mt-0.5 text-xs text-slate-400 truncate max-w-[220px]">{p.beschreibungIt}</p>
                       </td>
                       {/* Kategorie */}
                       <td className="px-4 py-3 hidden lg:table-cell">
@@ -339,15 +405,28 @@ export default function AdminProduktePage() {
 
         {/* ────────── Create / Edit form ────────── */}
         <section id="produkt-form">
-          <div className="mb-5">
-            <h2 className="text-xl font-bold text-foreground">
-              {isEditing ? "Produkt bearbeiten" : "Neues Produkt anlegen"}
-            </h2>
-            <p className="mt-0.5 text-sm text-slate-500">
-              {isEditing
-                ? "Ändere die Daten und speichere."
-                : "Füge ein neues Produkt in Deutsch und Italienisch hinzu."}
-            </p>
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-foreground">
+                {isEditing ? "Produkt bearbeiten" : "Neues Produkt anlegen"}
+              </h2>
+              <p className="mt-0.5 text-sm text-slate-500">
+                {isEditing
+                  ? "Ändere die Daten und speichere."
+                  : "Füge ein neues Produkt in Deutsch und Italienisch hinzu."}
+              </p>
+            </div>
+            {(name.trim() || beschreibung.trim()) && (
+              <button type="button" onClick={handleTranslateAll} disabled={translatingAll}
+                className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10 disabled:opacity-50">
+                {translatingAll ? <Spinner /> : (
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                  </svg>
+                )}
+                {translatingAll ? "Übersetze…" : "Alle übersetzen"}
+              </button>
+            )}
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -361,6 +440,8 @@ export default function AdminProduktePage() {
                   valueDe={name} valueIt={nameIt}
                   onChangeDe={setName} onChangeIt={setNameIt}
                   required
+                  onTranslate={() => handleTranslateField("name", name, setNameIt)}
+                  translating={translatingField === "name"}
                 />
 
                 <LangTabInput
@@ -368,6 +449,8 @@ export default function AdminProduktePage() {
                   valueDe={beschreibung} valueIt={beschreibungIt}
                   onChangeDe={setBeschreibung} onChangeIt={setBeschreibungIt}
                   multiline required maxLength={300}
+                  onTranslate={() => handleTranslateField("beschreibung", beschreibung, setBeschreibungIt)}
+                  translating={translatingField === "beschreibung"}
                 />
 
                 <div className="grid gap-5 sm:grid-cols-2">

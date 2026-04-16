@@ -8,8 +8,25 @@ export const list = query({
   handler: async (ctx) => {
     await requireEmployeeOrAdmin(ctx);
     const produkte = await ctx.db.query("produkte").collect();
+    const aktive = produkte.filter((p) => !p.archiviertAm);
     return Promise.all(
-      produkte.map(async (p) => {
+      aktive.map(async (p) => {
+        const imageUrl = await ctx.storage.getUrl(p.foto);
+        const kategorie = await ctx.db.get(p.kategorieId);
+        return { ...p, imageUrl, kategorieName: kategorie?.name ?? "–" };
+      })
+    );
+  },
+});
+
+export const listArchiviert = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireEmployeeOrAdmin(ctx);
+    const produkte = await ctx.db.query("produkte").collect();
+    const archiviert = produkte.filter((p) => !!p.archiviertAm);
+    return Promise.all(
+      archiviert.map(async (p) => {
         const imageUrl = await ctx.storage.getUrl(p.foto);
         const kategorie = await ctx.db.get(p.kategorieId);
         return { ...p, imageUrl, kategorieName: kategorie?.name ?? "–" };
@@ -64,11 +81,51 @@ export const remove = mutation({
     if (!existing) throw new ConvexError("Produkt nicht gefunden");
 
     const kategorie = await ctx.db.get(existing.kategorieId);
+    await ctx.db.patch(args.id, { archiviertAm: Date.now() });
+
+    await ctx.runMutation(internal.aktivitaeten.logActivity, {
+      userId: user._id,
+      aktion: "Produkt in Papierkorb verschoben",
+      entity: "Produkt",
+      entityName: existing.name,
+      details: `Kategorie: ${kategorie?.name ?? "–"}`,
+    });
+  },
+});
+
+export const restore = mutation({
+  args: { id: v.id("produkte") },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const existing = await ctx.db.get(args.id);
+    if (!existing) throw new ConvexError("Produkt nicht gefunden");
+
+    await ctx.db.patch(args.id, { archiviertAm: undefined });
+
+    const kategorie = await ctx.db.get(existing.kategorieId);
+    await ctx.runMutation(internal.aktivitaeten.logActivity, {
+      userId: user._id,
+      aktion: "Produkt wiederhergestellt",
+      entity: "Produkt",
+      entityName: existing.name,
+      details: `Kategorie: ${kategorie?.name ?? "–"}`,
+    });
+  },
+});
+
+export const deletePermanent = mutation({
+  args: { id: v.id("produkte") },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const existing = await ctx.db.get(args.id);
+    if (!existing) throw new ConvexError("Produkt nicht gefunden");
+
+    const kategorie = await ctx.db.get(existing.kategorieId);
     await ctx.db.delete(args.id);
 
     await ctx.runMutation(internal.aktivitaeten.logActivity, {
       userId: user._id,
-      aktion: "Produkt gelöscht",
+      aktion: "Produkt endgültig gelöscht",
       entity: "Produkt",
       entityName: existing.name,
       details: `Kategorie: ${kategorie?.name ?? "–"}`,
@@ -84,9 +141,10 @@ export const listByKategorie = query({
       .withIndex("by_kategorie", (q) => q.eq("kategorieId", args.kategorieId))
       .collect();
 
-    // Attach the resolved image URL to each product
+    const aktive = produkte.filter((p) => !p.archiviertAm);
+
     return Promise.all(
-      produkte.map(async (produkt) => {
+      aktive.map(async (produkt) => {
         const imageUrl = await ctx.storage.getUrl(produkt.foto);
         return {
           ...produkt,

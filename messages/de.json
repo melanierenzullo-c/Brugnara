@@ -1,6 +1,8 @@
 {
   "Navigation": {
     "home": "Home",
+    "news": "News",
+    "contact": "Kontakt",
     "produkte": "Produkte",
     "admin": "Admin",
     "entdecken": "Entdecken",
