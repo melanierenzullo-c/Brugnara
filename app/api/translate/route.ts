@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Kein Text angegeben" }, { status: 400 });
   }
 
-  const apiKey = process.env.LANGLBY_API_KEY;
+  const apiKey = process.env.LANGBLY_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "API-Key fehlt" }, { status: 500 });
   }
