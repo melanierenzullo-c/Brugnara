@@ -77,8 +77,20 @@ export function MarketingNavigation() {
 
           {/* Desktop Nav */}
           <nav className="hidden items-center gap-1 lg:flex">
-            {/* Produkte Mega-Dropdown */}
-            <div
+          <Link href="/" className="rounded-xl px-4 py-2 text-[15px] font-medium text-foreground no-underline transition-all hover:bg-primary/5">
+              {t("home")}
+            </Link>
+
+            <Link href="/news" className="rounded-xl px-4 py-2 text-[15px] font-medium text-foreground no-underline transition-all hover:bg-primary/5">
+              {t("news")}
+            </Link>
+
+            <Link href="/kontakt" className="rounded-xl px-4 py-2 text-[15px] font-medium text-foreground no-underline transition-all hover:bg-primary/5">
+              {t("contact")}
+            </Link>
+
+                        {/* Produkte Mega-Dropdown */}
+                        <div
               className="group relative"
               onMouseEnter={() => setDropdownOpen(true)}
               onMouseLeave={() => setDropdownOpen(false)}
@@ -98,6 +110,8 @@ export function MarketingNavigation() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
+
+              
 
               {/* Dropdown panel */}
               <div
@@ -147,18 +161,6 @@ export function MarketingNavigation() {
                 </div>
               </div>
             </div>
-
-            <Link href="/" className="rounded-xl px-4 py-2 text-[15px] font-medium text-foreground no-underline transition-all hover:bg-primary/5">
-              {t("home")}
-            </Link>
-
-            <Link href="/news" className="rounded-xl px-4 py-2 text-[15px] font-medium text-foreground no-underline transition-all hover:bg-primary/5">
-              {t("news")}
-            </Link>
-
-            <Link href="/kontakt" className="rounded-xl px-4 py-2 text-[15px] font-medium text-foreground no-underline transition-all hover:bg-primary/5">
-              {t("contact")}
-            </Link>
             {/* Language Switcher – Globe dropdown */}
             <div className="relative ml-4"
               onMouseEnter={() => setLangOpen(true)}
