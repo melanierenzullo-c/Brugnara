@@ -20,6 +20,7 @@ const PRODUCT_CATEGORIES = [
 const LANGUAGES = [
   { code: "de", label: "Deutsch", flag: "🇩🇪" },
   { code: "it", label: "Italiano", flag: "🇮🇹" },
+  { code: "en", label: "English", flag: "🇬🇧" },
 ] as const;
 
 export function MarketingNavigation() {
@@ -40,8 +41,7 @@ export function MarketingNavigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const switchLocale = () => {
-    const newLocale = locale === "de" ? "it" : "de";
+  const switchToLocale = (newLocale: string) => {
     if (params?.slug) {
       router.replace(
         { pathname: "/produkte/[slug]", params: { slug: params.slug as string } },
@@ -176,7 +176,7 @@ export function MarketingNavigation() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.6 9h16.8M3.6 15h16.8" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 3a15 15 0 014 9 15 15 0 01-4 9 15 15 0 01-4-9 15 15 0 014-9z" />
                 </svg>
-                <span>{locale === "de" ? "Deutsch" : "Italiano"}</span>
+                <span>{LANGUAGES.find((l) => l.code === locale)?.label ?? "Deutsch"}</span>
                 <svg className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${langOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -189,7 +189,7 @@ export function MarketingNavigation() {
                     <button
                       key={lang.code}
                       onClick={() => {
-                        if (locale !== lang.code) switchLocale();
+                        if (locale !== lang.code) switchToLocale(lang.code);
                         setLangOpen(false);
                       }}
                       className={`flex w-full cursor-pointer items-center gap-3 border-none px-4 py-3 text-left text-[13px] font-semibold transition-all ${locale === lang.code
@@ -259,7 +259,7 @@ export function MarketingNavigation() {
                 <button
                   key={lang.code}
                   onClick={() => {
-                    if (locale !== lang.code) switchLocale();
+                    if (locale !== lang.code) switchToLocale(lang.code);
                     setMobileMenuOpen(false);
                   }}
                   className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none px-4 py-3 text-left text-[14px] font-semibold transition-all ${locale === lang.code

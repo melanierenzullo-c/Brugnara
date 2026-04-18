@@ -43,13 +43,17 @@ function LangTabInput({
   label, valueDe, valueIt, onChangeDe, onChangeIt,
   multiline = false, required = false, maxLength,
   onTranslate, translating = false,
+  lang: externalLang, onLangChange,
 }: {
   label: string; valueDe: string; valueIt: string;
   onChangeDe: (v: string) => void; onChangeIt: (v: string) => void;
   multiline?: boolean; required?: boolean; maxLength?: number;
   onTranslate?: () => void; translating?: boolean;
+  lang?: Lang; onLangChange?: (l: Lang) => void;
 }) {
-  const [lang, setLang] = useState<Lang>("de");
+  const [internalLang, setInternalLang] = useState<Lang>("de");
+  const lang = externalLang ?? internalLang;
+  const setLang = onLangChange ?? setInternalLang;
   const value = lang === "de" ? valueDe : valueIt;
   const onChange = lang === "de" ? onChangeDe : onChangeIt;
 
@@ -145,6 +149,9 @@ export default function AdminProduktePage() {
   /* ── delete state ── */
   const [deletingId, setDeletingId] = useState<Id<"produkte"> | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  /* ── shared language tab ── */
+  const [formLang, setFormLang] = useState<Lang>("de");
 
   /* ── translation ── */
   const [translatingField, setTranslatingField] = useState<string | null>(null);
@@ -442,6 +449,7 @@ export default function AdminProduktePage() {
                   required
                   onTranslate={() => handleTranslateField("name", name, setNameIt)}
                   translating={translatingField === "name"}
+                  lang={formLang} onLangChange={setFormLang}
                 />
 
                 <LangTabInput
@@ -451,6 +459,7 @@ export default function AdminProduktePage() {
                   multiline required maxLength={300}
                   onTranslate={() => handleTranslateField("beschreibung", beschreibung, setBeschreibungIt)}
                   translating={translatingField === "beschreibung"}
+                  lang={formLang} onLangChange={setFormLang}
                 />
 
                 <div className="grid gap-5 sm:grid-cols-2">

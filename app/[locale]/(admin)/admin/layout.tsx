@@ -8,7 +8,18 @@ import {
   isAuthenticated,
 } from "@/lib/auth-server";
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (locale !== "de") {
+    redirect("/admin");
+  }
+
   const authed = await isAuthenticated();
   if (!authed) {
     redirect("/login");

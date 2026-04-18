@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import "../globals.css";
-import { Inter } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
@@ -9,12 +7,6 @@ import { GsapProvider } from "@/components/gsap-provider";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { getToken } from "@/lib/auth-server";
 import { JsonLd, getLocalBusinessJsonLd } from "@/components/json-ld";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
 
 const BASE_URL = "https://brugnara.bz.it";
 
@@ -122,17 +114,13 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const localBusinessData = getLocalBusinessJsonLd(locale);
 
   return (
-    <html lang={locale} dir="ltr" suppressHydrationWarning>
-      <head>
-        <JsonLd data={localBusinessData} />
-      </head>
-      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
-        <ConvexClientProvider initialToken={initialToken}>
-          <NextIntlClientProvider messages={messages}>
-            <GsapProvider>{children}</GsapProvider>
-          </NextIntlClientProvider>
-        </ConvexClientProvider>
-      </body>
-    </html>
+    <>
+      <JsonLd data={localBusinessData} />
+      <ConvexClientProvider initialToken={initialToken}>
+        <NextIntlClientProvider messages={messages}>
+          <GsapProvider>{children}</GsapProvider>
+        </NextIntlClientProvider>
+      </ConvexClientProvider>
+    </>
   );
 }
