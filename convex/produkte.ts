@@ -133,6 +133,26 @@ export const deletePermanent = mutation({
   },
 });
 
+export const listPublic = query({
+  args: {},
+  handler: async (ctx) => {
+    const produkte = await ctx.db.query("produkte").collect();
+    const aktive = produkte.filter((p) => !p.archiviertAm);
+    return Promise.all(
+      aktive.map(async (p) => {
+        const imageUrl = await ctx.storage.getUrl(p.foto);
+        const kategorie = await ctx.db.get(p.kategorieId);
+        return {
+          ...p,
+          imageUrl,
+          kategorieName: kategorie?.name ?? "–",
+          kategorieNameIt: kategorie?.nameIt ?? "–",
+        };
+      })
+    );
+  },
+});
+
 export const listByKategorie = query({
   args: { kategorieId: v.id("kategorien") },
   handler: async (ctx, args) => {

@@ -53,7 +53,10 @@
     "sectionTitle": "Tutte le categorie",
     "viewCollection": "Vedi collezione",
     "metaTitle": "I nostri prodotti – M. Brugnara Srl",
-    "metaDescription": "Il vasto assortimento di M. Brugnara Srl a Merano: ferramenta, casalinghi, utensili, elettrodomestici, attrezzi da giardino, stufe e cucine."
+    "metaDescription": "Il vasto assortimento di M. Brugnara Srl a Merano: ferramenta, casalinghi, utensili, elettrodomestici, attrezzi da giardino, stufe e cucine.",
+    "searchPlaceholder": "Cerca prodotti…",
+    "searchNoResults": "Nessun prodotto trovato.",
+    "searchResultsCount": "{count} prodotto/i trovato/i"
   },
   "Contact": {
     "badge": "Contatto",
@@ -151,7 +154,12 @@
     "subtitle": "Restate aggiornati su novità, promozioni e offerte di M. Brugnara.",
     "placeholder": "Al momento non ci sono novità.",
     "metaTitle": "Notizie & Offerte – M. Brugnara Srl",
-    "metaDescription": "Ultime notizie, offerte e promozioni di M. Brugnara Srl a Merano. Ferramenta, casalinghi, utensili."
+    "metaDescription": "Ultime notizie, offerte e promozioni di M. Brugnara Srl a Merano. Ferramenta, casalinghi, utensili.",
+    "Home": "Home",
+    "breadcrumbProdukte": "Prodotti",
+    "News": "Notizie",
+    "searchPlaceholder": "Cerca notizie…",
+    "searchNoResults": "Nessuna notizia trovata."
   },
   "Footer": {
     "kontakt": "Contatto",
@@ -261,10 +269,5 @@
   "Metadata": {
     "title": "M. Brugnara Srl",
     "description": "M. Brugnara Srl – Il vostro negozio specializzato a Merano per ferramenta, casalinghi, utensili, elettrodomestici, attrezzi da giardino, stufe e cucine."
-  },
-  "News": {
-    "title": "Notizie & Offerte",
-    "description": "Attualità"
   }
-
 }

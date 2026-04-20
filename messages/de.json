@@ -53,7 +53,10 @@
     "sectionTitle": "Alle Kategorien",
     "viewCollection": "Kollektion ansehen",
     "metaTitle": "Unsere Produktwelt – M. Brugnara GmbH",
-    "metaDescription": "Das vielfältige Sortiment von M. Brugnara GmbH in Meran: Eisenwaren, Haushalt, Werkzeug, Elektrogeräte, Gartengeräte, Öfen und Herde."
+    "metaDescription": "Das vielfältige Sortiment von M. Brugnara GmbH in Meran: Eisenwaren, Haushalt, Werkzeug, Elektrogeräte, Gartengeräte, Öfen und Herde.",
+    "searchPlaceholder": "Produkte suchen…",
+    "searchNoResults": "Keine Produkte gefunden.",
+    "searchResultsCount": "{count} Produkt(e) gefunden"
   },
   "Contact": {
     "badge": "Kontakt",
@@ -154,8 +157,9 @@
     "metaDescription": "Aktuelle Neuigkeiten, Angebote und Aktionen von M. Brugnara GmbH in Meran. Eisenwaren, Haushalt, Werkzeug.",
     "Home": "Home",
     "breadcrumbProdukte": "Produkte",
-    "News": "News"
-    
+    "News": "News",
+    "searchPlaceholder": "News suchen…",
+    "searchNoResults": "Keine News gefunden."
   },
   "Footer": {
     "kontakt": "Kontakt",

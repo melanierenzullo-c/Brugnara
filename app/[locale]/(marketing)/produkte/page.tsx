@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import type { Locale } from "@/i18n/routing";
 
 /** All product categories with their representative images */
 const PRODUCT_CATEGORIES = [
@@ -17,20 +22,31 @@ const PRODUCT_CATEGORIES = [
   { slug: "werkzeug", image: "/images/home/werkzeug/1.jpg" },
 ] as const;
 
-/**
- * Product overview page – displays all product categories
- * in a hero + grid layout consistent with the rest of the site.
- */
 export default function ProdukteOverviewPage() {
   const t = useTranslations("ProductsOverview");
   const tCat = useTranslations("ProductCategories");
+  const locale = useLocale() as Locale;
   const heroRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const alleProdukte = useQuery(api.produkte.listPublic);
+
+  const isSearching = searchQuery.trim().length > 0;
+
+  const suchergebnisse = isSearching && alleProdukte
+    ? alleProdukte.filter((p) => {
+        const q = searchQuery.trim().toLowerCase();
+        return (
+          p.name.toLowerCase().includes(q) ||
+          p.nameIt.toLowerCase().includes(q)
+        );
+      })
+    : [];
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    /* Hero entrance animation */
     if (heroRef.current) {
       const els = heroRef.current.querySelectorAll("[data-animate]");
       if (els.length > 0) {
@@ -42,8 +58,7 @@ export default function ProdukteOverviewPage() {
       }
     }
 
-    /* Category card stagger animation */
-    if (gridRef.current) {
+    if (!isSearching && gridRef.current) {
       const cards = gridRef.current.querySelectorAll("[data-card]");
       if (cards.length > 0) {
         gsap.fromTo(
@@ -67,7 +82,7 @@ export default function ProdukteOverviewPage() {
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
-  }, []);
+  }, [isSearching]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,17 +91,14 @@ export default function ProdukteOverviewPage() {
         ref={heroRef}
         className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-20 sm:pt-32 sm:pb-28"
       >
-        {/* Animated Background Gradients */}
         <div className="absolute inset-0 z-0">
           <div className="absolute -left-[5%] -top-[5%] h-[40%] w-[40%] rounded-full bg-primary/10 blur-[100px] animate-pulse" />
           <div className="absolute -right-[5%] -bottom-[5%] h-[30%] w-[30%] rounded-full bg-secondary/20 blur-[80px] animate-pulse [animation-delay:1s]" />
         </div>
 
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 z-0 opacity-[0.03]"/>
+        <div className="absolute inset-0 z-0 opacity-[0.03]" />
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
-          
           <h1
             data-animate
             className="mb-6 text-4xl font-black tracking-tighter text-blue-950 sm:text-6xl"
@@ -102,63 +114,135 @@ export default function ProdukteOverviewPage() {
         </div>
       </section>
 
-      {/* ═══ Categories Grid ═══ */}
+      {/* ═══ Categories Grid / Search Results ═══ */}
       <section className="relative py-16 sm:py-28 overflow-hidden bg-background">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-2/3 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
         <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-16">
-            <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary/80">
-              {t("sectionTitle")}
-            </p>
+          {/* Search field */}
+          <div className="relative max-w-xl mx-auto mb-12">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              className="pl-10 h-12 rounded-full border-border/60 bg-white/80 backdrop-blur-sm"
+            />
           </div>
 
-          <div
-            ref={gridRef}
-            className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {PRODUCT_CATEGORIES.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={{
-                  pathname: "/produkte/[slug]",
-                  params: { slug: cat.slug },
-                }}
-                data-card
-                className="group premium-card p-4 no-underline"
+          {isSearching ? (
+            /* ── Search results ── */
+            <div>
+              {alleProdukte === undefined ? (
+                <div className="flex items-center justify-center py-20 text-muted-foreground text-sm gap-2">
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  Laden…
+                </div>
+              ) : suchergebnisse.length === 0 ? (
+                <p className="py-20 text-center text-lg text-muted-foreground">
+                  {t("searchNoResults")}
+                </p>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground text-center mb-8">
+                    {t("searchResultsCount", { count: suchergebnisse.length })}
+                  </p>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {suchergebnisse.map((produkt) => {
+                      const productName = locale === "it" ? produkt.nameIt : produkt.name;
+                      const katName = locale === "it" ? produkt.kategorieNameIt : produkt.kategorieName;
+                      return (
+                        <div
+                          key={produkt._id}
+                          className="group relative overflow-hidden rounded-[2.5rem] bg-white border border-border/50 p-4 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] hover:border-primary/20"
+                        >
+                          <div className="relative aspect-square w-full overflow-hidden rounded-[1.8rem] bg-[#F8FAFC]">
+                            {produkt.imageUrl ? (
+                              <Image
+                                src={produkt.imageUrl}
+                                alt={productName || "Produktbild"}
+                                fill
+                                className="object-contain"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-4xl font-black text-primary/10">
+                                {productName ? productName.substring(0, 1).toUpperCase() : "P"}
+                              </div>
+                            )}
+                          </div>
+                          <div className="px-4 py-6">
+                            <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-primary/70">
+                              {katName}
+                            </span>
+                            <h4 className="text-xl font-bold text-foreground">
+                              {productName}
+                            </h4>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            /* ── Normal category grid ── */
+            <>
+              <div className="text-center mb-16">
+                <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary/80">
+                  {t("sectionTitle")}
+                </p>
+              </div>
+
+              <div
+                ref={gridRef}
+                className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
               >
-                {/* Category image */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1rem]">
-                  <Image
-                    src={cat.image}
-                    alt={tCat(cat.slug)}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  {/* Gradient overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                </div>
+                {PRODUCT_CATEGORIES.map((cat) => (
+                  <Link
+                    key={cat.slug}
+                    href={{
+                      pathname: "/produkte/[slug]",
+                      params: { slug: cat.slug },
+                    }}
+                    data-card
+                    className="group premium-card p-3 no-underline"
+                  >
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1rem]">
+                      <Image
+                        src={cat.image}
+                        alt={tCat(cat.slug)}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                    </div>
 
-                {/* Category label */}
-                <div className="flex items-center justify-between px-4 py-6">
-                  <div className="flex flex-col">
-                    <h2 className="text-xl font-bold text-foreground">
-                      {tCat(cat.slug)}
-                    </h2>
-                    <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                      {t("viewCollection")}
-                    </span>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary/10 text-primary transition-all duration-500 group-hover:bg-primary group-hover:text-white group-hover:rotate-45">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                    <div className="flex items-center justify-between px-4 py-6">
+                      <div className="flex flex-col">
+                        <h2 className="text-xl font-bold text-foreground">
+                          {tCat(cat.slug)}
+                        </h2>
+                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                          {t("viewCollection")}
+                        </span>
+                      </div>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10 text-primary transition-all duration-500 group-hover:bg-primary group-hover:text-white">
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
     </div>
