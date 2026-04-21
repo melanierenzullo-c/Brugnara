@@ -13,7 +13,7 @@ import { AdminHeader } from "@/components/admin-header";
 
 /* ─────────────────── shared types ─────────────────── */
 
-type Lang = "de" | "it";
+type Lang = "de" | "en" | "it";
 
 interface ProduktRow {
   _id: Id<"produkte">;
