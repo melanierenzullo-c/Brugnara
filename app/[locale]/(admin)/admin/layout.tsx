@@ -42,7 +42,7 @@ export default async function AdminLayout({
   try {
     await fetchAuthQuery(api.users.me, {});
   } catch {
-    redirect("/login");
+    redirect("/login?reason=disabled");
   }
 
   return <>{children}</>;

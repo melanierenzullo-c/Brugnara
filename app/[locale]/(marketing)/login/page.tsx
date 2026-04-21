@@ -3,15 +3,23 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const t = useTranslations("Auth");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(() => {
+    const reason = searchParams.get("reason");
+    if (reason === "disabled") {
+      return "Dein Account wurde deaktiviert. Bitte kontaktiere einen Administrator.";
+    }
+    return null;
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (event: React.FormEvent) => {

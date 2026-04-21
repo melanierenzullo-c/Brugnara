@@ -66,6 +66,8 @@ describe("produkte + files auth", () => {
       foto: storageId,
       nameIt: "Martello",
       beschreibungIt: "Descrizione",
+      nameEn: "Hammer",
+      beschreibungEn: "Description",
       kategorieId,
       slug: "hammer",
     });
@@ -87,6 +89,8 @@ describe("produkte + files auth", () => {
         foto: storageId,
         nameIt: "X",
         beschreibungIt: "Y",
+        nameEn: "X",
+        beschreibungEn: "Y",
         kategorieId,
         slug: "   ",
       })
@@ -133,6 +137,8 @@ describe("produkte + files auth", () => {
       foto: storageId,
       nameIt: "Vecchio",
       beschreibungIt: "Prodotto vecchio",
+      nameEn: "Old",
+      beschreibungEn: "Old product",
       kategorieId,
       slug: "alt",
     });
@@ -143,6 +149,8 @@ describe("produkte + files auth", () => {
       beschreibung: "Neues Produkt",
       nameIt: "Nuovo",
       beschreibungIt: "Prodotto nuovo",
+      nameEn: "New",
+      beschreibungEn: "New product",
       kategorieId,
       slug: "neu",
     });
@@ -192,6 +200,8 @@ describe("produkte + files auth", () => {
       foto: storageId,
       nameIt: "Lager",
       beschreibungIt: "Una birra",
+      nameEn: "Lager",
+      beschreibungEn: "A beer",
       kategorieId,
       slug: "lager",
     });
@@ -226,6 +236,8 @@ describe("produkte + files auth", () => {
         foto: storageId,
         nameIt: "P",
         beschreibungIt: "B",
+        nameEn: "P",
+        beschreibungEn: "B",
         kategorieId,
         slug: "p",
       });
@@ -238,6 +250,8 @@ describe("produkte + files auth", () => {
         beschreibung: "X",
         nameIt: "X",
         beschreibungIt: "X",
+        nameEn: "X",
+        beschreibungEn: "X",
         kategorieId,
         slug: "x",
       })

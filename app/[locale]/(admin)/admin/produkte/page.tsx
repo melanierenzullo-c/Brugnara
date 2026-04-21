@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useQuery, useMutation } from "convex/react";
 import Image from "next/image";
+import { Search } from "lucide-react";
 
 import Link from "next/link";
 
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { AdminHeader } from "@/components/admin-header";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 /* ─────────────────── shared types ─────────────────── */
 
-type Lang = "de" | "en" | "it";
+type Lang = "de" | "it" | "en";
 
 interface ProduktRow {
   _id: Id<"produkte">;
@@ -21,11 +24,28 @@ interface ProduktRow {
   beschreibung: string;
   nameIt: string;
   beschreibungIt: string;
+  nameEn?: string;
+  beschreibungEn?: string;
   kategorieId: Id<"kategorien">;
   slug: string;
   foto: Id<"_storage">;
   imageUrl: string | null;
   kategorieName: string;
+}
+
+interface ProduktDraftRow {
+  _id: Id<"produktEntwuerfe">;
+  name: string;
+  beschreibung: string;
+  nameIt: string;
+  beschreibungIt: string;
+  nameEn?: string;
+  beschreibungEn?: string;
+  kategorieId?: Id<"kategorien">;
+  foto?: Id<"_storage">;
+  updatedAt: number;
+  ownerName?: string;
+  isOwner?: boolean;
 }
 
 /* ─────────────────── small UI pieces ─────────────────── */
@@ -40,13 +60,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function LangTabInput({
-  label, valueDe, valueIt, onChangeDe, onChangeIt,
+  label, valueDe, valueIt, valueEn, onChangeDe, onChangeIt, onChangeEn,
   multiline = false, required = false, maxLength,
   onTranslate, translating = false,
   lang: externalLang, onLangChange,
 }: {
-  label: string; valueDe: string; valueIt: string;
-  onChangeDe: (v: string) => void; onChangeIt: (v: string) => void;
+  label: string; valueDe: string; valueIt: string; valueEn: string;
+  onChangeDe: (v: string) => void; onChangeIt: (v: string) => void; onChangeEn: (v: string) => void;
   multiline?: boolean; required?: boolean; maxLength?: number;
   onTranslate?: () => void; translating?: boolean;
   lang?: Lang; onLangChange?: (l: Lang) => void;
@@ -54,8 +74,8 @@ function LangTabInput({
   const [internalLang, setInternalLang] = useState<Lang>("de");
   const lang = externalLang ?? internalLang;
   const setLang = onLangChange ?? setInternalLang;
-  const value = lang === "de" ? valueDe : valueIt;
-  const onChange = lang === "de" ? onChangeDe : onChangeIt;
+  const value = lang === "de" ? valueDe : lang === "it" ? valueIt : valueEn;
+  const onChange = lang === "de" ? onChangeDe : lang === "it" ? onChangeIt : onChangeEn;
 
   const cls =
     "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-foreground placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition";
@@ -72,8 +92,8 @@ function LangTabInput({
             </button>
           )}
           <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
-            {(["de", "it"] as Lang[]).map((l) => {
-              const isEmpty = required && (l === "de" ? valueDe : valueIt).trim() === "";
+            {(["de", "it", "en"] as Lang[]).map((l) => {
+              const isEmpty = required && (l === "de" ? valueDe : l === "it" ? valueIt : valueEn).trim() === "";
               return (
                 <button key={l} type="button" onClick={() => setLang(l)}
                   className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
@@ -129,11 +149,16 @@ export default function AdminProduktePage() {
   const t = useTranslations("Admin");
   const kategorien = useQuery(api.kategorien.list);
   const produkte = useQuery(api.produkte.list) as ProduktRow[] | undefined;
+  const drafts = useQuery(api.produkte.listDrafts) as ProduktDraftRow[] | undefined;
 
   const createProdukt = useMutation(api.produkte.create);
   const updateProdukt = useMutation(api.produkte.update);
   const removeProdukt = useMutation(api.produkte.remove);
+  const createDraft = useMutation(api.produkte.createDraft);
+  const saveDraft = useMutation(api.produkte.saveDraft);
+  const deleteDraft = useMutation(api.produkte.deleteDraft);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const deleteFile = useMutation(api.files.deleteFile);
 
   /* ── form state (shared for create & edit) ── */
   const [editingId, setEditingId] = useState<Id<"produkte"> | null>(null);
@@ -141,10 +166,19 @@ export default function AdminProduktePage() {
   const [beschreibung, setBeschreibung] = useState("");
   const [nameIt, setNameIt] = useState("");
   const [beschreibungIt, setBeschreibungIt] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [beschreibungEn, setBeschreibungEn] = useState("");
   const [kategorieId, setKategorieId] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [meldung, setMeldung] = useState<{ text: string; ok: boolean } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [activeDraftId, setActiveDraftId] = useState<Id<"produktEntwuerfe"> | null>(null);
+  const [activeDraftFotoId, setActiveDraftFotoId] = useState<Id<"_storage"> | null>(null);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [lastDraftSavedAt, setLastDraftSavedAt] = useState<number | null>(null);
+  const creatingDraftRef = useRef(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [draftTab, setDraftTab] = useState("produkte");
 
   /* ── delete state ── */
   const [deletingId, setDeletingId] = useState<Id<"produkte"> | null>(null);
@@ -201,17 +235,145 @@ export default function AdminProduktePage() {
 
   const isEditing = editingId !== null;
 
+  const ensureActiveDraftId = useCallback(async (): Promise<Id<"produktEntwuerfe"> | null> => {
+    if (activeDraftId) return activeDraftId;
+    try {
+      creatingDraftRef.current = true;
+      const id = await createDraft({});
+      setActiveDraftId(id);
+      return id;
+    } catch {
+      setMeldung({ text: "Entwurf konnte nicht erstellt werden.", ok: false });
+      return null;
+    } finally {
+      creatingDraftRef.current = false;
+    }
+  }, [activeDraftId, createDraft]);
+
+  useEffect(() => {
+    if (isEditing || activeDraftId || creatingDraftRef.current) return;
+    const hasContent = Boolean(
+      name.trim() ||
+      beschreibung.trim() ||
+      nameIt.trim() ||
+      beschreibungIt.trim() ||
+      nameEn.trim() ||
+      beschreibungEn.trim() ||
+      kategorieId
+    );
+    if (!hasContent) return;
+    void ensureActiveDraftId();
+  }, [isEditing, activeDraftId, name, beschreibung, nameIt, beschreibungIt, nameEn, beschreibungEn, kategorieId, ensureActiveDraftId]);
+
+  useEffect(() => {
+    if (!activeDraftId || isEditing) return;
+    const timer = setTimeout(async () => {
+      const isEmpty =
+        name.trim() === "" &&
+        beschreibung.trim() === "" &&
+        nameIt.trim() === "" &&
+        beschreibungIt.trim() === "" &&
+        nameEn.trim() === "" &&
+        beschreibungEn.trim() === "" &&
+        !kategorieId &&
+        !activeDraftFotoId;
+
+      try {
+        setSavingDraft(true);
+        if (isEmpty) {
+          await deleteDraft({ id: activeDraftId });
+          setActiveDraftId(null);
+          setActiveDraftFotoId(null);
+          setLastDraftSavedAt(null);
+        } else {
+          await saveDraft({
+            id: activeDraftId,
+            name,
+            beschreibung,
+            nameIt,
+            beschreibungIt,
+            nameEn,
+            beschreibungEn,
+            kategorieId: kategorieId ? (kategorieId as Id<"kategorien">) : undefined,
+          });
+          setLastDraftSavedAt(Date.now());
+        }
+      } catch {
+        setMeldung({ text: "Entwurf konnte nicht gespeichert werden.", ok: false });
+      } finally {
+        setSavingDraft(false);
+      }
+    }, 900);
+
+    return () => clearTimeout(timer);
+  }, [activeDraftId, name, beschreibung, nameIt, beschreibungIt, nameEn, beschreibungEn, kategorieId, activeDraftFotoId, isEditing, saveDraft, deleteDraft]);
+
   const resetForm = useCallback(() => {
     setEditingId(null);
     setName("");
     setBeschreibung("");
     setNameIt("");
     setBeschreibungIt("");
+    setNameEn("");
+    setBeschreibungEn("");
     setKategorieId("");
     setSelectedImage(null);
     const fi = document.getElementById("foto-upload") as HTMLInputElement | null;
     if (fi) fi.value = "";
   }, []);
+
+  const handleCreateDraft = async () => {
+    try {
+      const id = await createDraft({});
+      setActiveDraftId(id);
+      setEditingId(null);
+      setName("");
+      setBeschreibung("");
+      setNameIt("");
+      setBeschreibungIt("");
+      setNameEn("");
+      setBeschreibungEn("");
+      setKategorieId("");
+      setSelectedImage(null);
+      setActiveDraftFotoId(null);
+      setMeldung({ text: "Neuer Entwurf erstellt.", ok: true });
+    } catch {
+      setMeldung({ text: "Entwurf konnte nicht erstellt werden.", ok: false });
+    }
+  };
+
+  const handleLoadDraft = (draft: ProduktDraftRow) => {
+    if (!draft.isOwner) {
+      setMeldung({ text: "Nur eigene Entwürfe können geöffnet werden.", ok: false });
+      return;
+    }
+    setEditingId(null);
+    setActiveDraftId(draft._id);
+    setName(draft.name);
+    setBeschreibung(draft.beschreibung);
+    setNameIt(draft.nameIt);
+    setBeschreibungIt(draft.beschreibungIt);
+    setNameEn(draft.nameEn ?? draft.name);
+    setBeschreibungEn(draft.beschreibungEn ?? draft.beschreibung);
+    setKategorieId(draft.kategorieId ?? "");
+    setActiveDraftFotoId(draft.foto ?? null);
+    setSelectedImage(null);
+    // Keep the bottom tab state as-is (e.g. Entwürfe stays open)
+  };
+
+  const handleDeleteDraft = async (id: Id<"produktEntwuerfe">) => {
+    try {
+      await deleteDraft({ id });
+      if (activeDraftId === id) {
+        setActiveDraftId(null);
+        setActiveDraftFotoId(null);
+        resetForm();
+      }
+      setMeldung({ text: "Entwurf gelöscht.", ok: true });
+    } catch {
+      setMeldung({ text: "Entwurf konnte nicht gelöscht werden.", ok: false });
+    }
+  };
 
   const startEdit = useCallback((p: ProduktRow) => {
     setEditingId(p._id);
@@ -219,6 +381,8 @@ export default function AdminProduktePage() {
     setBeschreibung(p.beschreibung);
     setNameIt(p.nameIt);
     setBeschreibungIt(p.beschreibungIt);
+    setNameEn(p.nameEn ?? p.name);
+    setBeschreibungEn(p.beschreibungEn ?? p.beschreibung);
     setKategorieId(p.kategorieId);
     setSelectedImage(null);
     setMeldung(null);
@@ -245,11 +409,11 @@ export default function AdminProduktePage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setMeldung(null);
-    if (!name.trim() || !nameIt.trim()) {
-      setMeldung({ text: "Bitte Produktname in Deutsch und Italienisch eingeben.", ok: false }); return;
+    if (!name.trim() || !nameIt.trim() || !nameEn.trim()) {
+      setMeldung({ text: "Bitte Produktname in Deutsch, Italienisch und Englisch eingeben.", ok: false }); return;
     }
-    if (!beschreibung.trim() || !beschreibungIt.trim()) {
-      setMeldung({ text: "Bitte Beschreibung in Deutsch und Italienisch eingeben.", ok: false }); return;
+    if (!beschreibung.trim() || !beschreibungIt.trim() || !beschreibungEn.trim()) {
+      setMeldung({ text: "Bitte Beschreibung in Deutsch, Italienisch und Englisch eingeben.", ok: false }); return;
     }
     if (!kategorieId) { setMeldung({ text: t("bitteKategorie"), ok: false }); return; }
     if (!isEditing && !selectedImage) { setMeldung({ text: t("bitteFoto"), ok: false }); return; }
@@ -274,6 +438,8 @@ export default function AdminProduktePage() {
           beschreibung,
           nameIt,
           beschreibungIt,
+          nameEn,
+          beschreibungEn,
           kategorieId: kategorieId as Id<"kategorien">,
           slug,
           ...(storageId ? { foto: storageId } : {}),
@@ -283,10 +449,15 @@ export default function AdminProduktePage() {
       } else {
         if (!storageId) throw new Error("Kein Bild ausgewählt");
         await createProdukt({
-          name, beschreibung, foto: storageId, nameIt, beschreibungIt,
+          name, beschreibung, foto: storageId, nameIt, beschreibungIt, nameEn, beschreibungEn,
           kategorieId: kategorieId as Id<"kategorien">, slug,
         });
         setMeldung({ text: "Produkt erfolgreich gespeichert.", ok: true });
+        if (activeDraftId) {
+          await deleteDraft({ id: activeDraftId });
+          setActiveDraftId(null);
+          setActiveDraftFotoId(null);
+        }
         resetForm();
       }
     } catch (error) {
@@ -298,6 +469,57 @@ export default function AdminProduktePage() {
 
   const inputClass =
     "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition";
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredProdukte = produkte?.filter((p) => {
+    if (!normalizedQuery) return true;
+    return (
+      p.name.toLowerCase().includes(normalizedQuery) ||
+      p.nameIt.toLowerCase().includes(normalizedQuery) ||
+      p.beschreibung.toLowerCase().includes(normalizedQuery) ||
+      p.beschreibungIt.toLowerCase().includes(normalizedQuery) ||
+      p.kategorieName.toLowerCase().includes(normalizedQuery)
+    );
+  });
+
+  const handleDraftImageChange = async (file: File | null) => {
+    setSelectedImage(file);
+    if (!file || isEditing) return;
+
+    const draftId = await ensureActiveDraftId();
+    if (!draftId) return;
+
+    try {
+      const postUrl = await generateUploadUrl();
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!result.ok) throw new Error("Fehler beim Hochladen des Bildes");
+      const json = await result.json();
+      const storageId = json.storageId as Id<"_storage">;
+
+      if (activeDraftFotoId && activeDraftFotoId !== storageId) {
+        await deleteFile({ storageId: activeDraftFotoId });
+      }
+
+      await saveDraft({
+        id: draftId,
+        name,
+        beschreibung,
+        nameIt,
+        beschreibungIt,
+        nameEn,
+        beschreibungEn,
+        kategorieId: kategorieId ? (kategorieId as Id<"kategorien">) : undefined,
+        foto: storageId,
+      });
+      setActiveDraftFotoId(storageId);
+      setLastDraftSavedAt(Date.now());
+    } catch {
+      setMeldung({ text: "Entwurfsbild konnte nicht gespeichert werden.", ok: false });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -333,6 +555,16 @@ export default function AdminProduktePage() {
             )}
           </div>
 
+          {!isEditing && activeDraftId && (
+            <p className="mb-3 mt-1 text-xs text-slate-400">
+              {savingDraft
+                ? "Entwurf wird gespeichert…"
+                : lastDraftSavedAt
+                  ? `Entwurf gespeichert um ${new Date(lastDraftSavedAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}`
+                  : "Auto-Save aktiv"}
+            </p>
+          )}
+
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
 
@@ -341,8 +573,8 @@ export default function AdminProduktePage() {
 
                 <LangTabInput
                   label="Produktname"
-                  valueDe={name} valueIt={nameIt}
-                  onChangeDe={setName} onChangeIt={setNameIt}
+                  valueDe={name} valueIt={nameIt} valueEn={nameEn}
+                  onChangeDe={setName} onChangeIt={setNameIt} onChangeEn={setNameEn}
                   required
                   onTranslate={() => handleTranslateField("name", name, setNameIt)}
                   translating={translatingField === "name"}
@@ -351,8 +583,8 @@ export default function AdminProduktePage() {
 
                 <LangTabInput
                   label="Beschreibung"
-                  valueDe={beschreibung} valueIt={beschreibungIt}
-                  onChangeDe={setBeschreibung} onChangeIt={setBeschreibungIt}
+                  valueDe={beschreibung} valueIt={beschreibungIt} valueEn={beschreibungEn}
+                  onChangeDe={setBeschreibung} onChangeIt={setBeschreibungIt} onChangeEn={setBeschreibungEn}
                   multiline required maxLength={300}
                   onTranslate={() => handleTranslateField("beschreibung", beschreibung, setBeschreibungIt)}
                   translating={translatingField === "beschreibung"}
@@ -369,7 +601,7 @@ export default function AdminProduktePage() {
 
                   <Field label={isEditing ? "Neues Produktbild (optional)" : "Produktbild"}>
                     <input id="foto-upload" type="file" accept="image/*"
-                      onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+                      onChange={(e) => void handleDraftImageChange(e.target.files?.[0] || null)}
                       required={!isEditing}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-foreground file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200 transition cursor-pointer" />
                     <p className="text-xs text-slate-400 mt-1">
@@ -383,6 +615,20 @@ export default function AdminProduktePage() {
               <div className="space-y-4">
                 {/* Save card */}
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+                  {(editingId || activeDraftId) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const query = editingId
+                          ? `id=${editingId}`
+                          : `draftId=${activeDraftId}`;
+                        window.open(`/admin/produkte/vorschau?${query}`, "_blank");
+                      }}
+                      className="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                    >
+                      Vorschau öffnen
+                    </button>
+                  )}
                   <button type="submit" disabled={saving}
                     className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
                     {saving && <Spinner />}
@@ -436,7 +682,9 @@ export default function AdminProduktePage() {
             <div>
               <h1 className="text-xl font-bold text-foreground">Alle Produkte</h1>
               <p className="mt-0.5 text-sm text-slate-500">
-                {produkte ? `${produkte.length} Produkte` : "Laden…"}
+                {produkte
+                  ? `${filteredProdukte?.length ?? 0} von ${produkte.length} Produkte`
+                  : "Laden…"}
               </p>
             </div>
             <Link href="/admin/produkte/papierkorb"
@@ -447,90 +695,157 @@ export default function AdminProduktePage() {
               Papierkorb
             </Link>
           </div>
+          <Tabs value={draftTab} onValueChange={setDraftTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="produkte">Alle Produkte</TabsTrigger>
+              <TabsTrigger value="drafts">Entwürfe</TabsTrigger>
+            </TabsList>
 
-          {!produkte ? (
-            <div className="flex items-center justify-center py-16 text-slate-400 text-sm gap-2">
-              <Spinner /> Laden…
-            </div>
-          ) : produkte.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center text-sm text-slate-400">
-              Noch keine Produkte vorhanden.
-            </div>
-          ) : (
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/80">
-                    <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">Bild</th>
-                    <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">Name (DE)</th>
-                    <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 hidden md:table-cell">Name (IT)</th>
-                    <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 hidden lg:table-cell">Kategorie</th>
-                    <th className="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-slate-400">Aktionen</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {produkte.map((p) => (
-                    <tr key={p._id}
-                      className={`border-b border-slate-50 transition hover:bg-slate-50/60 ${editingId === p._id ? "bg-primary/5" : ""}`}>
-                      {/* Thumbnail */}
-                      <td className="px-4 py-3">
-                        {p.imageUrl ? (
-                          <Image src={p.imageUrl} alt={p.name} width={44} height={44}
-                            className="h-11 w-11 rounded-lg object-cover" />
-                        ) : (
-                          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-slate-100 text-slate-300">
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>
-                          </div>
+            <TabsContent value="produkte">
+              <div className="relative mb-5 max-w-xl">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Produkte suchen..."
+                  className="h-11 rounded-full border-border/60 bg-white pl-10"
+                />
+              </div>
+
+              {!produkte ? (
+                <div className="flex items-center justify-center py-16 text-slate-400 text-sm gap-2">
+                  <Spinner /> Laden…
+                </div>
+              ) : filteredProdukte?.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center text-sm text-slate-400">
+                  Keine passenden Produkte gefunden.
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-[1.6rem] border border-slate-200/80 bg-white shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]">
+                  <div className="overflow-x-auto">
+                  <table className="w-full min-w-[940px] table-fixed text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/85">
+                        <th className="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500">Bild</th>
+                        <th className="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500">Name (DE)</th>
+                        <th className="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500 hidden md:table-cell">Name (IT)</th>
+                        <th className="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500 hidden lg:table-cell">Name (EN)</th>
+                        <th className="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500 hidden lg:table-cell">Kategorie</th>
+                        <th className="w-[220px] px-6 py-3 text-right text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500">Aktionen</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProdukte?.map((p) => (
+                        <tr key={p._id}
+                          className={`border-b border-slate-100/80 transition-colors hover:bg-slate-50/70 ${editingId === p._id ? "bg-primary/5" : ""}`}>
+                          {/* Thumbnail */}
+                          <td className="px-5 py-3.5">
+                            {p.imageUrl ? (
+                              <Image src={p.imageUrl} alt={p.name} width={44} height={44}
+                                className="h-11 w-11 rounded-xl border border-slate-200 object-cover shadow-sm" />
+                            ) : (
+                              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-300">
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" /></svg>
+                              </div>
+                            )}
+                          </td>
+                          {/* Name DE */}
+                          <td className="px-5 py-3.5">
+                            <p className="font-semibold text-foreground leading-tight">{p.name}</p>
+                            <p className="mt-1 text-xs text-slate-500 truncate max-w-[220px]">{p.beschreibung}</p>
+                          </td>
+                          {/* Name IT */}
+                          <td className="px-5 py-3.5 hidden md:table-cell">
+                            <p className="font-semibold text-foreground leading-tight">{p.nameIt}</p>
+                            <p className="mt-1 text-xs text-slate-500 truncate max-w-[220px]">{p.beschreibungIt}</p>
+                          </td>
+                          {/* Name EN */}
+                          <td className="px-5 py-3.5 hidden lg:table-cell">
+                            <p className="font-semibold text-foreground leading-tight">{p.nameEn || p.name}</p>
+                            <p className="mt-1 text-xs text-slate-500 truncate max-w-[220px]">{p.beschreibungEn || p.beschreibung}</p>
+                          </td>
+                          {/* Kategorie */}
+                          <td className="px-5 py-3.5 hidden lg:table-cell">
+                            <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">{p.kategorieName}</span>
+                          </td>
+                          {/* Actions */}
+                          <td className="px-6 py-3.5 text-right whitespace-nowrap">
+                            {deletingId === p._id ? (
+                              <div className="inline-flex items-center gap-2">
+                                <span className="text-xs text-red-600 font-semibold">Löschen?</span>
+                                <button type="button" disabled={deleting}
+                                  onClick={() => handleDelete(p._id)}
+                                  className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 disabled:opacity-50 shadow-sm">
+                                  {deleting ? <Spinner /> : "Ja"}
+                                </button>
+                                <button type="button" onClick={() => setDeletingId(null)}
+                                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">
+                                  Nein
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="inline-flex items-center justify-end gap-2">
+                                <button type="button" onClick={() => startEdit(p)}
+                                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary">
+                                  Bearbeiten
+                                </button>
+                                <button type="button" onClick={() => setDeletingId(p._id)}
+                                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600">
+                                  Löschen
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="drafts">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-foreground">Entwürfe</p>
+                  <button
+                    type="button"
+                    onClick={handleCreateDraft}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                  >
+                    Neuer Entwurf
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {drafts?.map((draft, index) => (
+                    <div
+                      key={draft._id}
+                      className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs ${activeDraftId === draft._id ? "border-primary/40 bg-primary/10 text-primary" : "border-slate-200 bg-white text-slate-600"}`}
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold">{draft.name.trim() || `Entwurf ${index + 1}`}</p>
+                        <p className="text-[11px] text-slate-400">
+                          Zuletzt bearbeitet: {new Date(draft.updatedAt).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                        <p className="text-[11px] text-slate-400">Erstellt von: {draft.ownerName ?? "Unbekannt"}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => handleLoadDraft(draft)} className="rounded-md border border-slate-200 px-2 py-1 hover:bg-slate-50">
+                          Öffnen
+                        </button>
+                        {draft.isOwner && (
+                          <button type="button" onClick={() => handleDeleteDraft(draft._id)} className="text-slate-400 hover:text-red-600">
+                            ×
+                          </button>
                         )}
-                      </td>
-                      {/* Name DE */}
-                      <td className="px-4 py-3">
-                        <p className="font-semibold text-foreground">{p.name}</p>
-                        <p className="mt-0.5 text-xs text-slate-400 truncate max-w-[220px]">{p.beschreibung}</p>
-                      </td>
-                      {/* Name IT */}
-                      <td className="px-4 py-3 hidden md:table-cell">
-                        <p className="font-semibold text-foreground">{p.nameIt}</p>
-                        <p className="mt-0.5 text-xs text-slate-400 truncate max-w-[220px]">{p.beschreibungIt}</p>
-                      </td>
-                      {/* Kategorie */}
-                      <td className="px-4 py-3 hidden lg:table-cell">
-                        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">{p.kategorieName}</span>
-                      </td>
-                      {/* Actions */}
-                      <td className="px-4 py-3 text-right">
-                        {deletingId === p._id ? (
-                          <div className="inline-flex items-center gap-2">
-                            <span className="text-xs text-red-600 font-semibold">Löschen?</span>
-                            <button type="button" disabled={deleting}
-                              onClick={() => handleDelete(p._id)}
-                              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 disabled:opacity-50">
-                              {deleting ? <Spinner /> : "Ja"}
-                            </button>
-                            <button type="button" onClick={() => setDeletingId(null)}
-                              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">
-                              Nein
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="inline-flex items-center gap-1.5">
-                            <button type="button" onClick={() => startEdit(p)}
-                              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-primary/30 hover:text-primary">
-                              Bearbeiten
-                            </button>
-                            <button type="button" onClick={() => setDeletingId(p._id)}
-                              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-red-200 hover:text-red-600">
-                              Löschen
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  {!drafts?.length && <p className="text-xs text-slate-400">Noch keine Entwürfe vorhanden.</p>}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </section>
       </div>
     </div>

@@ -25,3 +25,11 @@ export const getImageUrl = query({
         return await ctx.storage.getUrl(args.storageId);
     },
 });
+
+export const deleteFile = mutation({
+    args: { storageId: v.id("_storage") },
+    handler: async (ctx, args) => {
+        await requireEmployeeOrAdmin(ctx);
+        await ctx.storage.delete(args.storageId);
+    },
+});

@@ -36,6 +36,8 @@ describe("misc coverage: clearProducts/files/bootstrap/users", () => {
         foto: storageId,
         nameIt: "P",
         beschreibungIt: "B",
+        nameEn: "P",
+        beschreibungEn: "B",
         kategorieId,
         slug: "p",
       });

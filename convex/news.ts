@@ -71,6 +71,131 @@ export const listArchiviert = query({
   },
 });
 
+export const getByIdForAdmin = query({
+  args: { id: v.id("news") },
+  handler: async (ctx, args) => {
+    await requireEmployeeOrAdmin(ctx);
+    const item = await ctx.db.get(args.id);
+    if (!item) throw new ConvexError("News-Beitrag nicht gefunden");
+    const imageUrl = await ctx.storage.getUrl(item.foto);
+    return { ...item, imageUrl };
+  },
+});
+
+export const getDraftByIdForAdmin = query({
+  args: { id: v.id("newsEntwuerfe") },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const draft = await ctx.db.get(args.id);
+    if (!draft || draft.ownerUserId !== user._id) {
+      throw new ConvexError("Entwurf nicht gefunden");
+    }
+    const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
+    return { ...draft, imageUrl };
+  },
+});
+
+export const listDrafts = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const drafts = await ctx.db.query("newsEntwuerfe").collect();
+    const sortedDrafts = drafts.sort((a, b) => b.updatedAt - a.updatedAt);
+
+    return Promise.all(
+      sortedDrafts.map(async (draft) => {
+        const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
+        const owner = await ctx.db.get(draft.ownerUserId);
+        return {
+          ...draft,
+          imageUrl,
+          ownerName: owner?.name ?? owner?.email ?? "Unbekannt",
+          isOwner: draft.ownerUserId === user._id,
+        };
+      })
+    );
+  },
+});
+
+export const createDraft = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const now = Date.now();
+    const id = await ctx.db.insert("newsEntwuerfe", {
+      ownerUserId: user._id,
+      titel: "",
+      inhalt: "",
+      titelIt: "",
+      inhaltIt: "",
+      titelEn: "",
+      inhaltEn: "",
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  },
+});
+
+export const loadDraft = query({
+  args: { id: v.id("newsEntwuerfe") },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const draft = await ctx.db.get(args.id);
+    if (!draft || draft.ownerUserId !== user._id) {
+      throw new ConvexError("Entwurf nicht gefunden");
+    }
+    const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
+    return { ...draft, imageUrl };
+  },
+});
+
+export const saveDraft = mutation({
+  args: {
+    id: v.id("newsEntwuerfe"),
+    titel: v.string(),
+    inhalt: v.string(),
+    titelIt: v.string(),
+    inhaltIt: v.string(),
+    titelEn: v.string(),
+    inhaltEn: v.string(),
+    foto: v.optional(v.union(v.id("_storage"), v.null())),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const draft = await ctx.db.get(args.id);
+    if (!draft || draft.ownerUserId !== user._id) {
+      throw new ConvexError("Entwurf nicht gefunden");
+    }
+    await ctx.db.patch(args.id, {
+      titel: args.titel,
+      inhalt: args.inhalt,
+      titelIt: args.titelIt,
+      inhaltIt: args.inhaltIt,
+      titelEn: args.titelEn,
+      inhaltEn: args.inhaltEn,
+      ...(args.foto === null ? { foto: undefined } : {}),
+      ...(args.foto ? { foto: args.foto } : {}),
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const deleteDraft = mutation({
+  args: { id: v.id("newsEntwuerfe") },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const draft = await ctx.db.get(args.id);
+    if (!draft || draft.ownerUserId !== user._id) {
+      throw new ConvexError("Entwurf nicht gefunden");
+    }
+    if (draft.foto) {
+      await ctx.storage.delete(draft.foto);
+    }
+    await ctx.db.delete(args.id);
+  },
+});
+
 /* ─── Create ─── */
 
 export const create = mutation({
@@ -80,6 +205,8 @@ export const create = mutation({
     foto: v.id("_storage"),
     titelIt: v.string(),
     inhaltIt: v.string(),
+    titelEn: v.string(),
+    inhaltEn: v.string(),
   },
   handler: async (ctx, args) => {
     const user = await requireEmployeeOrAdmin(ctx);
@@ -90,6 +217,8 @@ export const create = mutation({
       foto: args.foto,
       titelIt: args.titelIt,
       inhaltIt: args.inhaltIt,
+      titelEn: args.titelEn,
+      inhaltEn: args.inhaltEn,
       createdAt: Date.now(),
     });
 
@@ -98,7 +227,7 @@ export const create = mutation({
       aktion: "News erstellt",
       entity: "News",
       entityName: args.titel,
-      details: `IT: ${args.titelIt}`,
+      details: `IT: ${args.titelIt} · EN: ${args.titelEn}`,
     });
 
     return id;
@@ -114,6 +243,8 @@ export const update = mutation({
     inhalt: v.string(),
     titelIt: v.string(),
     inhaltIt: v.string(),
+    titelEn: v.string(),
+    inhaltEn: v.string(),
     foto: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
@@ -126,6 +257,8 @@ export const update = mutation({
       inhalt: args.inhalt,
       titelIt: args.titelIt,
       inhaltIt: args.inhaltIt,
+      titelEn: args.titelEn,
+      inhaltEn: args.inhaltEn,
       ...(args.foto ? { foto: args.foto } : {}),
     });
 
@@ -134,7 +267,7 @@ export const update = mutation({
       aktion: "News bearbeitet",
       entity: "News",
       entityName: args.titel,
-      details: `IT: ${args.titelIt}`,
+      details: `IT: ${args.titelIt} · EN: ${args.titelEn}`,
     });
   },
 });

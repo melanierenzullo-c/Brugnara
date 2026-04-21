@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useQuery, useMutation } from "convex/react";
 import Image from "next/image";
+import { Search } from "lucide-react";
 
 import Link from "next/link";
 
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { AdminHeader } from "@/components/admin-header";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 /* ─────────────────── shared types ─────────────────── */
 
-type Lang = "de" | "it";
+type Lang = "de" | "it" | "en";
 
 interface NewsRow {
   _id: Id<"news">;
@@ -21,9 +24,25 @@ interface NewsRow {
   inhalt: string;
   titelIt: string;
   inhaltIt: string;
+  titelEn?: string;
+  inhaltEn?: string;
   foto: Id<"_storage">;
   imageUrl: string | null;
   createdAt: number;
+}
+
+interface NewsDraftRow {
+  _id: Id<"newsEntwuerfe">;
+  titel: string;
+  inhalt: string;
+  titelIt: string;
+  inhaltIt: string;
+  titelEn?: string;
+  inhaltEn?: string;
+  foto?: Id<"_storage">;
+  updatedAt: number;
+  ownerName?: string;
+  isOwner?: boolean;
 }
 
 /* ─────────────────── small UI pieces ─────────────────── */
@@ -38,18 +57,24 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function LangTabInput({
-  label, valueDe, valueIt, onChangeDe, onChangeIt,
+  label, valueDe, valueIt, valueEn, onChangeDe, onChangeIt, onChangeEn,
   multiline = false, required = false, maxLength,
   onTranslate, translating = false,
+  lang: externalLang, onLangChange,
+  showLangSwitcher = true,
 }: {
-  label: string; valueDe: string; valueIt: string;
-  onChangeDe: (v: string) => void; onChangeIt: (v: string) => void;
+  label: string; valueDe: string; valueIt: string; valueEn: string;
+  onChangeDe: (v: string) => void; onChangeIt: (v: string) => void; onChangeEn: (v: string) => void;
   multiline?: boolean; required?: boolean; maxLength?: number;
   onTranslate?: () => void; translating?: boolean;
+  lang?: Lang; onLangChange?: (l: Lang) => void;
+  showLangSwitcher?: boolean;
 }) {
-  const [lang, setLang] = useState<Lang>("de");
-  const value = lang === "de" ? valueDe : valueIt;
-  const onChange = lang === "de" ? onChangeDe : onChangeIt;
+  const [internalLang, setInternalLang] = useState<Lang>("de");
+  const lang = externalLang ?? internalLang;
+  const setLang = onLangChange ?? setInternalLang;
+  const value = lang === "de" ? valueDe : lang === "it" ? valueIt : valueEn;
+  const onChange = lang === "de" ? onChangeDe : lang === "it" ? onChangeIt : onChangeEn;
 
   const cls =
     "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-foreground placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition";
@@ -65,18 +90,20 @@ function LangTabInput({
               {translating ? <Spinner /> : "DE → IT"}
             </button>
           )}
-          <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
-            {(["de", "it"] as Lang[]).map((l) => {
-              const isEmpty = required && (l === "de" ? valueDe : valueIt).trim() === "";
-              return (
-                <button key={l} type="button" onClick={() => setLang(l)}
-                  className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
-                  {l.toUpperCase()}
-                  {isEmpty && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
-                </button>
-              );
-            })}
-          </div>
+          {showLangSwitcher && (
+            <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
+              {(["de", "it", "en"] as Lang[]).map((l) => {
+                const isEmpty = required && (l === "de" ? valueDe : l === "it" ? valueIt : valueEn).trim() === "";
+                return (
+                  <button key={l} type="button" onClick={() => setLang(l)}
+                    className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
+                    {l.toUpperCase()}
+                    {isEmpty && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
       {multiline ? (
@@ -122,11 +149,16 @@ function Alert({ text, ok }: { text: string; ok: boolean }) {
 export default function AdminNewsPage() {
   const t = useTranslations("Admin");
   const newsItems = useQuery(api.news.list) as NewsRow[] | undefined;
+  const drafts = useQuery(api.news.listDrafts) as NewsDraftRow[] | undefined;
 
   const createNews = useMutation(api.news.create);
   const updateNews = useMutation(api.news.update);
   const removeNews = useMutation(api.news.remove);
+  const createDraft = useMutation(api.news.createDraft);
+  const saveDraft = useMutation(api.news.saveDraft);
+  const deleteDraft = useMutation(api.news.deleteDraft);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const deleteFile = useMutation(api.files.deleteFile);
 
   /* ── form state (shared for create & edit) ── */
   const [editingId, setEditingId] = useState<Id<"news"> | null>(null);
@@ -134,9 +166,19 @@ export default function AdminNewsPage() {
   const [inhalt, setInhalt] = useState("");
   const [titelIt, setTitelIt] = useState("");
   const [inhaltIt, setInhaltIt] = useState("");
+  const [titelEn, setTitelEn] = useState("");
+  const [inhaltEn, setInhaltEn] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [meldung, setMeldung] = useState<{ text: string; ok: boolean } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [activeDraftId, setActiveDraftId] = useState<Id<"newsEntwuerfe"> | null>(null);
+  const [activeDraftFotoId, setActiveDraftFotoId] = useState<Id<"_storage"> | null>(null);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [lastDraftSavedAt, setLastDraftSavedAt] = useState<number | null>(null);
+  const creatingDraftRef = useRef(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [draftTab, setDraftTab] = useState("news");
+  const [formLang, setFormLang] = useState<Lang>("de");
 
   /* ── delete state ── */
   const [deletingId, setDeletingId] = useState<Id<"news"> | null>(null);
@@ -190,16 +232,138 @@ export default function AdminNewsPage() {
 
   const isEditing = editingId !== null;
 
+  const ensureActiveDraftId = useCallback(async (): Promise<Id<"newsEntwuerfe"> | null> => {
+    if (activeDraftId) return activeDraftId;
+    try {
+      creatingDraftRef.current = true;
+      const id = await createDraft({});
+      setActiveDraftId(id);
+      return id;
+    } catch {
+      setMeldung({ text: "Entwurf konnte nicht erstellt werden.", ok: false });
+      return null;
+    } finally {
+      creatingDraftRef.current = false;
+    }
+  }, [activeDraftId, createDraft]);
+
+  useEffect(() => {
+    if (isEditing || activeDraftId || creatingDraftRef.current) return;
+    const hasContent = Boolean(
+      titel.trim() ||
+      inhalt.trim() ||
+      titelIt.trim() ||
+      inhaltIt.trim() ||
+      titelEn.trim() ||
+      inhaltEn.trim()
+    );
+    if (!hasContent) return;
+    void ensureActiveDraftId();
+  }, [isEditing, activeDraftId, titel, inhalt, titelIt, inhaltIt, titelEn, inhaltEn, ensureActiveDraftId]);
+
+  useEffect(() => {
+    if (!activeDraftId || isEditing) return;
+    const timer = setTimeout(async () => {
+      const isEmpty =
+        titel.trim() === "" &&
+        inhalt.trim() === "" &&
+        titelIt.trim() === "" &&
+        inhaltIt.trim() === "" &&
+        titelEn.trim() === "" &&
+        inhaltEn.trim() === "" &&
+        !activeDraftFotoId;
+
+      try {
+        setSavingDraft(true);
+        if (isEmpty) {
+          await deleteDraft({ id: activeDraftId });
+          setActiveDraftId(null);
+          setActiveDraftFotoId(null);
+          setLastDraftSavedAt(null);
+        } else {
+          await saveDraft({
+            id: activeDraftId,
+            titel,
+            inhalt,
+            titelIt,
+            inhaltIt,
+            titelEn,
+            inhaltEn,
+          });
+          setLastDraftSavedAt(Date.now());
+        }
+      } catch {
+        setMeldung({ text: "Entwurf konnte nicht gespeichert werden.", ok: false });
+      } finally {
+        setSavingDraft(false);
+      }
+    }, 900);
+    return () => clearTimeout(timer);
+  }, [activeDraftId, titel, inhalt, titelIt, inhaltIt, titelEn, inhaltEn, activeDraftFotoId, isEditing, saveDraft, deleteDraft]);
+
   const resetForm = useCallback(() => {
     setEditingId(null);
     setTitel("");
     setInhalt("");
     setTitelIt("");
     setInhaltIt("");
+    setTitelEn("");
+    setInhaltEn("");
     setSelectedImage(null);
     const fi = document.getElementById("news-foto-upload") as HTMLInputElement | null;
     if (fi) fi.value = "";
   }, []);
+
+  const handleCreateDraft = async () => {
+    try {
+      const id = await createDraft({});
+      setActiveDraftId(id);
+      setEditingId(null);
+      setTitel("");
+      setInhalt("");
+      setTitelIt("");
+      setInhaltIt("");
+      setTitelEn("");
+      setInhaltEn("");
+      setSelectedImage(null);
+      setActiveDraftFotoId(null);
+      setMeldung({ text: "Neuer Entwurf erstellt.", ok: true });
+    } catch {
+      setMeldung({ text: "Entwurf konnte nicht erstellt werden.", ok: false });
+    }
+  };
+
+  const handleLoadDraft = (draft: NewsDraftRow) => {
+    if (!draft.isOwner) {
+      setMeldung({ text: "Nur eigene Entwürfe können geöffnet werden.", ok: false });
+      return;
+    }
+    setEditingId(null);
+    setActiveDraftId(draft._id);
+    setTitel(draft.titel);
+    setInhalt(draft.inhalt);
+    setTitelIt(draft.titelIt);
+    setInhaltIt(draft.inhaltIt);
+    setTitelEn(draft.titelEn ?? draft.titel);
+    setInhaltEn(draft.inhaltEn ?? draft.inhalt);
+    setActiveDraftFotoId(draft.foto ?? null);
+    setSelectedImage(null);
+    // keep bottom tab state as-is (Entwürfe stays open)
+  };
+
+  const handleDeleteDraft = async (id: Id<"newsEntwuerfe">) => {
+    try {
+      await deleteDraft({ id });
+      if (activeDraftId === id) {
+        setActiveDraftId(null);
+        setActiveDraftFotoId(null);
+        resetForm();
+      }
+      setMeldung({ text: "Entwurf gelöscht.", ok: true });
+    } catch {
+      setMeldung({ text: "Entwurf konnte nicht gelöscht werden.", ok: false });
+    }
+  };
 
   const startEdit = useCallback((n: NewsRow) => {
     setEditingId(n._id);
@@ -207,6 +371,8 @@ export default function AdminNewsPage() {
     setInhalt(n.inhalt);
     setTitelIt(n.titelIt);
     setInhaltIt(n.inhaltIt);
+    setTitelEn(n.titelEn ?? n.titel);
+    setInhaltEn(n.inhaltEn ?? n.inhalt);
     setSelectedImage(null);
     setMeldung(null);
     const fi = document.getElementById("news-foto-upload") as HTMLInputElement | null;
@@ -231,11 +397,11 @@ export default function AdminNewsPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setMeldung(null);
-    if (!titel.trim() || !titelIt.trim()) {
-      setMeldung({ text: "Bitte Titel in Deutsch und Italienisch eingeben.", ok: false }); return;
+    if (!titel.trim() || !titelIt.trim() || !titelEn.trim()) {
+      setMeldung({ text: "Bitte Titel in Deutsch, Italienisch und Englisch eingeben.", ok: false }); return;
     }
-    if (!inhalt.trim() || !inhaltIt.trim()) {
-      setMeldung({ text: "Bitte Inhalt in Deutsch und Italienisch eingeben.", ok: false }); return;
+    if (!inhalt.trim() || !inhaltIt.trim() || !inhaltEn.trim()) {
+      setMeldung({ text: "Bitte Inhalt in Deutsch, Italienisch und Englisch eingeben.", ok: false }); return;
     }
     if (!isEditing && !selectedImage) { setMeldung({ text: t("bitteFoto"), ok: false }); return; }
 
@@ -257,20 +423,75 @@ export default function AdminNewsPage() {
           inhalt,
           titelIt,
           inhaltIt,
+          titelEn,
+          inhaltEn,
           ...(storageId ? { foto: storageId } : {}),
         });
         setMeldung({ text: "News-Beitrag erfolgreich aktualisiert.", ok: true });
         resetForm();
       } else {
         if (!storageId) throw new Error("Kein Bild ausgewählt");
-        await createNews({ titel, inhalt, foto: storageId, titelIt, inhaltIt });
+        await createNews({ titel, inhalt, foto: storageId, titelIt, inhaltIt, titelEn, inhaltEn });
         setMeldung({ text: "News-Beitrag erfolgreich gespeichert.", ok: true });
+        if (activeDraftId) {
+          await deleteDraft({ id: activeDraftId });
+          setActiveDraftId(null);
+          setActiveDraftFotoId(null);
+        }
         resetForm();
       }
     } catch (error) {
       setMeldung({ text: error instanceof Error ? error.message : "Unbekannter Fehler", ok: false });
     } finally {
       setSaving(false);
+    }
+  };
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredNewsItems = newsItems?.filter((n) => {
+    if (!normalizedQuery) return true;
+    return (
+      n.titel.toLowerCase().includes(normalizedQuery) ||
+      n.titelIt.toLowerCase().includes(normalizedQuery) ||
+      n.inhalt.toLowerCase().includes(normalizedQuery) ||
+      n.inhaltIt.toLowerCase().includes(normalizedQuery)
+    );
+  });
+
+  const handleDraftImageChange = async (file: File | null) => {
+    setSelectedImage(file);
+    if (!file || isEditing) return;
+    const draftId = await ensureActiveDraftId();
+    if (!draftId) return;
+
+    try {
+      const postUrl = await generateUploadUrl();
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!result.ok) throw new Error("Fehler beim Hochladen des Bildes");
+      const json = await result.json();
+      const storageId = json.storageId as Id<"_storage">;
+
+      if (activeDraftFotoId && activeDraftFotoId !== storageId) {
+        await deleteFile({ storageId: activeDraftFotoId });
+      }
+
+      await saveDraft({
+        id: draftId,
+        titel,
+        inhalt,
+        titelIt,
+        inhaltIt,
+        titelEn,
+        inhaltEn,
+        foto: storageId,
+      });
+      setActiveDraftFotoId(storageId);
+      setLastDraftSavedAt(Date.now());
+    } catch {
+      setMeldung({ text: "Entwurfsbild konnte nicht gespeichert werden.", ok: false });
     }
   };
 
@@ -308,6 +529,16 @@ export default function AdminNewsPage() {
             )}
           </div>
 
+          {!isEditing && activeDraftId && (
+            <p className="mb-3 mt-1 text-xs text-slate-400">
+              {savingDraft
+                ? "Entwurf wird gespeichert…"
+                : lastDraftSavedAt
+                  ? `Entwurf gespeichert um ${new Date(lastDraftSavedAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}`
+                  : "Auto-Save aktiv"}
+            </p>
+          )}
+
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
 
@@ -316,25 +547,28 @@ export default function AdminNewsPage() {
 
                 <LangTabInput
                   label="Titel"
-                  valueDe={titel} valueIt={titelIt}
-                  onChangeDe={setTitel} onChangeIt={setTitelIt}
+                  valueDe={titel} valueIt={titelIt} valueEn={titelEn}
+                  onChangeDe={setTitel} onChangeIt={setTitelIt} onChangeEn={setTitelEn}
                   required
                   onTranslate={() => handleTranslateField("titel", titel, setTitelIt)}
                   translating={translatingField === "titel"}
+                  lang={formLang} onLangChange={setFormLang}
                 />
 
                 <LangTabInput
                   label="Inhalt"
-                  valueDe={inhalt} valueIt={inhaltIt}
-                  onChangeDe={setInhalt} onChangeIt={setInhaltIt}
+                  valueDe={inhalt} valueIt={inhaltIt} valueEn={inhaltEn}
+                  onChangeDe={setInhalt} onChangeIt={setInhaltIt} onChangeEn={setInhaltEn}
                   multiline required maxLength={1000}
                   onTranslate={() => handleTranslateField("inhalt", inhalt, setInhaltIt)}
                   translating={translatingField === "inhalt"}
+                  lang={formLang} onLangChange={setFormLang}
+                  showLangSwitcher={false}
                 />
 
                 <Field label={isEditing ? "Neues Beitragsbild (optional)" : "Beitragsbild"}>
                   <input id="news-foto-upload" type="file" accept="image/*"
-                    onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+                    onChange={(e) => void handleDraftImageChange(e.target.files?.[0] || null)}
                     required={!isEditing}
                     className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-foreground file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200 transition cursor-pointer" />
                   <p className="text-xs text-slate-400 mt-1">
@@ -347,6 +581,20 @@ export default function AdminNewsPage() {
               <div className="space-y-4">
                 {/* Save card */}
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+                  {(editingId || activeDraftId) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const query = editingId
+                          ? `id=${editingId}`
+                          : `draftId=${activeDraftId}`;
+                        window.open(`/admin/news/vorschau?${query}`, "_blank");
+                      }}
+                      className="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                    >
+                      Vorschau öffnen
+                    </button>
+                  )}
                   <button type="submit" disabled={saving}
                     className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
                     {saving && <Spinner />}
@@ -383,7 +631,9 @@ export default function AdminNewsPage() {
             <div>
               <h1 className="text-xl font-bold text-foreground">Alle News-Beiträge</h1>
               <p className="mt-0.5 text-sm text-slate-500">
-                {newsItems ? `${newsItems.length} Beiträge` : "Laden…"}
+                {newsItems
+                  ? `${filteredNewsItems?.length ?? 0} von ${newsItems.length} Beiträge`
+                  : "Laden…"}
               </p>
             </div>
             <Link href="/admin/news/papierkorb"
@@ -394,69 +644,129 @@ export default function AdminNewsPage() {
               Papierkorb
             </Link>
           </div>
+          <Tabs value={draftTab} onValueChange={setDraftTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="news">Alle News</TabsTrigger>
+              <TabsTrigger value="drafts">Entwürfe</TabsTrigger>
+            </TabsList>
 
-          {!newsItems ? (
-            <div className="flex items-center justify-center py-16 text-slate-400 text-sm gap-2">
-              <Spinner /> Laden…
-            </div>
-          ) : newsItems.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center text-sm text-slate-400">
-              Noch keine News-Beiträge vorhanden.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {newsItems.map((n) => (
-                <div key={n._id}
-                  className={`flex items-center gap-5 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition hover:border-primary/20 ${editingId === n._id ? "ring-2 ring-primary/20" : ""}`}>
-                  {/* Thumbnail */}
-                  {n.imageUrl ? (
-                    <Image src={n.imageUrl} alt={n.titel} width={80} height={56}
-                      className="h-14 w-20 rounded-xl object-cover shrink-0" />
-                  ) : (
-                    <div className="flex h-14 w-20 items-center justify-center rounded-xl bg-slate-100 text-slate-300 shrink-0">
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
-                    </div>
-                  )}
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground truncate">{n.titel}</p>
-                    <p className="text-xs text-slate-400 truncate max-w-[400px]">{n.inhalt}</p>
-                    <p className="mt-1 text-[11px] text-slate-300">
-                      {new Date(n.createdAt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}
-                    </p>
-                  </div>
-                  {/* Actions */}
-                  <div className="shrink-0">
-                    {deletingId === n._id ? (
-                      <div className="inline-flex items-center gap-2">
-                        <span className="text-xs text-red-600 font-semibold">Löschen?</span>
-                        <button type="button" disabled={deleting}
-                          onClick={() => handleDelete(n._id)}
-                          className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 disabled:opacity-50">
-                          {deleting ? <Spinner /> : "Ja"}
-                        </button>
-                        <button type="button" onClick={() => setDeletingId(null)}
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">
-                          Nein
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="inline-flex items-center gap-1.5">
-                        <button type="button" onClick={() => startEdit(n)}
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-primary/30 hover:text-primary">
-                          Bearbeiten
-                        </button>
-                        <button type="button" onClick={() => setDeletingId(n._id)}
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-red-200 hover:text-red-600">
-                          Löschen
-                        </button>
-                      </div>
-                    )}
-                  </div>
+            <TabsContent value="news">
+              <div className="relative mb-5 max-w-xl">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="News durchsuchen..."
+                  className="h-11 rounded-full border-border/60 bg-white pl-10"
+                />
+              </div>
+
+              {!newsItems ? (
+                <div className="flex items-center justify-center py-16 text-slate-400 text-sm gap-2">
+                  <Spinner /> Laden…
                 </div>
-              ))}
-            </div>
-          )}
+              ) : filteredNewsItems?.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center text-sm text-slate-400">
+                  Keine passenden News-Beiträge gefunden.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredNewsItems?.map((n) => (
+                    <div key={n._id}
+                      className={`flex items-center gap-5 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition hover:border-primary/20 ${editingId === n._id ? "ring-2 ring-primary/20" : ""}`}>
+                      {/* Thumbnail */}
+                      {n.imageUrl ? (
+                        <Image src={n.imageUrl} alt={n.titel} width={80} height={56}
+                          className="h-14 w-20 rounded-xl object-cover shrink-0" />
+                      ) : (
+                        <div className="flex h-14 w-20 items-center justify-center rounded-xl bg-slate-100 text-slate-300 shrink-0">
+                          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+                        </div>
+                      )}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-foreground truncate">{n.titel}</p>
+                        <p className="text-xs text-slate-400 truncate max-w-[400px]">{n.inhalt}</p>
+                        <p className="mt-1 text-[11px] text-slate-300">
+                          {new Date(n.createdAt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                        </p>
+                      </div>
+                      {/* Actions */}
+                      <div className="shrink-0">
+                        {deletingId === n._id ? (
+                          <div className="inline-flex items-center gap-2">
+                            <span className="text-xs text-red-600 font-semibold">Löschen?</span>
+                            <button type="button" disabled={deleting}
+                              onClick={() => handleDelete(n._id)}
+                              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 disabled:opacity-50">
+                              {deleting ? <Spinner /> : "Ja"}
+                            </button>
+                            <button type="button" onClick={() => setDeletingId(null)}
+                              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">
+                              Nein
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1.5">
+                            <button type="button" onClick={() => startEdit(n)}
+                              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-primary/30 hover:text-primary">
+                              Bearbeiten
+                            </button>
+                            <button type="button" onClick={() => setDeletingId(n._id)}
+                              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-red-200 hover:text-red-600">
+                              Löschen
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="drafts">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-foreground">Entwürfe</p>
+                  <button
+                    type="button"
+                    onClick={handleCreateDraft}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                  >
+                    Neuer Entwurf
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {drafts?.map((draft, index) => (
+                    <div
+                      key={draft._id}
+                      className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs ${activeDraftId === draft._id ? "border-primary/40 bg-primary/10 text-primary" : "border-slate-200 bg-white text-slate-600"}`}
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold">{draft.titel.trim() || `Entwurf ${index + 1}`}</p>
+                        <p className="text-[11px] text-slate-400">
+                          Zuletzt bearbeitet: {new Date(draft.updatedAt).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                        <p className="text-[11px] text-slate-400">Erstellt von: {draft.ownerName ?? "Unbekannt"}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => handleLoadDraft(draft)} className="rounded-md border border-slate-200 px-2 py-1 hover:bg-slate-50">
+                          Öffnen
+                        </button>
+                        {draft.isOwner && (
+                          <button type="button" onClick={() => handleDeleteDraft(draft._id)} className="text-slate-400 hover:text-red-600">
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {!drafts?.length && <p className="text-xs text-slate-400">Noch keine Entwürfe vorhanden.</p>}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </section>
 
         

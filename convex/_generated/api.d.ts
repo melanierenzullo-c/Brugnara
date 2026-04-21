@@ -16,6 +16,7 @@ import type * as clearProducts from "../clearProducts.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
 import type * as kategorien from "../kategorien.js";
+import type * as migrations from "../migrations.js";
 import type * as news from "../news.js";
 import type * as produkte from "../produkte.js";
 import type * as seed from "../seed.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   files: typeof files;
   http: typeof http;
   kategorien: typeof kategorien;
+  migrations: typeof migrations;
   news: typeof news;
   produkte: typeof produkte;
   seed: typeof seed;

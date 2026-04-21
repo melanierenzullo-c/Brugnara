@@ -42,6 +42,8 @@ export const update = mutation({
     beschreibung: v.string(),
     nameIt: v.string(),
     beschreibungIt: v.string(),
+    nameEn: v.string(),
+    beschreibungEn: v.string(),
     kategorieId: v.id("kategorien"),
     slug: v.string(),
     foto: v.optional(v.id("_storage")),
@@ -57,6 +59,8 @@ export const update = mutation({
       beschreibung: args.beschreibung,
       nameIt: args.nameIt,
       beschreibungIt: args.beschreibungIt,
+      nameEn: args.nameEn,
+      beschreibungEn: args.beschreibungEn,
       kategorieId: args.kategorieId,
       slug,
       ...(args.foto ? { foto: args.foto } : {}),
@@ -68,7 +72,7 @@ export const update = mutation({
       aktion: "Produkt bearbeitet",
       entity: "Produkt",
       entityName: args.name,
-      details: `IT: ${args.nameIt} · Kategorie: ${kategorie?.name ?? "–"} · Slug: ${slug}`,
+      details: `IT: ${args.nameIt} · EN: ${args.nameEn} · Kategorie: ${kategorie?.name ?? "–"} · Slug: ${slug}`,
     });
   },
 });
@@ -175,6 +179,152 @@ export const listByKategorie = query({
   },
 });
 
+export const getByIdForAdmin = query({
+  args: { id: v.id("produkte") },
+  handler: async (ctx, args) => {
+    await requireEmployeeOrAdmin(ctx);
+    const produkt = await ctx.db.get(args.id);
+    if (!produkt) throw new ConvexError("Produkt nicht gefunden");
+    const imageUrl = await ctx.storage.getUrl(produkt.foto);
+    const kategorie = await ctx.db.get(produkt.kategorieId);
+    return {
+      ...produkt,
+      imageUrl,
+      kategorieName: kategorie?.name ?? "–",
+      kategorieNameIt: kategorie?.nameIt ?? "–",
+    };
+  },
+});
+
+export const getDraftByIdForAdmin = query({
+  args: { id: v.id("produktEntwuerfe") },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const draft = await ctx.db.get(args.id);
+    if (!draft || draft.ownerUserId !== user._id) {
+      throw new ConvexError("Entwurf nicht gefunden");
+    }
+    const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
+    const kategorie = draft.kategorieId ? await ctx.db.get(draft.kategorieId) : null;
+    return {
+      ...draft,
+      imageUrl,
+      kategorieName: kategorie?.name ?? "–",
+      kategorieNameIt: kategorie?.nameIt ?? "–",
+    };
+  },
+});
+
+export const listDrafts = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const drafts = await ctx.db.query("produktEntwuerfe").collect();
+    const sortedDrafts = drafts.sort((a, b) => b.updatedAt - a.updatedAt);
+
+    return Promise.all(
+      sortedDrafts.map(async (draft) => {
+        const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
+        const kategorie = draft.kategorieId ? await ctx.db.get(draft.kategorieId) : null;
+        const owner = await ctx.db.get(draft.ownerUserId);
+        return {
+          ...draft,
+          imageUrl,
+          kategorieName: kategorie?.name ?? "–",
+          ownerName: owner?.name ?? owner?.email ?? "Unbekannt",
+          isOwner: draft.ownerUserId === user._id,
+        };
+      })
+    );
+  },
+});
+
+export const createDraft = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const now = Date.now();
+    const id = await ctx.db.insert("produktEntwuerfe", {
+      ownerUserId: user._id,
+      name: "",
+      beschreibung: "",
+      nameIt: "",
+      beschreibungIt: "",
+      nameEn: "",
+      beschreibungEn: "",
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  },
+});
+
+export const loadDraft = query({
+  args: { id: v.id("produktEntwuerfe") },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const draft = await ctx.db.get(args.id);
+    if (!draft || draft.ownerUserId !== user._id) {
+      throw new ConvexError("Entwurf nicht gefunden");
+    }
+    const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
+    const kategorie = draft.kategorieId ? await ctx.db.get(draft.kategorieId) : null;
+    return {
+      ...draft,
+      imageUrl,
+      kategorieName: kategorie?.name ?? "–",
+    };
+  },
+});
+
+export const saveDraft = mutation({
+  args: {
+    id: v.id("produktEntwuerfe"),
+    name: v.string(),
+    beschreibung: v.string(),
+    nameIt: v.string(),
+    beschreibungIt: v.string(),
+    nameEn: v.string(),
+    beschreibungEn: v.string(),
+    kategorieId: v.optional(v.id("kategorien")),
+    foto: v.optional(v.union(v.id("_storage"), v.null())),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const draft = await ctx.db.get(args.id);
+    if (!draft || draft.ownerUserId !== user._id) {
+      throw new ConvexError("Entwurf nicht gefunden");
+    }
+    await ctx.db.patch(args.id, {
+      name: args.name,
+      beschreibung: args.beschreibung,
+      nameIt: args.nameIt,
+      beschreibungIt: args.beschreibungIt,
+      nameEn: args.nameEn,
+      beschreibungEn: args.beschreibungEn,
+      kategorieId: args.kategorieId,
+      ...(args.foto === null ? { foto: undefined } : {}),
+      ...(args.foto ? { foto: args.foto } : {}),
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const deleteDraft = mutation({
+  args: { id: v.id("produktEntwuerfe") },
+  handler: async (ctx, args) => {
+    const user = await requireEmployeeOrAdmin(ctx);
+    const draft = await ctx.db.get(args.id);
+    if (!draft || draft.ownerUserId !== user._id) {
+      throw new ConvexError("Entwurf nicht gefunden");
+    }
+    if (draft.foto) {
+      await ctx.storage.delete(draft.foto);
+    }
+    await ctx.db.delete(args.id);
+  },
+});
+
 export const create = mutation({
   args: {
     name: v.string(),
@@ -182,6 +332,8 @@ export const create = mutation({
     foto: v.id("_storage"),
     nameIt: v.string(),
     beschreibungIt: v.string(),
+    nameEn: v.string(),
+    beschreibungEn: v.string(),
     kategorieId: v.id("kategorien"),
     slug: v.string(),
   },
@@ -199,6 +351,8 @@ export const create = mutation({
       foto: args.foto,
       nameIt: args.nameIt,
       beschreibungIt: args.beschreibungIt,
+      nameEn: args.nameEn,
+      beschreibungEn: args.beschreibungEn,
       kategorieId: args.kategorieId,
       slug,
     });
@@ -209,7 +363,7 @@ export const create = mutation({
       aktion: "Produkt erstellt",
       entity: "Produkt",
       entityName: args.name,
-      details: `IT: ${args.nameIt} · Kategorie: ${kategorie?.name ?? "–"} · Slug: ${slug}`,
+      details: `IT: ${args.nameIt} · EN: ${args.nameEn} · Kategorie: ${kategorie?.name ?? "–"} · Slug: ${slug}`,
     });
 
     return id;

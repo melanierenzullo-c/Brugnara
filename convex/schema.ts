@@ -39,6 +39,8 @@ export default defineSchema({
     foto: v.id("_storage"),
     nameIt: v.string(),
     beschreibungIt: v.string(),
+    nameEn: v.optional(v.string()),
+    beschreibungEn: v.optional(v.string()),
     kategorieId: v.id("kategorien"),
     slug: v.string(),
     archiviertAm: v.optional(v.number()),
@@ -50,9 +52,42 @@ export default defineSchema({
     foto: v.id("_storage"),
     titelIt: v.string(),
     inhaltIt: v.string(),
+    titelEn: v.optional(v.string()),
+    inhaltEn: v.optional(v.string()),
     createdAt: v.number(),
     archiviertAm: v.optional(v.number()),
   }).index("by_createdAt", ["createdAt"]),
+
+  produktEntwuerfe: defineTable({
+    ownerUserId: v.id("users"),
+    name: v.string(),
+    beschreibung: v.string(),
+    nameIt: v.string(),
+    beschreibungIt: v.string(),
+    nameEn: v.optional(v.string()),
+    beschreibungEn: v.optional(v.string()),
+    kategorieId: v.optional(v.id("kategorien")),
+    foto: v.optional(v.id("_storage")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_owner_updatedAt", ["ownerUserId", "updatedAt"])
+    .index("by_owner_createdAt", ["ownerUserId", "createdAt"]),
+
+  newsEntwuerfe: defineTable({
+    ownerUserId: v.id("users"),
+    titel: v.string(),
+    inhalt: v.string(),
+    titelIt: v.string(),
+    inhaltIt: v.string(),
+    titelEn: v.optional(v.string()),
+    inhaltEn: v.optional(v.string()),
+    foto: v.optional(v.id("_storage")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_owner_updatedAt", ["ownerUserId", "updatedAt"])
+    .index("by_owner_createdAt", ["ownerUserId", "createdAt"]),
 
   aktivitaeten: defineTable({
     userId: v.id("users"),
