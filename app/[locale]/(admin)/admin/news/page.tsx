@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 
@@ -43,6 +43,14 @@ interface NewsDraftRow {
   updatedAt: number;
   ownerName?: string;
   isOwner?: boolean;
+}
+
+function getFriendlyErrorMessage(error: unknown, fallback: string): string {
+  if (!(error instanceof Error)) return fallback;
+  const message = error.message ?? "";
+  const convexMatch = message.match(/ConvexError:\s*([\s\S]+?)(?:\s+at handler|$)/);
+  if (convexMatch?.[1]) return convexMatch[1].trim();
+  return message.trim() || fallback;
 }
 
 /* ─────────────────── small UI pieces ─────────────────── */
@@ -87,7 +95,7 @@ function LangTabInput({
           {onTranslate && valueDe.trim() && (
             <button type="button" onClick={onTranslate} disabled={translating}
               className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary transition hover:bg-primary/20 disabled:opacity-50">
-              {translating ? <Spinner /> : "DE → IT"}
+              {translating ? <Spinner /> : "DE -> IT + EN"}
             </button>
           )}
           {showLangSwitcher && (
@@ -148,8 +156,9 @@ function Alert({ text, ok }: { text: string; ok: boolean }) {
 
 export default function AdminNewsPage() {
   const t = useTranslations("Admin");
-  const newsItems = useQuery(api.news.list) as NewsRow[] | undefined;
-  const drafts = useQuery(api.news.listDrafts) as NewsDraftRow[] | undefined;
+  const { isAuthenticated } = useConvexAuth();
+  const newsItems = useQuery(api.news.list, isAuthenticated ? {} : "skip") as NewsRow[] | undefined;
+  const drafts = useQuery(api.news.listDrafts, isAuthenticated ? {} : "skip") as NewsDraftRow[] | undefined;
 
   const createNews = useMutation(api.news.create);
   const updateNews = useMutation(api.news.update);
@@ -188,23 +197,39 @@ export default function AdminNewsPage() {
   const [translatingField, setTranslatingField] = useState<string | null>(null);
   const [translatingAll, setTranslatingAll] = useState(false);
 
-  const translate = async (text: string): Promise<string> => {
+  const translate = async (text: string, target: "it" | "en"): Promise<string> => {
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, target }),
     });
-    if (!res.ok) throw new Error("Übersetzung fehlgeschlagen");
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(
+        typeof data?.error === "string"
+          ? data.error
+          : "Übersetzung fehlgeschlagen. Bitte versuche es erneut."
+      );
+    }
     const data = await res.json();
     return data.translation;
   };
 
-  const handleTranslateField = async (field: string, value: string, setter: (v: string) => void) => {
+  const handleTranslateField = async (
+    field: string,
+    value: string,
+    setterIt: (v: string) => void,
+    setterEn: (v: string) => void
+  ) => {
     if (!value.trim() || translatingField) return;
     setTranslatingField(field);
     try {
-      const translated = await translate(value);
-      setter(translated);
+      const [translatedIt, translatedEn] = await Promise.all([
+        translate(value, "it"),
+        translate(value, "en"),
+      ]);
+      setterIt(translatedIt);
+      setterEn(translatedEn);
     } catch {
       setMeldung({ text: "Übersetzung fehlgeschlagen. Bitte versuche es erneut.", ok: false });
     } finally {
@@ -216,13 +241,26 @@ export default function AdminNewsPage() {
     if (translatingAll) return;
     setTranslatingAll(true);
     try {
-      const [translatedTitel, translatedInhalt] = await Promise.all([
-        titel.trim() ? translate(titel) : Promise.resolve(titelIt),
-        inhalt.trim() ? translate(inhalt) : Promise.resolve(inhaltIt),
+      const [
+        translatedTitelIt,
+        translatedTitelEn,
+        translatedInhaltIt,
+        translatedInhaltEn,
+      ] = await Promise.all([
+        titel.trim() ? translate(titel, "it") : Promise.resolve(titelIt),
+        titel.trim() ? translate(titel, "en") : Promise.resolve(titelEn),
+        inhalt.trim() ? translate(inhalt, "it") : Promise.resolve(inhaltIt),
+        inhalt.trim() ? translate(inhalt, "en") : Promise.resolve(inhaltEn),
       ]);
-      if (titel.trim()) setTitelIt(translatedTitel);
-      if (inhalt.trim()) setInhaltIt(translatedInhalt);
-      setMeldung({ text: "Alle Felder wurden übersetzt.", ok: true });
+      if (titel.trim()) {
+        setTitelIt(translatedTitelIt);
+        setTitelEn(translatedTitelEn);
+      }
+      if (inhalt.trim()) {
+        setInhaltIt(translatedInhaltIt);
+        setInhaltEn(translatedInhaltEn);
+      }
+      setMeldung({ text: "Alle Felder wurden auf IT und EN übersetzt.", ok: true });
     } catch {
       setMeldung({ text: "Übersetzung fehlgeschlagen. Bitte versuche es erneut.", ok: false });
     } finally {
@@ -334,10 +372,6 @@ export default function AdminNewsPage() {
   };
 
   const handleLoadDraft = (draft: NewsDraftRow) => {
-    if (!draft.isOwner) {
-      setMeldung({ text: "Nur eigene Entwürfe können geöffnet werden.", ok: false });
-      return;
-    }
     setEditingId(null);
     setActiveDraftId(draft._id);
     setTitel(draft.titel);
@@ -387,7 +421,7 @@ export default function AdminNewsPage() {
       setMeldung({ text: "News-Beitrag erfolgreich gelöscht.", ok: true });
       if (editingId === id) resetForm();
     } catch (error) {
-      setMeldung({ text: error instanceof Error ? error.message : "Fehler beim Löschen", ok: false });
+      setMeldung({ text: getFriendlyErrorMessage(error, "Fehler beim Löschen"), ok: false });
     } finally {
       setDeleting(false);
       setDeletingId(null);
@@ -441,7 +475,7 @@ export default function AdminNewsPage() {
         resetForm();
       }
     } catch (error) {
-      setMeldung({ text: error instanceof Error ? error.message : "Unbekannter Fehler", ok: false });
+      setMeldung({ text: getFriendlyErrorMessage(error, "Unbekannter Fehler"), ok: false });
     } finally {
       setSaving(false);
     }
@@ -550,7 +584,7 @@ export default function AdminNewsPage() {
                   valueDe={titel} valueIt={titelIt} valueEn={titelEn}
                   onChangeDe={setTitel} onChangeIt={setTitelIt} onChangeEn={setTitelEn}
                   required
-                  onTranslate={() => handleTranslateField("titel", titel, setTitelIt)}
+                  onTranslate={() => handleTranslateField("titel", titel, setTitelIt, setTitelEn)}
                   translating={translatingField === "titel"}
                   lang={formLang} onLangChange={setFormLang}
                 />
@@ -560,7 +594,7 @@ export default function AdminNewsPage() {
                   valueDe={inhalt} valueIt={inhaltIt} valueEn={inhaltEn}
                   onChangeDe={setInhalt} onChangeIt={setInhaltIt} onChangeEn={setInhaltEn}
                   multiline required maxLength={1000}
-                  onTranslate={() => handleTranslateField("inhalt", inhalt, setInhaltIt)}
+                  onTranslate={() => handleTranslateField("inhalt", inhalt, setInhaltIt, setInhaltEn)}
                   translating={translatingField === "inhalt"}
                   lang={formLang} onLangChange={setFormLang}
                   showLangSwitcher={false}
@@ -754,11 +788,9 @@ export default function AdminNewsPage() {
                         <button type="button" onClick={() => handleLoadDraft(draft)} className="rounded-md border border-slate-200 px-2 py-1 hover:bg-slate-50">
                           Öffnen
                         </button>
-                        {draft.isOwner && (
-                          <button type="button" onClick={() => handleDeleteDraft(draft._id)} className="text-slate-400 hover:text-red-600">
-                            ×
-                          </button>
-                        )}
+                        <button type="button" onClick={() => handleDeleteDraft(draft._id)} className="text-slate-400 hover:text-red-600">
+                          ×
+                        </button>
                       </div>
                     </div>
                   ))}

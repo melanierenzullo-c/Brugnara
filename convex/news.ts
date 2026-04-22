@@ -3,6 +3,10 @@ import { ConvexError, v } from "convex/values";
 import { requireEmployeeOrAdmin } from "./authz";
 import { internal } from "./_generated/api";
 
+function normalizeText(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 /* ─── Public: newest first (nur nicht-archivierte) ─── */
 
 export const listPublic = query({
@@ -85,9 +89,9 @@ export const getByIdForAdmin = query({
 export const getDraftByIdForAdmin = query({
   args: { id: v.id("newsEntwuerfe") },
   handler: async (ctx, args) => {
-    const user = await requireEmployeeOrAdmin(ctx);
+    await requireEmployeeOrAdmin(ctx);
     const draft = await ctx.db.get(args.id);
-    if (!draft || draft.ownerUserId !== user._id) {
+    if (!draft) {
       throw new ConvexError("Entwurf nicht gefunden");
     }
     const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
@@ -140,9 +144,9 @@ export const createDraft = mutation({
 export const loadDraft = query({
   args: { id: v.id("newsEntwuerfe") },
   handler: async (ctx, args) => {
-    const user = await requireEmployeeOrAdmin(ctx);
+    await requireEmployeeOrAdmin(ctx);
     const draft = await ctx.db.get(args.id);
-    if (!draft || draft.ownerUserId !== user._id) {
+    if (!draft) {
       throw new ConvexError("Entwurf nicht gefunden");
     }
     const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
@@ -164,8 +168,12 @@ export const saveDraft = mutation({
   handler: async (ctx, args) => {
     const user = await requireEmployeeOrAdmin(ctx);
     const draft = await ctx.db.get(args.id);
-    if (!draft || draft.ownerUserId !== user._id) {
+    if (!draft) {
       throw new ConvexError("Entwurf nicht gefunden");
+    }
+    const canEdit = draft.ownerUserId === user._id || user.role === "admin";
+    if (!canEdit) {
+      throw new ConvexError("Nur Ersteller oder Admin darf diesen Entwurf bearbeiten");
     }
     await ctx.db.patch(args.id, {
       titel: args.titel,
@@ -186,8 +194,12 @@ export const deleteDraft = mutation({
   handler: async (ctx, args) => {
     const user = await requireEmployeeOrAdmin(ctx);
     const draft = await ctx.db.get(args.id);
-    if (!draft || draft.ownerUserId !== user._id) {
+    if (!draft) {
       throw new ConvexError("Entwurf nicht gefunden");
+    }
+    const canDelete = draft.ownerUserId === user._id || user.role === "admin";
+    if (!canDelete) {
+      throw new ConvexError("Nur Ersteller oder Admin darf diesen Entwurf löschen");
     }
     if (draft.foto) {
       await ctx.storage.delete(draft.foto);
@@ -210,6 +222,15 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const user = await requireEmployeeOrAdmin(ctx);
+
+    const allNews = await ctx.db.query("news").collect();
+    const normalizedTitel = normalizeText(args.titel);
+    const duplicateTitel = allNews.find(
+      (n) => !n.archiviertAm && normalizeText(n.titel) === normalizedTitel
+    );
+    if (duplicateTitel) {
+      throw new ConvexError("Ein News-Beitrag mit diesem Titel existiert bereits");
+    }
 
     const id = await ctx.db.insert("news", {
       titel: args.titel,
@@ -251,6 +272,18 @@ export const update = mutation({
     const user = await requireEmployeeOrAdmin(ctx);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new ConvexError("News-Beitrag nicht gefunden");
+
+    const allNews = await ctx.db.query("news").collect();
+    const normalizedTitel = normalizeText(args.titel);
+    const duplicateTitel = allNews.find(
+      (n) =>
+        n._id !== args.id &&
+        !n.archiviertAm &&
+        normalizeText(n.titel) === normalizedTitel
+    );
+    if (duplicateTitel) {
+      throw new ConvexError("Ein News-Beitrag mit diesem Titel existiert bereits");
+    }
 
     await ctx.db.patch(args.id, {
       titel: args.titel,

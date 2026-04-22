@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 
@@ -48,6 +48,14 @@ interface ProduktDraftRow {
   isOwner?: boolean;
 }
 
+function getFriendlyErrorMessage(error: unknown, fallback: string): string {
+  if (!(error instanceof Error)) return fallback;
+  const message = error.message ?? "";
+  const convexMatch = message.match(/ConvexError:\s*([\s\S]+?)(?:\s+at handler|$)/);
+  if (convexMatch?.[1]) return convexMatch[1].trim();
+  return message.trim() || fallback;
+}
+
 /* ─────────────────── small UI pieces ─────────────────── */
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -64,12 +72,14 @@ function LangTabInput({
   multiline = false, required = false, maxLength,
   onTranslate, translating = false,
   lang: externalLang, onLangChange,
+  showLangSwitcher = true,
 }: {
   label: string; valueDe: string; valueIt: string; valueEn: string;
   onChangeDe: (v: string) => void; onChangeIt: (v: string) => void; onChangeEn: (v: string) => void;
   multiline?: boolean; required?: boolean; maxLength?: number;
   onTranslate?: () => void; translating?: boolean;
   lang?: Lang; onLangChange?: (l: Lang) => void;
+  showLangSwitcher?: boolean;
 }) {
   const [internalLang, setInternalLang] = useState<Lang>("de");
   const lang = externalLang ?? internalLang;
@@ -88,21 +98,23 @@ function LangTabInput({
           {onTranslate && valueDe.trim() && (
             <button type="button" onClick={onTranslate} disabled={translating}
               className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary transition hover:bg-primary/20 disabled:opacity-50">
-              {translating ? <Spinner /> : "DE → IT"}
+              {translating ? <Spinner /> : "DE -> IT + EN"}
             </button>
           )}
-          <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
-            {(["de", "it", "en"] as Lang[]).map((l) => {
-              const isEmpty = required && (l === "de" ? valueDe : l === "it" ? valueIt : valueEn).trim() === "";
-              return (
-                <button key={l} type="button" onClick={() => setLang(l)}
-                  className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
-                  {l.toUpperCase()}
-                  {isEmpty && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
-                </button>
-              );
-            })}
-          </div>
+          {showLangSwitcher && (
+            <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
+              {(["de", "it", "en"] as Lang[]).map((l) => {
+                const isEmpty = required && (l === "de" ? valueDe : l === "it" ? valueIt : valueEn).trim() === "";
+                return (
+                  <button key={l} type="button" onClick={() => setLang(l)}
+                    className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
+                    {l.toUpperCase()}
+                    {isEmpty && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
       {multiline ? (
@@ -147,9 +159,10 @@ function Alert({ text, ok }: { text: string; ok: boolean }) {
 
 export default function AdminProduktePage() {
   const t = useTranslations("Admin");
-  const kategorien = useQuery(api.kategorien.list);
-  const produkte = useQuery(api.produkte.list) as ProduktRow[] | undefined;
-  const drafts = useQuery(api.produkte.listDrafts) as ProduktDraftRow[] | undefined;
+  const { isAuthenticated } = useConvexAuth();
+  const kategorien = useQuery(api.kategorien.list, isAuthenticated ? {} : "skip");
+  const produkte = useQuery(api.produkte.list, isAuthenticated ? {} : "skip") as ProduktRow[] | undefined;
+  const drafts = useQuery(api.produkte.listDrafts, isAuthenticated ? {} : "skip") as ProduktDraftRow[] | undefined;
 
   const createProdukt = useMutation(api.produkte.create);
   const updateProdukt = useMutation(api.produkte.update);
@@ -191,23 +204,39 @@ export default function AdminProduktePage() {
   const [translatingField, setTranslatingField] = useState<string | null>(null);
   const [translatingAll, setTranslatingAll] = useState(false);
 
-  const translate = async (text: string): Promise<string> => {
+  const translate = async (text: string, target: "it" | "en"): Promise<string> => {
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, target }),
     });
-    if (!res.ok) throw new Error("Übersetzung fehlgeschlagen");
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(
+        typeof data?.error === "string"
+          ? data.error
+          : "Übersetzung fehlgeschlagen. Bitte versuche es erneut."
+      );
+    }
     const data = await res.json();
     return data.translation;
   };
 
-  const handleTranslateField = async (field: string, value: string, setter: (v: string) => void) => {
+  const handleTranslateField = async (
+    field: string,
+    value: string,
+    setterIt: (v: string) => void,
+    setterEn: (v: string) => void
+  ) => {
     if (!value.trim() || translatingField) return;
     setTranslatingField(field);
     try {
-      const translated = await translate(value);
-      setter(translated);
+      const [translatedIt, translatedEn] = await Promise.all([
+        translate(value, "it"),
+        translate(value, "en"),
+      ]);
+      setterIt(translatedIt);
+      setterEn(translatedEn);
     } catch {
       setMeldung({ text: "Übersetzung fehlgeschlagen. Bitte versuche es erneut.", ok: false });
     } finally {
@@ -219,13 +248,26 @@ export default function AdminProduktePage() {
     if (translatingAll) return;
     setTranslatingAll(true);
     try {
-      const [translatedName, translatedBeschreibung] = await Promise.all([
-        name.trim() ? translate(name) : Promise.resolve(nameIt),
-        beschreibung.trim() ? translate(beschreibung) : Promise.resolve(beschreibungIt),
+      const [
+        translatedNameIt,
+        translatedNameEn,
+        translatedBeschreibungIt,
+        translatedBeschreibungEn,
+      ] = await Promise.all([
+        name.trim() ? translate(name, "it") : Promise.resolve(nameIt),
+        name.trim() ? translate(name, "en") : Promise.resolve(nameEn),
+        beschreibung.trim() ? translate(beschreibung, "it") : Promise.resolve(beschreibungIt),
+        beschreibung.trim() ? translate(beschreibung, "en") : Promise.resolve(beschreibungEn),
       ]);
-      if (name.trim()) setNameIt(translatedName);
-      if (beschreibung.trim()) setBeschreibungIt(translatedBeschreibung);
-      setMeldung({ text: "Alle Felder wurden übersetzt.", ok: true });
+      if (name.trim()) {
+        setNameIt(translatedNameIt);
+        setNameEn(translatedNameEn);
+      }
+      if (beschreibung.trim()) {
+        setBeschreibungIt(translatedBeschreibungIt);
+        setBeschreibungEn(translatedBeschreibungEn);
+      }
+      setMeldung({ text: "Alle Felder wurden auf IT und EN übersetzt.", ok: true });
     } catch {
       setMeldung({ text: "Übersetzung fehlgeschlagen. Bitte versuche es erneut.", ok: false });
     } finally {
@@ -343,10 +385,6 @@ export default function AdminProduktePage() {
   };
 
   const handleLoadDraft = (draft: ProduktDraftRow) => {
-    if (!draft.isOwner) {
-      setMeldung({ text: "Nur eigene Entwürfe können geöffnet werden.", ok: false });
-      return;
-    }
     setEditingId(null);
     setActiveDraftId(draft._id);
     setName(draft.name);
@@ -399,7 +437,7 @@ export default function AdminProduktePage() {
       setMeldung({ text: "Produkt erfolgreich gelöscht.", ok: true });
       if (editingId === id) resetForm();
     } catch (error) {
-      setMeldung({ text: error instanceof Error ? error.message : "Fehler beim Löschen", ok: false });
+      setMeldung({ text: getFriendlyErrorMessage(error, "Fehler beim Löschen"), ok: false });
     } finally {
       setDeleting(false);
       setDeletingId(null);
@@ -461,7 +499,7 @@ export default function AdminProduktePage() {
         resetForm();
       }
     } catch (error) {
-      setMeldung({ text: error instanceof Error ? error.message : "Unbekannter Fehler", ok: false });
+      setMeldung({ text: getFriendlyErrorMessage(error, "Unbekannter Fehler"), ok: false });
     } finally {
       setSaving(false);
     }
@@ -576,7 +614,7 @@ export default function AdminProduktePage() {
                   valueDe={name} valueIt={nameIt} valueEn={nameEn}
                   onChangeDe={setName} onChangeIt={setNameIt} onChangeEn={setNameEn}
                   required
-                  onTranslate={() => handleTranslateField("name", name, setNameIt)}
+                  onTranslate={() => handleTranslateField("name", name, setNameIt, setNameEn)}
                   translating={translatingField === "name"}
                   lang={formLang} onLangChange={setFormLang}
                 />
@@ -586,9 +624,10 @@ export default function AdminProduktePage() {
                   valueDe={beschreibung} valueIt={beschreibungIt} valueEn={beschreibungEn}
                   onChangeDe={setBeschreibung} onChangeIt={setBeschreibungIt} onChangeEn={setBeschreibungEn}
                   multiline required maxLength={300}
-                  onTranslate={() => handleTranslateField("beschreibung", beschreibung, setBeschreibungIt)}
+                  onTranslate={() => handleTranslateField("beschreibung", beschreibung, setBeschreibungIt, setBeschreibungEn)}
                   translating={translatingField === "beschreibung"}
                   lang={formLang} onLangChange={setFormLang}
+                  showLangSwitcher={false}
                 />
 
                 <div className="grid gap-5 sm:grid-cols-2">
@@ -833,11 +872,9 @@ export default function AdminProduktePage() {
                         <button type="button" onClick={() => handleLoadDraft(draft)} className="rounded-md border border-slate-200 px-2 py-1 hover:bg-slate-50">
                           Öffnen
                         </button>
-                        {draft.isOwner && (
-                          <button type="button" onClick={() => handleDeleteDraft(draft._id)} className="text-slate-400 hover:text-red-600">
-                            ×
-                          </button>
-                        )}
+                        <button type="button" onClick={() => handleDeleteDraft(draft._id)} className="text-slate-400 hover:text-red-600">
+                          ×
+                        </button>
                       </div>
                     </div>
                   ))}

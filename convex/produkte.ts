@@ -3,6 +3,10 @@ import { ConvexError, v } from "convex/values";
 import { requireEmployeeOrAdmin } from "./authz";
 import { internal } from "./_generated/api";
 
+function normalizeText(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -53,7 +57,26 @@ export const update = mutation({
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new ConvexError("Produkt nicht gefunden");
 
+    const allProducts = await ctx.db.query("produkte").collect();
+    const normalizedName = normalizeText(args.name);
+    const duplicateName = allProducts.find(
+      (p) =>
+        p._id !== args.id &&
+        !p.archiviertAm &&
+        normalizeText(p.name) === normalizedName
+    );
+    if (duplicateName) {
+      throw new ConvexError("Ein Produkt mit diesem Namen existiert bereits");
+    }
+
     const slug = args.slug.trim();
+    const duplicateSlug = allProducts.find(
+      (p) => p._id !== args.id && !p.archiviertAm && p.slug === slug
+    );
+    if (duplicateSlug) {
+      throw new ConvexError("Dieses Produkt-Slug existiert bereits");
+    }
+
     await ctx.db.patch(args.id, {
       name: args.name,
       beschreibung: args.beschreibung,
@@ -199,9 +222,9 @@ export const getByIdForAdmin = query({
 export const getDraftByIdForAdmin = query({
   args: { id: v.id("produktEntwuerfe") },
   handler: async (ctx, args) => {
-    const user = await requireEmployeeOrAdmin(ctx);
+    await requireEmployeeOrAdmin(ctx);
     const draft = await ctx.db.get(args.id);
-    if (!draft || draft.ownerUserId !== user._id) {
+    if (!draft) {
       throw new ConvexError("Entwurf nicht gefunden");
     }
     const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
@@ -262,9 +285,9 @@ export const createDraft = mutation({
 export const loadDraft = query({
   args: { id: v.id("produktEntwuerfe") },
   handler: async (ctx, args) => {
-    const user = await requireEmployeeOrAdmin(ctx);
+    await requireEmployeeOrAdmin(ctx);
     const draft = await ctx.db.get(args.id);
-    if (!draft || draft.ownerUserId !== user._id) {
+    if (!draft) {
       throw new ConvexError("Entwurf nicht gefunden");
     }
     const imageUrl = draft.foto ? await ctx.storage.getUrl(draft.foto) : null;
@@ -292,8 +315,12 @@ export const saveDraft = mutation({
   handler: async (ctx, args) => {
     const user = await requireEmployeeOrAdmin(ctx);
     const draft = await ctx.db.get(args.id);
-    if (!draft || draft.ownerUserId !== user._id) {
+    if (!draft) {
       throw new ConvexError("Entwurf nicht gefunden");
+    }
+    const canEdit = draft.ownerUserId === user._id || user.role === "admin";
+    if (!canEdit) {
+      throw new ConvexError("Nur Ersteller oder Admin darf diesen Entwurf bearbeiten");
     }
     await ctx.db.patch(args.id, {
       name: args.name,
@@ -315,8 +342,12 @@ export const deleteDraft = mutation({
   handler: async (ctx, args) => {
     const user = await requireEmployeeOrAdmin(ctx);
     const draft = await ctx.db.get(args.id);
-    if (!draft || draft.ownerUserId !== user._id) {
+    if (!draft) {
       throw new ConvexError("Entwurf nicht gefunden");
+    }
+    const canDelete = draft.ownerUserId === user._id || user.role === "admin";
+    if (!canDelete) {
+      throw new ConvexError("Nur Ersteller oder Admin darf diesen Entwurf löschen");
     }
     if (draft.foto) {
       await ctx.storage.delete(draft.foto);
@@ -340,9 +371,24 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const user = await requireEmployeeOrAdmin(ctx);
 
+    const allProducts = await ctx.db.query("produkte").collect();
+    const normalizedName = normalizeText(args.name);
+    const duplicateName = allProducts.find(
+      (p) =>
+        !p.archiviertAm &&
+        normalizeText(p.name) === normalizedName
+    );
+    if (duplicateName) {
+      throw new ConvexError("Ein Produkt mit diesem Namen existiert bereits");
+    }
+
     const slug = args.slug.trim();
     if (!slug) {
       throw new ConvexError("slug required");
+    }
+    const duplicateSlug = allProducts.find((p) => !p.archiviertAm && p.slug === slug);
+    if (duplicateSlug) {
+      throw new ConvexError("Dieses Produkt-Slug existiert bereits");
     }
 
     const id = await ctx.db.insert("produkte", {
