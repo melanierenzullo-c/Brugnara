@@ -26,32 +26,29 @@ export default function ProduktVorschauPage() {
 
   return (
     <div className="min-h-screen bg-[#F4F6F9] px-6 py-10">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-sm">
         <h1 className="mb-6 text-3xl font-black text-foreground">Vorschau: {title}</h1>
         {!item ? (
           <p className="text-sm text-muted-foreground">Laden…</p>
         ) : (
-          <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="grid gap-6 md:grid-cols-[280px_1fr]">
-              <div className="relative aspect-square overflow-hidden rounded-[1.2rem] bg-slate-50">
-                {item.imageUrl ? (
-                  <Image src={item.imageUrl} alt={title} fill className="object-contain" />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-slate-400">Kein Bild</div>
-                )}
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-primary/70">
-                  {(item as { kategorieName?: string }).kategorieName ?? "Kategorie"}
-                </p>
-                <h2 className="mb-3 text-2xl font-bold text-foreground">{title}</h2>
-                <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
-              </div>
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-white border border-border/50 p-4 shadow-sm">
+            <div className="relative aspect-square w-full overflow-hidden rounded-[1.8rem] bg-[#F8FAFC]">
+              {item.imageUrl ? (
+                <Image src={item.imageUrl} alt={title} fill className="object-contain" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-4xl font-black text-primary/10">
+                  {title.substring(0, 1).toUpperCase()}
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
             </div>
-          </article>
+            <div className="px-4 py-8">
+              <h4 className="mb-3 text-xl font-bold text-foreground">{title}</h4>
+              <p className="text-[15px] leading-relaxed text-muted-foreground font-medium">{description}</p>
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
 }
-

@@ -70,6 +70,9 @@ function LangTabInput({
   onTranslate, translating = false,
   lang: externalLang, onLangChange,
   showLangSwitcher = true,
+  isDotVisibleDe,
+  isDotVisibleIt,
+  isDotVisibleEn,
 }: {
   label: string; valueDe: string; valueIt: string; valueEn: string;
   onChangeDe: (v: string) => void; onChangeIt: (v: string) => void; onChangeEn: (v: string) => void;
@@ -77,6 +80,9 @@ function LangTabInput({
   onTranslate?: () => void; translating?: boolean;
   lang?: Lang; onLangChange?: (l: Lang) => void;
   showLangSwitcher?: boolean;
+  isDotVisibleDe?: boolean;
+  isDotVisibleIt?: boolean;
+  isDotVisibleEn?: boolean;
 }) {
   const [internalLang, setInternalLang] = useState<Lang>("de");
   const lang = externalLang ?? internalLang;
@@ -101,12 +107,13 @@ function LangTabInput({
           {showLangSwitcher && (
             <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
               {(["de", "it", "en"] as Lang[]).map((l) => {
-                const isEmpty = required && (l === "de" ? valueDe : l === "it" ? valueIt : valueEn).trim() === "";
+                const defaultIsEmpty = required && (l === "de" ? valueDe : l === "it" ? valueIt : valueEn).trim() === "";
+                const showDot = (l === "de" ? isDotVisibleDe : l === "it" ? isDotVisibleIt : isDotVisibleEn) ?? defaultIsEmpty;
                 return (
                   <button key={l} type="button" onClick={() => setLang(l)}
                     className={`relative rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all ${lang === l ? "bg-white text-foreground shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
                     {l.toUpperCase()}
-                    {isEmpty && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
+                    {showDot && <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
                   </button>
                 );
               })}
@@ -437,11 +444,11 @@ export default function AdminNewsPage() {
     if (!inhalt.trim() || !inhaltIt.trim() || !inhaltEn.trim()) {
       setMeldung({ text: "Bitte Inhalt in Deutsch, Italienisch und Englisch eingeben.", ok: false }); return;
     }
-    if (!isEditing && !selectedImage) { setMeldung({ text: t("bitteFoto"), ok: false }); return; }
+    if (!isEditing && !selectedImage && !activeDraftFotoId) { setMeldung({ text: t("bitteFoto"), ok: false }); return; }
 
     try {
       setSaving(true);
-      let storageId: Id<"_storage"> | undefined;
+      let storageId: Id<"_storage"> | undefined = activeDraftFotoId ?? undefined;
       if (selectedImage) {
         const postUrl = await generateUploadUrl();
         const result = await fetch(postUrl, { method: "POST", headers: { "Content-Type": selectedImage.type }, body: selectedImage });
@@ -529,6 +536,15 @@ export default function AdminNewsPage() {
     }
   };
 
+  const missingFields = [];
+  if (!titel.trim() || !titelIt.trim() || !titelEn.trim()) missingFields.push("Titel (alle Sprachen)");
+  if (!inhalt.trim() || !inhaltIt.trim() || !inhaltEn.trim()) missingFields.push("Inhalt (alle Sprachen)");
+  if (!isEditing && !selectedImage && !activeDraftFotoId) missingFields.push("Beitragsbild");
+
+  const deIncomplete = !titel.trim() || !inhalt.trim() || (!isEditing && !selectedImage && !activeDraftFotoId);
+  const itIncomplete = !titelIt.trim() || !inhaltIt.trim() || (!isEditing && !selectedImage && !activeDraftFotoId);
+  const enIncomplete = !titelEn.trim() || !inhaltEn.trim() || (!isEditing && !selectedImage && !activeDraftFotoId);
+
   return (
     <div className="min-h-screen bg-slate-50">
       <AdminHeader title="News" backHref="/admin" backLabel="Dashboard" />
@@ -587,6 +603,9 @@ export default function AdminNewsPage() {
                   onTranslate={() => handleTranslateField("titel", titel, setTitelIt, setTitelEn)}
                   translating={translatingField === "titel"}
                   lang={formLang} onLangChange={setFormLang}
+                  isDotVisibleDe={deIncomplete}
+                  isDotVisibleIt={itIncomplete}
+                  isDotVisibleEn={enIncomplete}
                 />
 
                 <LangTabInput
@@ -644,7 +663,26 @@ export default function AdminNewsPage() {
                       Abbrechen
                     </button>
                   )}
-                  <p className="text-xs text-center text-slate-400">Beide Sprachen müssen ausgefüllt sein.</p>
+                  {missingFields.length > 0 ? (
+                    <div className="rounded-lg bg-red-50 p-3 mt-2 border border-red-100">
+                      <p className="text-xs font-semibold text-red-800 mb-1 flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full bg-red-500 shrink-0 animate-pulse" />
+                        Es fehlen noch:
+                      </p>
+                      <ul className="text-xs text-red-700 pl-4 list-disc space-y-0.5">
+                        {missingFields.map((field) => (
+                          <li key={field}>{field}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <div className="rounded-lg bg-green-50 p-3 mt-2 border border-green-100">
+                      <p className="text-xs font-semibold text-green-700 flex items-center justify-center gap-1.5">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                        Formular vollständig
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Language reminder */}
