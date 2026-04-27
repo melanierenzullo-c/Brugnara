@@ -30,6 +30,7 @@ export default defineSchema({
   kategorien: defineTable({
     name: v.string(),
     nameIt: v.string(),
+    nameEn: v.string(),
     slug: v.string(),
   }).index("by_slug", ["slug"]),
 

@@ -176,26 +176,33 @@ export default function AdminMitarbeiterPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {/* Role toggle – hidden for own row */}
-                      {currentUser && currentUser._id !== u._id && (
-                        <button type="button" onClick={() => onToggleRole(u._id, u.role)}
-                          className="rounded-xl border border-border/60 bg-white px-3 py-2 text-xs font-bold text-muted-foreground transition hover:border-primary/30 hover:text-primary"
-                          title={u.role === "admin" ? "Zu Mitarbeiter ändern" : "Zu Administrator ändern"}
-                        >
-                          {u.role === "admin" ? "→ Mitarbeiter" : "→ Admin"}
-                        </button>
-                      )}
-                      {/* Disable / Enable toggle */}
-                      {u.disabled ? (
-                        <button type="button" onClick={() => onToggleDisabled(u._id, false)}
-                          className="rounded-xl border border-border bg-white px-4 py-2 text-xs font-bold text-foreground transition hover:border-primary/30 hover:text-primary">
-                          {t("aktivieren")}
-                        </button>
+                      {currentUser && currentUser._id !== u._id ? (
+                        <>
+                          {/* Role toggle */}
+                          <button type="button" onClick={() => onToggleRole(u._id, u.role)}
+                            className="rounded-xl border border-border/60 bg-white px-3 py-2 text-xs font-bold text-muted-foreground transition hover:border-primary/30 hover:text-primary"
+                            title={u.role === "admin" ? "Zu Mitarbeiter ändern" : "Zu Administrator ändern"}
+                          >
+                            {u.role === "admin" ? "→ Mitarbeiter" : "→ Admin"}
+                          </button>
+
+                          {/* Disable / Enable toggle */}
+                          {u.disabled ? (
+                            <button type="button" onClick={() => onToggleDisabled(u._id, false)}
+                              className="rounded-xl border border-border bg-white px-4 py-2 text-xs font-bold text-foreground transition hover:border-primary/30 hover:text-primary">
+                              {t("aktivieren")}
+                            </button>
+                          ) : (
+                            <button type="button" onClick={() => onToggleDisabled(u._id, true)}
+                              className="rounded-xl border border-border/60 bg-white px-4 py-2 text-xs font-bold text-muted-foreground transition hover:border-red-200 hover:text-red-600">
+                              {t("deaktivieren")}
+                            </button>
+                          )}
+                        </>
                       ) : (
-                        <button type="button" onClick={() => onToggleDisabled(u._id, true)}
-                          className="rounded-xl border border-border/60 bg-white px-4 py-2 text-xs font-bold text-muted-foreground transition hover:border-red-200 hover:text-red-600">
-                          {t("deaktivieren")}
-                        </button>
+                        <div className="inline-flex items-center rounded-xl bg-primary/5 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-primary/60 border border-primary/10">
+                          {t("du")}
+                        </div>
                       )}
                     </div>
                   </div>

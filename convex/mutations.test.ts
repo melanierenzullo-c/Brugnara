@@ -21,6 +21,7 @@ describe("misc coverage: clearProducts/files/bootstrap/users", () => {
       return await ctx.db.insert("kategorien", {
         name: "Kategorie",
         nameIt: "Categoria",
+        nameEn: "Category",
         slug: "kategorie",
       });
     });

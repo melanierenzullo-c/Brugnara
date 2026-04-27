@@ -51,6 +51,7 @@ describe("produkte + files auth", () => {
       return await ctx.db.insert("kategorien", {
         name: "Kategorie",
         nameIt: "Categoria",
+        nameEn: "Category",
         slug: "kategorie",
       });
     });
@@ -122,6 +123,7 @@ describe("produkte + files auth", () => {
       return await ctx.db.insert("kategorien", {
         name: "Wein",
         nameIt: "Vino",
+        nameEn: "Wine",
         slug: "wein",
       });
     });
@@ -185,6 +187,7 @@ describe("produkte + files auth", () => {
       return await ctx.db.insert("kategorien", {
         name: "Bier",
         nameIt: "Birra",
+        nameEn: "Beer",
         slug: "bier",
       });
     });
@@ -220,6 +223,7 @@ describe("produkte + files auth", () => {
       return await ctx.db.insert("kategorien", {
         name: "Test",
         nameIt: "Test",
+        nameEn: "Test",
         slug: "test",
       });
     });

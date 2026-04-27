@@ -13,6 +13,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { AdminHeader } from "@/components/admin-header";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImageCropper } from "@/components/image-cropper";
 
 /* ─────────────────── shared types ─────────────────── */
 
@@ -170,10 +171,13 @@ export default function AdminProduktePage() {
   const kategorien = useQuery(api.kategorien.list, isAuthenticated ? {} : "skip");
   const produkte = useQuery(api.produkte.list, isAuthenticated ? {} : "skip") as ProduktRow[] | undefined;
   const drafts = useQuery(api.produkte.listDrafts, isAuthenticated ? {} : "skip") as ProduktDraftRow[] | undefined;
+  const archiviert = useQuery(api.produkte.listArchiviert, isAuthenticated ? {} : "skip") as ProduktRow[] | undefined;
 
   const createProdukt = useMutation(api.produkte.create);
   const updateProdukt = useMutation(api.produkte.update);
   const removeProdukt = useMutation(api.produkte.remove);
+  const restoreProdukt = useMutation(api.produkte.restore);
+  const deletePermanentProdukt = useMutation(api.produkte.deletePermanent);
   const createDraft = useMutation(api.produkte.createDraft);
   const saveDraft = useMutation(api.produkte.saveDraft);
   const deleteDraft = useMutation(api.produkte.deleteDraft);
@@ -199,10 +203,13 @@ export default function AdminProduktePage() {
   const creatingDraftRef = useRef(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [draftTab, setDraftTab] = useState("produkte");
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
 
   /* ── delete state ── */
   const [deletingId, setDeletingId] = useState<Id<"produkte"> | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [permanentDeletingId, setPermanentDeletingId] = useState<Id<"produkte"> | null>(null);
+  const [restoringId, setRestoringId] = useState<Id<"produkte"> | null>(null);
 
   /* ── shared language tab ── */
   const [formLang, setFormLang] = useState<Lang>("de");
@@ -344,6 +351,7 @@ export default function AdminProduktePage() {
             nameEn,
             beschreibungEn,
             kategorieId: kategorieId ? (kategorieId as Id<"kategorien">) : undefined,
+            foto: activeDraftFotoId,
           });
           setLastDraftSavedAt(Date.now());
         }
@@ -512,6 +520,31 @@ export default function AdminProduktePage() {
     }
   };
 
+  const handleRestore = async (id: Id<"produkte">) => {
+    setRestoringId(id);
+    try {
+      await restoreProdukt({ id });
+      setMeldung({ text: "Produkt erfolgreich wiederhergestellt.", ok: true });
+    } catch (error) {
+      setMeldung({ text: getFriendlyErrorMessage(error, "Fehler beim Wiederherstellen"), ok: false });
+    } finally {
+      setRestoringId(null);
+    }
+  };
+
+  const handleDeletePermanent = async (id: Id<"produkte">) => {
+    setDeleting(true);
+    try {
+      await deletePermanentProdukt({ id });
+      setMeldung({ text: "Produkt endgültig gelöscht.", ok: true });
+    } catch (error) {
+      setMeldung({ text: getFriendlyErrorMessage(error, "Fehler beim endgültigen Löschen"), ok: false });
+    } finally {
+      setDeleting(false);
+      setPermanentDeletingId(null);
+    }
+  };
+
   const inputClass =
     "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition";
   const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -526,10 +559,7 @@ export default function AdminProduktePage() {
     );
   });
 
-  const handleDraftImageChange = async (file: File | null) => {
-    setSelectedImage(file);
-    if (!file || isEditing) return;
-
+  const handleImageUpload = async (file: File) => {
     const draftId = await ensureActiveDraftId();
     if (!draftId) return;
 
@@ -563,6 +593,27 @@ export default function AdminProduktePage() {
       setLastDraftSavedAt(Date.now());
     } catch {
       setMeldung({ text: "Entwurfsbild konnte nicht gespeichert werden.", ok: false });
+    }
+  };
+
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        setImageToCrop(reader.result as string);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setImageToCrop(null);
+    const croppedFile = new File([croppedBlob], "product-image.jpg", { type: "image/jpeg" });
+    setSelectedImage(croppedFile);
+
+    if (!isEditing) {
+      await handleImageUpload(croppedFile);
     }
   };
 
@@ -660,7 +711,7 @@ export default function AdminProduktePage() {
 
                   <Field label={isEditing ? "Neues Produktbild (optional)" : "Produktbild"}>
                     <input id="foto-upload" type="file" accept="image/*"
-                      onChange={(e) => void handleDraftImageChange(e.target.files?.[0] || null)}
+                      onChange={handleFileSelection}
                       required={!isEditing}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-foreground file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200 transition cursor-pointer" />
                     <p className="text-xs text-slate-400 mt-1">
@@ -765,18 +816,12 @@ export default function AdminProduktePage() {
                   : "Laden…"}
               </p>
             </div>
-            <Link href="/admin/produkte/papierkorb"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-              </svg>
-              Papierkorb
-            </Link>
           </div>
           <Tabs value={draftTab} onValueChange={setDraftTab}>
             <TabsList className="mb-4">
               <TabsTrigger value="produkte">Alle Produkte</TabsTrigger>
               <TabsTrigger value="drafts">Entwürfe</TabsTrigger>
+              <TabsTrigger value="trash">Papierkorb</TabsTrigger>
             </TabsList>
 
             <TabsContent value="produkte">
@@ -921,9 +966,104 @@ export default function AdminProduktePage() {
                 </div>
               </div>
             </TabsContent>
+            <TabsContent value="trash">
+              {!archiviert ? (
+                <div className="flex items-center justify-center py-16 text-slate-400 text-sm gap-2">
+                  <Spinner /> Laden…
+                </div>
+              ) : archiviert.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center text-sm text-slate-400">
+                  Der Papierkorb ist leer.
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-[1.6rem] border border-slate-200/80 bg-white shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]">
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[800px] text-sm">
+                      <thead>
+                        <tr className="border-b border-slate-200 bg-slate-50/85">
+                          <th className="w-16 px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500">Bild</th>
+                          <th className="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500">Name</th>
+                          <th className="px-5 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500 hidden md:table-cell">Kategorie</th>
+                          <th className="w-[340px] px-6 py-3 text-right text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-500">Aktionen</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {archiviert.map((p) => (
+                          <tr key={p._id} className="border-b border-slate-100/80 transition-colors hover:bg-slate-50/70">
+                            <td className="px-5 py-3.5">
+                              {p.imageUrl ? (
+                                <Image src={p.imageUrl} alt={p.name} width={40} height={40} className="h-10 w-10 rounded-lg border border-slate-200 object-cover grayscale opacity-60" />
+                              ) : (
+                                <div className="h-10 w-10 rounded-lg bg-slate-100" />
+                              )}
+                            </td>
+                            <td className="px-5 py-3.5">
+                              <p className="font-semibold text-slate-500">{p.name}</p>
+                            </td>
+                            <td className="px-5 py-3.5 hidden md:table-cell">
+                              <span className="text-xs text-slate-500">{p.kategorieName}</span>
+                            </td>
+                            <td className="px-6 py-3.5 text-right whitespace-nowrap">
+                              <div className="inline-flex items-center justify-end gap-2">
+                                <button
+                                  type="button"
+                                  disabled={restoringId === p._id}
+                                  onClick={() => handleRestore(p._id)}
+                                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-primary/30 hover:text-primary disabled:opacity-50"
+                                >
+                                  {restoringId === p._id ? <Spinner /> : "Wiederherstellen"}
+                                </button>
+
+                                {permanentDeletingId === p._id ? (
+                                  <div className="flex items-center gap-1.5 bg-red-50 p-1 rounded-lg border border-red-100 ml-2">
+                                    <span className="text-[10px] font-bold text-red-600 px-1 uppercase tracking-wider">Löschen?</span>
+                                    <button
+                                      type="button"
+                                      disabled={deleting}
+                                      onClick={() => handleDeletePermanent(p._id)}
+                                      className="rounded-md bg-red-600 px-2.5 py-1 text-[10px] font-bold text-white transition hover:bg-red-700 shadow-sm"
+                                    >
+                                      Ja
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setPermanentDeletingId(null)}
+                                      className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 transition hover:bg-slate-100"
+                                    >
+                                      Nein
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => setPermanentDeletingId(p._id)}
+                                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:border-red-200 hover:bg-red-50"
+                                  >
+                                    Endgültig löschen
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
         </section>
       </div>
+
+      {imageToCrop && (
+        <ImageCropper
+          image={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setImageToCrop(null)}
+          aspect={1}
+        />
+      )}
     </div>
   );
 }

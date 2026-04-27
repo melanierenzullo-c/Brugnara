@@ -13,6 +13,8 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { AdminHeader } from "@/components/admin-header";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImageCropper } from "@/components/image-cropper";
+import { RichTextEditor } from "@/components/rich-text-editor";
 
 /* ─────────────────── shared types ─────────────────── */
 
@@ -66,7 +68,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function LangTabInput({
   label, valueDe, valueIt, valueEn, onChangeDe, onChangeIt, onChangeEn,
-  multiline = false, required = false, maxLength,
+  multiline = false, required = false, maxLength, richText = false,
   onTranslate, translating = false,
   lang: externalLang, onLangChange,
   showLangSwitcher = true,
@@ -80,6 +82,7 @@ function LangTabInput({
   onTranslate?: () => void; translating?: boolean;
   lang?: Lang; onLangChange?: (l: Lang) => void;
   showLangSwitcher?: boolean;
+  richText?: boolean;
   isDotVisibleDe?: boolean;
   isDotVisibleIt?: boolean;
   isDotVisibleEn?: boolean;
@@ -107,7 +110,9 @@ function LangTabInput({
           {showLangSwitcher && (
             <div className="flex items-center gap-0.5 rounded-full bg-slate-100 p-0.5">
               {(["de", "it", "en"] as Lang[]).map((l) => {
-                const defaultIsEmpty = required && (l === "de" ? valueDe : l === "it" ? valueIt : valueEn).trim() === "";
+                const val = l === "de" ? valueDe : l === "it" ? valueIt : valueEn;
+                const isActuallyEmpty = val.trim() === "" || val.replace(/<[^>]*>/g, "").trim() === "";
+                const defaultIsEmpty = required && isActuallyEmpty;
                 const showDot = (l === "de" ? isDotVisibleDe : l === "it" ? isDotVisibleIt : isDotVisibleEn) ?? defaultIsEmpty;
                 return (
                   <button key={l} type="button" onClick={() => setLang(l)}
@@ -121,7 +126,9 @@ function LangTabInput({
           )}
         </div>
       </div>
-      {multiline ? (
+      {richText ? (
+        <RichTextEditor value={value} onChange={onChange} placeholder={`${label} eingeben...`} />
+      ) : multiline ? (
         <>
           <textarea value={value} onChange={(e) => onChange(e.target.value)}
             maxLength={maxLength} required={required && lang === "de"}
@@ -166,10 +173,13 @@ export default function AdminNewsPage() {
   const { isAuthenticated } = useConvexAuth();
   const newsItems = useQuery(api.news.list, isAuthenticated ? {} : "skip") as NewsRow[] | undefined;
   const drafts = useQuery(api.news.listDrafts, isAuthenticated ? {} : "skip") as NewsDraftRow[] | undefined;
+  const archiviert = useQuery(api.news.listArchiviert, isAuthenticated ? {} : "skip") as NewsRow[] | undefined;
 
   const createNews = useMutation(api.news.create);
   const updateNews = useMutation(api.news.update);
   const removeNews = useMutation(api.news.remove);
+  const restoreNews = useMutation(api.news.restore);
+  const deletePermanentNews = useMutation(api.news.deletePermanent);
   const createDraft = useMutation(api.news.createDraft);
   const saveDraft = useMutation(api.news.saveDraft);
   const deleteDraft = useMutation(api.news.deleteDraft);
@@ -195,10 +205,13 @@ export default function AdminNewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [draftTab, setDraftTab] = useState("news");
   const [formLang, setFormLang] = useState<Lang>("de");
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
 
   /* ── delete state ── */
   const [deletingId, setDeletingId] = useState<Id<"news"> | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [permanentDeletingId, setPermanentDeletingId] = useState<Id<"news"> | null>(null);
+  const [restoringId, setRestoringId] = useState<Id<"news"> | null>(null);
 
   /* ── translation ── */
   const [translatingField, setTranslatingField] = useState<string | null>(null);
@@ -309,13 +322,14 @@ export default function AdminNewsPage() {
   useEffect(() => {
     if (!activeDraftId || isEditing) return;
     const timer = setTimeout(async () => {
+      const isContentEmpty = (v: string) => v.trim() === "" || v === "<p></p>";
       const isEmpty =
         titel.trim() === "" &&
-        inhalt.trim() === "" &&
+        isContentEmpty(inhalt) &&
         titelIt.trim() === "" &&
-        inhaltIt.trim() === "" &&
+        isContentEmpty(inhaltIt) &&
         titelEn.trim() === "" &&
-        inhaltEn.trim() === "" &&
+        isContentEmpty(inhaltEn) &&
         !activeDraftFotoId;
 
       try {
@@ -334,6 +348,7 @@ export default function AdminNewsPage() {
             inhaltIt,
             titelEn,
             inhaltEn,
+            foto: activeDraftFotoId,
           });
           setLastDraftSavedAt(Date.now());
         }
@@ -487,6 +502,32 @@ export default function AdminNewsPage() {
       setSaving(false);
     }
   };
+
+  const handleRestore = async (id: Id<"news">) => {
+    setRestoringId(id);
+    try {
+      await restoreNews({ id });
+      setMeldung({ text: "News-Beitrag erfolgreich wiederhergestellt.", ok: true });
+    } catch (error) {
+      setMeldung({ text: getFriendlyErrorMessage(error, "Fehler beim Wiederherstellen"), ok: false });
+    } finally {
+      setRestoringId(null);
+    }
+  };
+
+  const handleDeletePermanent = async (id: Id<"news">) => {
+    setDeleting(true);
+    try {
+      await deletePermanentNews({ id });
+      setMeldung({ text: "News-Beitrag endgültig gelöscht.", ok: true });
+    } catch (error) {
+      setMeldung({ text: getFriendlyErrorMessage(error, "Fehler beim endgültigen Löschen"), ok: false });
+    } finally {
+      setDeleting(false);
+      setPermanentDeletingId(null);
+    }
+  };
+
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredNewsItems = newsItems?.filter((n) => {
     if (!normalizedQuery) return true;
@@ -498,9 +539,7 @@ export default function AdminNewsPage() {
     );
   });
 
-  const handleDraftImageChange = async (file: File | null) => {
-    setSelectedImage(file);
-    if (!file || isEditing) return;
+  const handleImageUpload = async (file: File) => {
     const draftId = await ensureActiveDraftId();
     if (!draftId) return;
 
@@ -536,14 +575,36 @@ export default function AdminNewsPage() {
     }
   };
 
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        setImageToCrop(reader.result as string);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setImageToCrop(null);
+    const croppedFile = new File([croppedBlob], "news-image.jpg", { type: "image/jpeg" });
+    setSelectedImage(croppedFile);
+
+    if (!isEditing) {
+      await handleImageUpload(croppedFile);
+    }
+  };
+
+  const isContentEmpty = (v: string) => v.trim() === "" || v === "<p></p>";
   const missingFields = [];
   if (!titel.trim() || !titelIt.trim() || !titelEn.trim()) missingFields.push("Titel (alle Sprachen)");
-  if (!inhalt.trim() || !inhaltIt.trim() || !inhaltEn.trim()) missingFields.push("Inhalt (alle Sprachen)");
+  if (isContentEmpty(inhalt) || isContentEmpty(inhaltIt) || isContentEmpty(inhaltEn)) missingFields.push("Inhalt (alle Sprachen)");
   if (!isEditing && !selectedImage && !activeDraftFotoId) missingFields.push("Beitragsbild");
 
-  const deIncomplete = !titel.trim() || !inhalt.trim() || (!isEditing && !selectedImage && !activeDraftFotoId);
-  const itIncomplete = !titelIt.trim() || !inhaltIt.trim() || (!isEditing && !selectedImage && !activeDraftFotoId);
-  const enIncomplete = !titelEn.trim() || !inhaltEn.trim() || (!isEditing && !selectedImage && !activeDraftFotoId);
+  const deIncomplete = !titel.trim() || isContentEmpty(inhalt) || (!isEditing && !selectedImage && !activeDraftFotoId);
+  const itIncomplete = !titelIt.trim() || isContentEmpty(inhaltIt) || (!isEditing && !selectedImage && !activeDraftFotoId);
+  const enIncomplete = !titelEn.trim() || isContentEmpty(inhaltEn) || (!isEditing && !selectedImage && !activeDraftFotoId);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -612,7 +673,7 @@ export default function AdminNewsPage() {
                   label="Inhalt"
                   valueDe={inhalt} valueIt={inhaltIt} valueEn={inhaltEn}
                   onChangeDe={setInhalt} onChangeIt={setInhaltIt} onChangeEn={setInhaltEn}
-                  multiline required maxLength={1000}
+                  richText required
                   onTranslate={() => handleTranslateField("inhalt", inhalt, setInhaltIt, setInhaltEn)}
                   translating={translatingField === "inhalt"}
                   lang={formLang} onLangChange={setFormLang}
@@ -621,7 +682,7 @@ export default function AdminNewsPage() {
 
                 <Field label={isEditing ? "Neues Beitragsbild (optional)" : "Beitragsbild"}>
                   <input id="news-foto-upload" type="file" accept="image/*"
-                    onChange={(e) => void handleDraftImageChange(e.target.files?.[0] || null)}
+                    onChange={handleFileSelection}
                     required={!isEditing}
                     className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-foreground file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200 transition cursor-pointer" />
                   <p className="text-xs text-slate-400 mt-1">
@@ -708,18 +769,12 @@ export default function AdminNewsPage() {
                   : "Laden…"}
               </p>
             </div>
-            <Link href="/admin/news/papierkorb"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-              </svg>
-              Papierkorb
-            </Link>
           </div>
           <Tabs value={draftTab} onValueChange={setDraftTab}>
             <TabsList className="mb-4">
               <TabsTrigger value="news">Alle News</TabsTrigger>
               <TabsTrigger value="drafts">Entwürfe</TabsTrigger>
+              <TabsTrigger value="trash">Papierkorb</TabsTrigger>
             </TabsList>
 
             <TabsContent value="news">
@@ -747,14 +802,15 @@ export default function AdminNewsPage() {
                     <div key={n._id}
                       className={`flex items-center gap-5 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition hover:border-primary/20 ${editingId === n._id ? "ring-2 ring-primary/20" : ""}`}>
                       {/* Thumbnail */}
-                      {n.imageUrl ? (
-                        <Image src={n.imageUrl} alt={n.titel} width={80} height={56}
-                          className="h-14 w-20 rounded-xl object-cover shrink-0" />
-                      ) : (
-                        <div className="flex h-14 w-20 items-center justify-center rounded-xl bg-slate-100 text-slate-300 shrink-0">
-                          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
-                        </div>
-                      )}
+                      <div className="h-14 aspect-[4/3] relative rounded-xl overflow-hidden shrink-0">
+                        {n.imageUrl ? (
+                          <Image src={n.imageUrl} alt={n.titel} fill className="object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-300">
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+                          </div>
+                        )}
+                      </div>
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-foreground truncate">{n.titel}</p>
@@ -836,11 +892,86 @@ export default function AdminNewsPage() {
                 </div>
               </div>
             </TabsContent>
+            <TabsContent value="trash">
+              {!archiviert ? (
+                <div className="flex items-center justify-center py-16 text-slate-400 text-sm gap-2">
+                  <Spinner /> Laden…
+                </div>
+              ) : archiviert.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center text-sm text-slate-400">
+                  Der Papierkorb ist leer.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {archiviert.map((n) => (
+                    <div key={n._id} className="flex items-center gap-5 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition hover:border-primary/20">
+                      <div className="h-14 aspect-[4/3] relative rounded-xl overflow-hidden shrink-0 grayscale opacity-60">
+                        {n.imageUrl ? (
+                          <Image src={n.imageUrl} alt={n.titel} fill className="object-cover" />
+                        ) : (
+                          <div className="h-full w-full bg-slate-100" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-slate-500 truncate">{n.titel}</p>
+                        <p className="text-[11px] text-slate-400">Archiviert am: {n.archiviertAm ? new Date(n.archiviertAm).toLocaleDateString("de-DE") : "–"}</p>
+                      </div>
+                      <div className="shrink-0 flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={restoringId === n._id}
+                          onClick={() => handleRestore(n._id)}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-primary/30 hover:text-primary disabled:opacity-50"
+                        >
+                          {restoringId === n._id ? <Spinner /> : "Wiederherstellen"}
+                        </button>
+
+                        {permanentDeletingId === n._id ? (
+                          <div className="flex items-center gap-1.5 bg-red-50 p-1 rounded-lg border border-red-100 ml-2">
+                            <span className="text-[10px] font-bold text-red-600 px-1 uppercase tracking-wider">Löschen?</span>
+                            <button
+                              type="button"
+                              disabled={deleting}
+                              onClick={() => handleDeletePermanent(n._id)}
+                              className="rounded-md bg-red-600 px-2.5 py-1 text-[10px] font-bold text-white transition hover:bg-red-700 shadow-sm"
+                            >
+                              Ja
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setPermanentDeletingId(null)}
+                              className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 transition hover:bg-slate-100"
+                            >
+                              Nein
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setPermanentDeletingId(n._id)}
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:border-red-200 hover:bg-red-50"
+                          >
+                            Endgültig löschen
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
         </section>
-
-        
       </div>
+
+      {imageToCrop && (
+        <ImageCropper
+          image={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setImageToCrop(null)}
+          aspect={4 / 3}
+        />
+      )}
     </div>
   );
 }

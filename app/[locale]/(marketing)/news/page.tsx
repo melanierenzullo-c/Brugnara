@@ -56,6 +56,10 @@ export default function NewsPage() {
     return () => { ScrollTrigger.getAll().forEach((st) => st.kill()); };
   }, [newsItems]);
 
+  const stripHtml = (html: string) => {
+    return html.replace(/<[^>]*>?/gm, " ");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="min-h-screen bg-[#F4F6F9]">
@@ -112,6 +116,7 @@ export default function NewsPage() {
               {filteredNews.map((item) => {
                 const title = locale === "it" ? item.titelIt : item.titel;
                 const content = locale === "it" ? item.inhaltIt : item.inhalt;
+                const plainText = stripHtml(content);
 
                 return (
                   <article
@@ -123,13 +128,13 @@ export default function NewsPage() {
 
                     <div className="flex flex-col sm:flex-row">
                       {item.imageUrl && (
-                        <div className="relative w-full sm:w-72 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[240px] overflow-hidden rounded-t-[1.5rem] sm:rounded-tr-none sm:rounded-l-[1.5rem]">
+                        <div className="relative w-full sm:w-72 shrink-0 aspect-[4/3] self-start overflow-hidden rounded-t-[1.5rem] sm:rounded-tr-none sm:rounded-l-[1.5rem]">
                           <Image
                             src={item.imageUrl}
                             alt={title}
                             fill
                             sizes="(max-width: 640px) 100vw, 288px"
-                            className="object-contain"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         </div>
                       )}
@@ -145,9 +150,13 @@ export default function NewsPage() {
                           </time>
                         </div>
                         <h2 className="mb-4 text-2xl font-black text-foreground">{title}</h2>
-                        <p className="text-[17px] leading-relaxed text-muted-foreground font-medium whitespace-pre-line">
-                          {content.length > 150 ? content.slice(0, 150) + "…" : content}
-                        </p>
+                        <div className="news-content text-[17px] leading-relaxed text-muted-foreground font-medium">
+                          {content.length > 200 ? (
+                            <p>{plainText.slice(0, 200)}...</p>
+                          ) : (
+                            <div dangerouslySetInnerHTML={{ __html: content }} />
+                          )}
+                        </div>
                       </div>
                     </div>
                   </article>
@@ -157,6 +166,29 @@ export default function NewsPage() {
           )}
         </div>
       </div>
+      <style jsx global>{`
+        .news-content a {
+          color: var(--primary);
+          text-decoration: underline;
+        }
+        .news-content ul {
+          list-style-type: disc;
+          padding-left: 1.25rem;
+          margin: 0.5rem 0;
+        }
+        .news-content ol {
+          list-style-type: decimal;
+          padding-left: 1.25rem;
+          margin: 0.5rem 0;
+        }
+        .news-content h1, .news-content h2 {
+          font-size: 1.1rem;
+          font-weight: bold;
+          margin-top: 1rem;
+          margin-bottom: 0.5rem;
+          color: var(--foreground);
+        }
+      `}</style>
     </div>
   );
 }

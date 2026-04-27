@@ -17,6 +17,7 @@ export const insertKategorie = internalMutation({
       await ctx.db.insert("kategorien", {
         name: args.name,
         nameIt: args.nameIt,
+        nameEn: args.name,
         slug: args.slug,
       });
     }

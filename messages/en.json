@@ -209,6 +209,7 @@
     "mitarbeiter": "Employees",
     "oeffnungszeiten": "Opening Hours",
     "hinzufuegen": "ADD",
+    "du": "You (Me)",
     "mitarbeiterVerwalten": "Manage employees",
     "inviteEmail": "Employee e-mail",
     "inviteEmailRequired": "Please enter an e-mail.",

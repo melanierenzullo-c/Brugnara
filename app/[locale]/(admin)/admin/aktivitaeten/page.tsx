@@ -67,6 +67,7 @@ function formatAction(aktion: string, entity: string, entityName: string): strin
 
 const ENTITY_CONFIG: Record<string, { badge: string; bg: string }> = {
   Produkt: { badge: "bg-blue-50 text-blue-800", bg: "bg-blue-50" },
+  News: { badge: "bg-emerald-50 text-emerald-800", bg: "bg-emerald-50" },
   Mitarbeiter: { badge: "bg-violet-50 text-violet-800", bg: "bg-violet-50" },
   Einladung: { badge: "bg-amber-50 text-amber-800", bg: "bg-amber-50" },
 };
@@ -76,6 +77,7 @@ const DEFAULT_CONFIG = { badge: "bg-slate-100 text-slate-600", bg: "bg-slate-50"
 export default function AdminAktivitaetenPage() {
   const eintraege = useQuery(api.aktivitaeten.listAktivitaeten);
   const [filterUserId, setFilterUserId] = useState<string>("all");
+  const [filterEntity, setFilterEntity] = useState<string>("all");
 
   const users = eintraege
     ? [
@@ -88,10 +90,16 @@ export default function AdminAktivitaetenPage() {
       ]
     : [];
 
+  const entities = eintraege
+    ? [...new Set(eintraege.map((e) => e.entity))].sort()
+    : [];
+
   const filtered =
-    eintraege?.filter(
-      (e) => filterUserId === "all" || e.userId === filterUserId
-    ) ?? [];
+    eintraege?.filter((e) => {
+      const matchUser = filterUserId === "all" || e.userId === filterUserId;
+      const matchEntity = filterEntity === "all" || e.entity === filterEntity;
+      return matchUser && matchEntity;
+    }) ?? [];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -113,20 +121,37 @@ export default function AdminAktivitaetenPage() {
             </p>
           </div>
 
-          {users.length > 1 && (
-            <select
-              value={filterUserId}
-              onChange={(e) => setFilterUserId(e.target.value)}
-              className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition"
-            >
-              <option value="all">Alle Mitarbeiter</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name ?? u.email}
-                </option>
-              ))}
-            </select>
-          )}
+          <div className="flex flex-wrap gap-3">
+            {entities.length > 1 && (
+              <select
+                value={filterEntity}
+                onChange={(e) => setFilterEntity(e.target.value)}
+                className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition"
+              >
+                <option value="all">Alle Aktivitäten</option>
+                {entities.map((ent) => (
+                  <option key={ent} value={ent}>
+                    {ent}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {users.length > 1 && (
+              <select
+                value={filterUserId}
+                onChange={(e) => setFilterUserId(e.target.value)}
+                className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition"
+              >
+                <option value="all">Alle Mitarbeiter</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name ?? u.email}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
 
         {/* Loading */}

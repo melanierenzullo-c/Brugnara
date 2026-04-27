@@ -124,7 +124,7 @@ export default function ProduktePage({ params }: ProductPageProps) {
                         src={produkt.imageUrl}
                         alt={productName || 'Produktbild'}
                         fill
-                       className="relative aspect-square w-full overflow-hidden rounded-[1.8rem]"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-4xl font-black text-primary/10">
