@@ -645,7 +645,7 @@ export default function AdminProduktePage() {
               <p className="mt-0.5 text-sm text-slate-500">
                 {isEditing
                   ? "Ändere die Daten und speichere."
-                  : "Füge ein neues Produkt in Deutsch und Italienisch hinzu."}
+                  : "Füge ein neues Produkt in Deutsch, Italienisch und Englisch hinzu."}
               </p>
             </div>
             {(name.trim() || beschreibung.trim()) && (
@@ -798,7 +798,7 @@ export default function AdminProduktePage() {
                   <div className="flex items-center gap-2 mb-1.5">
                     <p className="text-xs font-bold text-primary">Zweisprachig</p>
                   </div>
-                  <p className="text-xs text-primary/80 leading-relaxed">Mit den <strong>DE / IT</strong>-Tabs zwischen den Sprachen wechseln.</p>
+                  <p className="text-xs text-primary/80 leading-relaxed">Mit den <strong>DE / IT / EN </strong>-Tabs zwischen den Sprachen wechseln.</p>
                 </div>
               </div>
             </div>
