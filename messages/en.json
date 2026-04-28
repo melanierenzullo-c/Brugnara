@@ -53,7 +53,8 @@
     "sectionTitle": "All Categories",
     "viewCollection": "View collection",
     "metaTitle": "Our Products – M. Brugnara GmbH",
-    "metaDescription": "The diverse range of M. Brugnara GmbH in Merano: hardware, household, tools, appliances, garden tools, stoves and ranges."
+    "metaDescription": "The diverse range of M. Brugnara GmbH in Merano: hardware, household, tools, appliances, garden tools, stoves and ranges.",
+    "searchPlaceholder": "Search products…"
   },
   "Contact": {
     "badge": "Contact",
@@ -154,7 +155,9 @@
     "metaDescription": "Latest news, offers and promotions from M. Brugnara GmbH in Merano. Hardware, household, tools.",
     "Home": "Home",
     "breadcrumbProdukte": "Products",
-    "News": "News"
+    "News": "News",
+    "breadcrumbNews": "News",
+    "searchPlaceholder": "Search news… " 
   },
   "Footer": {
     "kontakt": "Contact",
