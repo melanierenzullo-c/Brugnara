@@ -24,9 +24,9 @@ export default function KontaktPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafbff]">
+    <div className="bg-white py-16">
       {/* ═══ Header ═══ */}
-      <section className="relative overflow-hidden bg-background pt-32 pb-20">
+      <section className="relative overflow-hidden bg-[#F6F7FB] pt-32 pb-20">
         
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
          
