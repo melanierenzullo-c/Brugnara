@@ -90,12 +90,17 @@ export const update = mutation({
     });
 
     const kategorie = await ctx.db.get(args.kategorieId);
+    const detailsParts = [`Kategorie: ${kategorie?.name ?? "–"}`];
+    if (existing.name !== args.name) detailsParts.push(`DE: ${args.name}`);
+    if (existing.nameIt !== args.nameIt) detailsParts.push(`IT: ${args.nameIt}`);
+    if ((args.nameEn ?? "") !== (existing.nameEn ?? "")) detailsParts.push(`EN: ${args.nameEn}`);
+
     await ctx.runMutation(internal.aktivitaeten.logActivity, {
       userId: user._id,
       aktion: "Produkt bearbeitet",
       entity: "Produkt",
       entityName: args.name,
-      details: `IT: ${args.nameIt} · EN: ${args.nameEn} · Kategorie: ${kategorie?.name ?? "–"} · Slug: ${slug}`,
+      details: detailsParts.join(" · "),
     });
   },
 });
@@ -409,7 +414,7 @@ export const create = mutation({
       aktion: "Produkt erstellt",
       entity: "Produkt",
       entityName: args.name,
-      details: `IT: ${args.nameIt} · EN: ${args.nameEn} · Kategorie: ${kategorie?.name ?? "–"} · Slug: ${slug}`,
+      details: `Kategorie: ${kategorie?.name ?? "–"} · DE: ${args.name} · IT: ${args.nameIt} · EN: ${args.nameEn}`,
     });
 
     return id;

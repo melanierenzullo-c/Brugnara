@@ -18,6 +18,7 @@ import type * as http from "../http.js";
 import type * as kategorien from "../kategorien.js";
 import type * as migrations from "../migrations.js";
 import type * as news from "../news.js";
+import type * as oeffnungszeiten from "../oeffnungszeiten.js";
 import type * as produkte from "../produkte.js";
 import type * as seed from "../seed.js";
 import type * as seedHelpers from "../seedHelpers.js";
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   kategorien: typeof kategorien;
   migrations: typeof migrations;
   news: typeof news;
+  oeffnungszeiten: typeof oeffnungszeiten;
   produkte: typeof produkte;
   seed: typeof seed;
   seedHelpers: typeof seedHelpers;

@@ -248,7 +248,7 @@ export const create = mutation({
       aktion: "News erstellt",
       entity: "News",
       entityName: args.titel,
-      details: `IT: ${args.titelIt} · EN: ${args.titelEn}`,
+      details: `DE: ${args.titel} · IT: ${args.titelIt} · EN: ${args.titelEn}`,
     });
 
     return id;
@@ -295,12 +295,17 @@ export const update = mutation({
       ...(args.foto ? { foto: args.foto } : {}),
     });
 
+    const detailsParts = [];
+    if (existing.titel !== args.titel) detailsParts.push(`DE: ${args.titel}`);
+    if (existing.titelIt !== args.titelIt) detailsParts.push(`IT: ${args.titelIt}`);
+    if ((args.titelEn ?? "") !== (existing.titelEn ?? "")) detailsParts.push(`EN: ${args.titelEn}`);
+
     await ctx.runMutation(internal.aktivitaeten.logActivity, {
       userId: user._id,
       aktion: "News bearbeitet",
       entity: "News",
       entityName: args.titel,
-      details: `IT: ${args.titelIt} · EN: ${args.titelEn}`,
+      details: detailsParts.join(" · "),
     });
   },
 });

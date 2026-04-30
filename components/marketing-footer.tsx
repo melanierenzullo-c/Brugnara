@@ -91,6 +91,7 @@ export function MarketingFooter() {
               <ul className="space-y-3">
                 {[
                   { href: "/datenschutz", label: t("datenschutz") },
+                  { href: "/cookies", label: t("cookies") },
                   { href: "/impressum", label: t("impressum") },
                 ].map(({ href, label }) => (
                   <li key={href}>

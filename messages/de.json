@@ -177,7 +177,8 @@
     "city": "Meran",
     "mondayToFriday": "Mo-Fr",
     "saturday": "Sa",
-    "sunday": "So"
+    "sunday": "So",
+    "cookies": "Cookies"
   },
   "Cookies": {
     "title": "Cookie-Einwilligung",
@@ -185,6 +186,22 @@
     "readMore": "Mehr lesen...",
     "accept": "Akzeptieren",
     "decline": "Ablehnen"
+  },
+  "CookiesPage": {
+    "badge": "Rechtliches",
+    "title": "Cookie-Richtlinie",
+    "intro": "Diese Website verwendet Cookies. Wir verwenden Cookies, um Inhalte und Anzeigen zu personalisieren, Funktionen für soziale Medien anbieten zu können und die Zugriffe auf unsere Website zu analysieren.",
+    "whatAreCookiesTitle": "Was sind Cookies?",
+    "whatAreCookiesText": "Cookies sind kleine Textdateien, die von Webseiten verwendet werden, um die Benutzererfahrung effizienter zu gestalten. Laut Gesetz können wir Cookies auf Ihrem Gerät speichern, wenn diese für den Betrieb dieser Seite unbedingt notwendig sind. Für alle anderen Cookie-Typen benötigen wir Ihre Erlaubnis.",
+    "typesTitle": "Arten von Cookies",
+    "essentialTitle": "Notwendige Cookies",
+    "essentialText": "Notwendige Cookies helfen dabei, eine Webseite nutzbar zu machen, indem sie Grundfunktionen wie Seitennavigation und Zugriff auf sichere Bereiche der Webseite ermöglichen. Die Webseite kann ohne diese Cookies nicht richtig funktionieren.",
+    "preferencesTitle": "Präferenz-Cookies",
+    "preferencesText": "Präferenz-Cookies ermöglichen einer Webseite sich an Informationen zu erinnern, die die Art beeinflussen, wie sich eine Webseite verhält oder aussieht, wie z. B. Ihre bevorzugte Sprache oder die Region, in der Sie sich befinden.",
+    "statisticsTitle": "Statistik-Cookies",
+    "statisticsText": "Statistik-Cookies helfen Webseiten-Besitzern zu verstehen, wie Besucher mit Webseiten interagieren, indem Informationen anonym gesammelt und gemeldet werden.",
+    "marketingTitle": "Marketing-Cookies",
+    "marketingText": "Marketing-Cookies werden verwendet, um Besuchern auf Webseiten zu folgen. Die Absicht ist, Anzeigen zu zeigen, die relevant und ansprechend für den einzelnen Benutzer sind und daher wertvoller für Publisher und werbetreibende Drittparteien sind."
   },
   "Auth": {
     "loginTitle": "Login",
@@ -243,7 +260,8 @@
     "newsSpeichern": "News speichern",
     "bitteKategorie": "Bitte eine Kategorie wählen!",
     "bitteFoto": "Bitte einen Foto-Dateinamen angeben!",
-    "dbNichtVerbunden": "Datenbank ist noch nicht verbunden. Kann erst gespeichert werden, wenn die Datenbank aktiv ist."
+    "dbNichtVerbunden": "Datenbank ist noch nicht verbunden. Kann erst gespeichert werden, wenn die Datenbank aktiv ist.",
+    "logout": "Abmelden"
   },
   "LanguageToggle": {
     "switchTo": "IT"

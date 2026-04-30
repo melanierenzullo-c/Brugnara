@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "next-intl";
 
 interface AdminHeaderProps {
   title: string;
@@ -11,6 +13,14 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ title, subtitle, backHref = "/admin", backLabel = "Dashboard" }: AdminHeaderProps) {
+  const t = useTranslations("Admin");
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    router.push("/login");
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/50 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:gap-6 sm:px-6 lg:px-10">
@@ -30,26 +40,26 @@ export function AdminHeader({ title, subtitle, backHref = "/admin", backLabel = 
 
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm">
-          <Link href="/admin" className="font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Admin
-          </Link>
-          {backHref !== "/admin" && (
-            <>
-              <svg className="h-3.5 w-3.5 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-              <span className="font-semibold text-foreground">{title}</span>
-            </>
-          )}
-          {backHref === "/admin" && (
-            <>
-              <svg className="h-3.5 w-3.5 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-              <span className="font-semibold text-foreground">{title}</span>
-            </>
-          )}
-        </div>
+            <Link href="/admin" className="font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Admin
+            </Link>
+            {backHref !== "/admin" && (
+              <>
+                <svg className="h-3.5 w-3.5 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="font-semibold text-foreground">{title}</span>
+              </>
+            )}
+            {backHref === "/admin" && title !== "Dashboard" && (
+              <>
+                <svg className="h-3.5 w-3.5 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="font-semibold text-foreground">{title}</span>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -66,13 +76,25 @@ export function AdminHeader({ title, subtitle, backHref = "/admin", backLabel = 
           )}
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 sm:px-4 py-1.5 text-sm font-bold text-white transition hover:bg-primary/90"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-white px-3 sm:px-4 py-1.5 text-sm font-medium text-foreground/80 transition hover:border-primary/30 hover:text-primary"
           >
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
             <span className="hidden sm:inline">Website</span>
           </Link>
+
+          <div className="h-6 w-px bg-border/60 mx-1" />
+
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-red-50 px-3 sm:px-4 py-1.5 text-sm font-bold text-red-600 transition hover:bg-red-100 border border-red-100"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span className="hidden sm:inline">{t("logout")}</span>
+          </button>
         </div>
       </div>
     </header>

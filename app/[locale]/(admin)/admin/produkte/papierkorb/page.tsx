@@ -8,6 +8,7 @@ import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { AdminHeader } from "@/components/admin-header";
+import { useRouter } from "@/i18n/navigation";
 
 function Spinner() {
   return (
@@ -31,6 +32,7 @@ function Alert({ text, ok }: { text: string; ok: boolean }) {
 }
 
 export default function ProduktePapierkorbPage() {
+  const router = useRouter();
   const produkte = useQuery(api.produkte.listArchiviert);
 
   const restoreProdukt = useMutation(api.produkte.restore);
@@ -41,15 +43,7 @@ export default function ProduktePapierkorbPage() {
   const [busy, setBusy] = useState(false);
 
   const handleRestore = async (id: Id<"produkte">) => {
-    setBusy(true);
-    try {
-      await restoreProdukt({ id });
-      setMeldung({ text: "Produkt erfolgreich wiederhergestellt.", ok: true });
-    } catch (error) {
-      setMeldung({ text: error instanceof Error ? error.message : "Fehler beim Wiederherstellen", ok: false });
-    } finally {
-      setBusy(false);
-    }
+    router.push(`/admin/produkte?restoreId=${id}`);
   };
 
   const handleDeletePermanent = async (id: Id<"produkte">) => {

@@ -100,4 +100,13 @@ export default defineSchema({
   })
     .index("by_timestamp", ["timestamp"])
     .index("by_user", ["userId", "timestamp"]),
+
+  oeffnungszeiten: defineTable({
+    tag: v.string(),
+    von1: v.optional(v.string()),
+    bis1: v.optional(v.string()),
+    von2: v.optional(v.string()),
+    bis2: v.optional(v.string()),
+    geschlossen: v.boolean(),
+  }).index("by_tag", ["tag"]),
 });

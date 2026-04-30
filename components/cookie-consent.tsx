@@ -38,7 +38,7 @@ export function CookieConsent() {
         <p className="text-[#333]">
           {t("text")}{" "}
           <Link
-            href="/impressum"
+            href="/cookies"
             className="text-[#4070f4] no-underline hover:underline"
           >
             {t("readMore")}

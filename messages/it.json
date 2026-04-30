@@ -177,7 +177,8 @@
     "city": "Merano",
     "mondayToFriday": "Lun-Ven",
     "saturday": "Sab",
-    "sunday": "Dom"
+    "sunday": "Dom",
+    "cookies": "Cookie"
   },
   "Cookies": {
     "title": "Cookies Consent",
@@ -185,6 +186,22 @@
     "readMore": "Leggi di più...",
     "accept": "Accetta",
     "decline": "Rifiuta"
+  },
+  "CookiesPage": {
+    "badge": "Legale",
+    "title": "Politica sui Cookie",
+    "intro": "Questo sito web utilizza i cookie. Utilizziamo i cookie per personalizzare contenuti e annunci, per fornire funzionalità dei social media e per analizzare il nostro traffico.",
+    "whatAreCookiesTitle": "Cosa sono i cookie?",
+    "whatAreCookiesText": "I cookie sono piccoli file di testo che possono essere utilizzati dai siti web per rendere più efficiente l'esperienza per l'utente. La legge afferma che possiamo memorizzare i cookie sul tuo dispositivo se sono strettamente necessari per il funzionamento di questo sito. Per tutti gli altri tipi di cookie abbiamo bisogno del tuo permesso.",
+    "typesTitle": "Tipi di cookie",
+    "essentialTitle": "Cookie necessari",
+    "essentialText": "I cookie necessari aiutano a contribuire a rendere fruibile un sito web abilitando le funzioni di base come la navigazione della pagina e l'accesso alle aree protette del sito. Il sito web non può funzionare correttamente senza questi cookie.",
+    "preferencesTitle": "Cookie di preferenza",
+    "preferencesText": "I cookie di preferenza consentono a un sito web di ricordare le informazioni che influenzano il modo in cui il sito si comporta o si presenta, come la tua lingua preferita o la regione in cui ti trovi.",
+    "statisticsTitle": "Cookie statistici",
+    "statisticsText": "I cookie statistici aiutano i proprietari di siti web a capire come i visitatori interagiscono con i siti raccogliendo e trasmettendo informazioni in forma anonima.",
+    "marketingTitle": "Cookie di marketing",
+    "marketingText": "I cookie di marketing vengono utilizzati per tracciare i visitatori sui siti web. L'intento è quello di visualizzare annunci pertinenti e coinvolgenti per il singolo utente e quindi quelli di maggior valore per gli editori e gli inserzionisti terzi."
   },
   "Auth": {
     "loginTitle": "Accesso",
@@ -243,7 +260,8 @@
     "newsSpeichern": "Salva news",
     "bitteKategorie": "Seleziona una categoria!",
     "bitteFoto": "Inserisci un nome file foto!",
-    "dbNichtVerbunden": "Il database non è ancora collegato. Può essere salvato solo quando il database è attivo."
+    "dbNichtVerbunden": "Il database non è ancora collegato. Può essere salvato solo quando il database è attivo.",
+    "logout": "Esci"
   },
   "LanguageToggle": {
     "switchTo": "DE"

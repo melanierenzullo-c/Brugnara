@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useQuery, useMutation, useConvexAuth } from "convex/react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Search } from "lucide-react";
+import { Search, Undo2 } from "lucide-react";
 
 import Link from "next/link";
 
@@ -204,6 +205,9 @@ export default function AdminProduktePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [draftTab, setDraftTab] = useState("produkte");
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [isRestoringMode, setIsRestoringMode] = useState(false);
+  const searchParams = useSearchParams();
+  const restoreIdFromUrl = searchParams.get("restoreId");
 
   /* ── delete state ── */
   const [deletingId, setDeletingId] = useState<Id<"produkte"> | null>(null);
@@ -321,6 +325,35 @@ export default function AdminProduktePage() {
     void ensureActiveDraftId();
   }, [isEditing, activeDraftId, name, beschreibung, nameIt, beschreibungIt, nameEn, beschreibungEn, kategorieId, ensureActiveDraftId]);
 
+  const startEdit = useCallback((p: ProduktRow, restore = false) => {
+    setEditingId(p._id);
+    setName(p.name);
+    setBeschreibung(p.beschreibung);
+    setNameIt(p.nameIt);
+    setBeschreibungIt(p.beschreibungIt);
+    setNameEn(p.nameEn ?? p.name);
+    setBeschreibungEn(p.beschreibungEn ?? p.beschreibung);
+    setKategorieId(p.kategorieId);
+    setSelectedImage(null);
+    setMeldung(null);
+    setIsRestoringMode(restore);
+    const fi = document.getElementById("foto-upload") as HTMLInputElement | null;
+    if (fi) fi.value = "";
+    // scroll to form
+    setTimeout(() => document.getElementById("produkt-form")?.scrollIntoView({ behavior: "smooth" }), 50);
+  }, []);
+
+  const router = useRouter();
+  useEffect(() => {
+    if (restoreIdFromUrl && archiviert && !editingId && !activeDraftId) {
+      const p = archiviert.find((x) => x._id === restoreIdFromUrl);
+      if (p) {
+        startEdit(p, true);
+        router.replace("/admin/produkte", { scroll: false });
+      }
+    }
+  }, [restoreIdFromUrl, archiviert, editingId, activeDraftId, startEdit, router]);
+
   useEffect(() => {
     if (!activeDraftId || isEditing) return;
     const timer = setTimeout(async () => {
@@ -375,6 +408,7 @@ export default function AdminProduktePage() {
     setBeschreibungEn("");
     setKategorieId("");
     setSelectedImage(null);
+    setIsRestoringMode(false);
     const fi = document.getElementById("foto-upload") as HTMLInputElement | null;
     if (fi) fi.value = "";
   }, []);
@@ -428,22 +462,7 @@ export default function AdminProduktePage() {
     }
   };
 
-  const startEdit = useCallback((p: ProduktRow) => {
-    setEditingId(p._id);
-    setName(p.name);
-    setBeschreibung(p.beschreibung);
-    setNameIt(p.nameIt);
-    setBeschreibungIt(p.beschreibungIt);
-    setNameEn(p.nameEn ?? p.name);
-    setBeschreibungEn(p.beschreibungEn ?? p.beschreibung);
-    setKategorieId(p.kategorieId);
-    setSelectedImage(null);
-    setMeldung(null);
-    const fi = document.getElementById("foto-upload") as HTMLInputElement | null;
-    if (fi) fi.value = "";
-    // scroll to form
-    setTimeout(() => document.getElementById("produkt-form")?.scrollIntoView({ behavior: "smooth" }), 50);
-  }, []);
+  /* Removed startEdit duplicate as it was moved up */
 
   const handleDelete = async (id: Id<"produkte">) => {
     setDeleting(true);
@@ -484,7 +503,24 @@ export default function AdminProduktePage() {
 
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-      if (isEditing) {
+      if (isRestoringMode && editingId) {
+        // Restore first, then update
+        await restoreProdukt({ id: editingId });
+        await updateProdukt({
+          id: editingId,
+          name,
+          beschreibung,
+          nameIt,
+          beschreibungIt,
+          nameEn,
+          beschreibungEn,
+          kategorieId: kategorieId as Id<"kategorien">,
+          slug,
+          ...(storageId ? { foto: storageId } : {}),
+        });
+        setMeldung({ text: "Produkt erfolgreich wiederhergestellt und aktualisiert.", ok: true });
+        resetForm();
+      } else if (isEditing) {
         await updateProdukt({
           id: editingId,
           name,
@@ -640,12 +676,14 @@ export default function AdminProduktePage() {
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold text-foreground">
-                {isEditing ? "Produkt bearbeiten" : "Neues Produkt anlegen"}
+                {isRestoringMode ? "Produkt wiederherstellen" : isEditing ? "Produkt bearbeiten" : "Neues Produkt anlegen"}
               </h2>
               <p className="mt-0.5 text-sm text-slate-500">
-                {isEditing
-                  ? "Ändere die Daten und speichere."
-                  : "Füge ein neues Produkt in Deutsch, Italienisch und Englisch hinzu."}
+                {isRestoringMode
+                  ? "Überprüfe die Daten und stelle das Produkt wieder her."
+                  : isEditing
+                    ? "Ändere die Daten und speichere."
+                    : "Füge ein neues Produkt in Deutsch, Italienisch und Englisch hinzu."}
               </p>
             </div>
             {(name.trim() || beschreibung.trim()) && (
@@ -744,9 +782,11 @@ export default function AdminProduktePage() {
                     {saving && <Spinner />}
                     {saving
                       ? "Wird gespeichert…"
-                      : isEditing
-                        ? "Änderungen speichern"
-                        : "Produkt speichern"}
+                      : isRestoringMode
+                        ? "Wiederherstellen & Speichern"
+                        : isEditing
+                          ? "Änderungen speichern"
+                          : "Produkt speichern"}
                   </button>
                   {isEditing && (
                     <button type="button" onClick={resetForm}
