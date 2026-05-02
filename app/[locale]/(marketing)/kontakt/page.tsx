@@ -40,7 +40,7 @@ export default function KontaktPage() {
       </section>
 
       {/* ═══ Content ═══ */}
-      <div className="mx-auto max-w-5xl px-6 pb-16">
+      <div className="mx-auto max-w-5xl px-6 pb-16 py-12">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.6fr]">
 
           {/* Kontaktinfos */}

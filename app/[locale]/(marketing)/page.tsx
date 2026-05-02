@@ -123,7 +123,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ Produkte Grid ═══ */}
-      <section id="produkte-section" className="relative bg-[#fafbff] py-16 sm:py-32 overflow-hidden">
+      <section id="produkte-section" className="relative bg-white py-16 sm:py-32 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-border to-transparent" />
 
         <div className="mx-auto max-w-7xl px-6">
@@ -177,7 +177,7 @@ export default function HomePage() {
 
       {/* ═══ News ═══ */}
       {newsItems && newsItems.length > 0 && (
-        <section className="bg-white py-16 sm:py-32">
+        <section className="bg-[#F6F7FB] py-16 sm:py-32">
           <div className="mx-auto max-w-7xl px-6">
             <div className="text-center mb-16">
               <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary/80">

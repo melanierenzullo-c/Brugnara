@@ -112,16 +112,11 @@ export default function ProdukteOverviewPage() {
             {t("heroSubtitle")}
           </p>
         </div>
+        
       </section>
-
-      {/* ═══ Categories Grid / Search Results ═══ */}
-      <section className="relative py-16 sm:py-28 overflow-hidden bg-background">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-2/3 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-
-        <div className="mx-auto max-w-7xl px-6">
-          {/* Search field */}
-          <div className="relative max-w-xl mx-auto mb-12">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+       {/* Search field */}
+          <div className="relative max-w-xl mx-auto mb-12 -mt-20 z-20">
+            <Search className="absolute left-4 top-1/4 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -129,6 +124,14 @@ export default function ProdukteOverviewPage() {
               className="pl-10 h-12 rounded-full border-border/60 bg-white/80 backdrop-blur-sm"
             />
           </div>
+
+      {/* ═══ Categories Grid / Search Results ═══ */}
+      <section className="relative py-16 sm:py-28 overflow-hidden bg-background">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-2/3 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+
+        <div className="mx-auto max-w-7xl px-6">
+          {/* Search field */}
+         
 
           {isSearching ? (
             /* ── Search results ── */

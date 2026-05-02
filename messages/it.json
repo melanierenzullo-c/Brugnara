@@ -99,7 +99,7 @@
   },
   "Impressum": {
     "badge": "Note legali",
-    "title": "Impressum",
+    "title": "Colofone",
     "companyLabel": "Azienda",
     "companyName": "M. Brugnara Srl",
     "companyAddress": "Via Roma 31/A, Merano",
@@ -111,8 +111,8 @@
     "registry": "Registro imprese BZ",
     "responsibilityLabel": "Responsabile",
     "responsiblePerson": "Beatrix Brugnara",
-    "metaTitle": "Impressum – M. Brugnara Srl",
-    "metaDescription": "Impressum di M. Brugnara Srl, Via Roma 31/A, Merano. P.IVA: 00035170216."
+    "metaTitle": "Colofone – M. Brugnara Srl",
+    "metaDescription": "Colofone di M. Brugnara Srl, Via Roma 31/A, Merano. P.IVA: 00035170216."
   },
   "Datenschutz": {
     "badge": "Note legali",
@@ -168,7 +168,7 @@
     "email": "E-Mail: info@brugnara.bz.it",
     "oeffnungszeiten": "Orari d'apertura",
     "geschlossen": "CHIUSO",
-    "impressum": "Impressum",
+    "impressum": "Colofone",
     "description": "Da generazioni il vostro negozio specializzato di fiducia per ferramenta, casalinghi e attrezzi da giardino nel cuore di Merano.",
     "toProducts": "Ai prodotti",
     "news": "Notizie",

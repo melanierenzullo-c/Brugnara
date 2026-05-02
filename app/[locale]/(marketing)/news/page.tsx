@@ -62,9 +62,9 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="min-h-screen bg-[#F4F6F9]">
+      <div className="min-h-screen bg-white">
         {/* ═══ Category hero banner ═══ */}
-        <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-16">
+        <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-[#F6F7FB] pt-24 pb-16">
           <div className="absolute inset-0 z-0 opacity-[0.03]" />
 
           <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
