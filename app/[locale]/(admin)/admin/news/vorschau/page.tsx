@@ -57,15 +57,23 @@ export default function NewsVorschauPage() {
         {!item ? (
           <p className="text-sm text-muted-foreground">Laden…</p>
         ) : (
-          <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+          <article className="overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-xl">
             {item.imageUrl ? (
-              <div className="relative h-72 w-full bg-slate-50">
-                <Image src={item.imageUrl} alt={displayTitle} fill className="object-contain" />
+              <div className="relative aspect-[21/9] w-full bg-slate-50 border-b border-slate-100">
+                <Image src={item.imageUrl} alt={displayTitle} fill className="object-cover" />
               </div>
             ) : null}
-            <div className="p-6">
-              <h2 className="mb-4 text-2xl font-bold text-foreground">{displayTitle}</h2>
-              <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{displayContent}</p>
+            <div className="p-10 sm:p-16">
+              <div className="mb-6 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">
+                <span>Vorschau</span>
+                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                <span>{new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</span>
+              </div>
+              <h2 className="mb-8 text-4xl sm:text-5xl font-black text-foreground tracking-tight leading-[1.1]">{displayTitle}</h2>
+              <div 
+                className="prose-content text-lg sm:text-xl max-w-3xl"
+                dangerouslySetInnerHTML={{ __html: displayContent }} 
+              />
             </div>
           </article>
         )}

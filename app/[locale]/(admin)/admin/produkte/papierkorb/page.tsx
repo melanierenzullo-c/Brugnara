@@ -43,7 +43,10 @@ export default function ProduktePapierkorbPage() {
   const [busy, setBusy] = useState(false);
 
   const handleRestore = async (id: Id<"produkte">) => {
-    router.push(`/admin/produkte?restoreId=${id}`);
+    router.push({
+      pathname: "/admin/produkte",
+      query: { restoreId: id }
+    });
   };
 
   const handleDeletePermanent = async (id: Id<"produkte">) => {

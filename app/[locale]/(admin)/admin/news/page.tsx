@@ -31,6 +31,7 @@ interface NewsRow {
   foto: Id<"_storage">;
   imageUrl: string | null;
   createdAt: number;
+  archiviertAm?: number;
 }
 
 interface NewsDraftRow {

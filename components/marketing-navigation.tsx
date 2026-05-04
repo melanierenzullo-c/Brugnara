@@ -224,58 +224,77 @@ export function MarketingNavigation() {
         </div>
 
         {/* Mobile drawer */}
-        <div className={`overflow-hidden transition-all duration-500 lg:hidden ${mobileMenuOpen ? "max-h-[calc(90vh-100px)] translate-y-2 opacity-100" : "max-h-0 -translate-y-4 opacity-0"}`}>
-          <nav className="mx-4 mt-2 flex flex-col gap-1 rounded-3xl bg-white/95 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-xl px-4 py-3 dark:bg-black/95 overflow-y-auto">
-            <Link href="/" className="rounded-2xl px-4 py-2 text-[15px] font-semibold text-foreground no-underline transition-all hover:bg-primary/5 active:scale-95" onClick={() => setMobileMenuOpen(false)}>{t("home")}</Link>
+        <div className={`transition-all duration-500 lg:hidden ${mobileMenuOpen ? "max-h-[calc(100vh-80px)] translate-y-2 opacity-100" : "max-h-0 -translate-y-4 opacity-0 overflow-hidden"}`}>
+          <nav className="mx-4 mt-2 flex flex-col overflow-y-auto rounded-3xl bg-white/95 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-xl px-4 py-4 dark:bg-black/95" style={{ maxHeight: "calc(100vh - 100px)" }}>
+            
+            {/* Top: Languages & Main Links */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-around rounded-2xl bg-secondary/5 p-1">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      if (locale !== lang.code) switchToLocale(lang.code);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-1.5 text-[11px] font-bold transition-all ${locale === lang.code ? "bg-white text-primary shadow-sm" : "text-muted-foreground/60"}`}
+                  >
+                    <span>{lang.flag}</span>
+                    {lang.code.toUpperCase()}
+                  </button>
+                ))}
+              </div>
 
-            <div className="mt-1 space-y-1">
-              <p className="px-4 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">{t("produkte")}</p>
-              <div className="grid grid-cols-1 gap-1">
+              <div className="flex justify-around border-b border-border/5 pb-4">
+                <Link href="/" className="text-[15px] font-bold text-foreground no-underline" onClick={() => setMobileMenuOpen(false)}>{t("home")}</Link>
+                <Link href="/news" className="text-[15px] font-bold text-foreground no-underline" onClick={() => setMobileMenuOpen(false)}>{t("news")}</Link>
+                <Link href="/kontakt" className="text-[15px] font-bold text-foreground no-underline" onClick={() => setMobileMenuOpen(false)}>{t("contact")}</Link>
+              </div>
+            </div>
+
+            {/* Middle: Products 2-Column Grid */}
+            <div className="mt-4">
+              <div className="flex items-center justify-between px-1 pb-3">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/30">{t("produkte")}</p>
+                <Link href="/produkte" className="text-[11px] font-bold text-primary no-underline" onClick={() => setMobileMenuOpen(false)}>{t("allProducts")} →</Link>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
                 {PRODUCT_CATEGORIES.map((cat) => (
                   <Link
                     key={cat.slug}
                     href={{ pathname: "/produkte/[slug]", params: { slug: cat.slug } }}
-                    className="flex items-center gap-3 rounded-2xl px-4 py-2 text-[14px] font-medium text-foreground no-underline transition-all hover:bg-primary/5 active:scale-95"
+                    className="flex flex-col items-center gap-2 rounded-2xl bg-secondary/5 p-3 text-center transition-all active:scale-95"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-muted/30">
+                    <div className="relative h-12 w-12 overflow-hidden rounded-full border-2 border-white shadow-sm">
                       <Image
                         src={cat.image}
                         alt={tCat(cat.slug)}
                         fill
-                        sizes="40px"
+                        sizes="48px"
                         className="object-cover"
                       />
                     </div>
-                    {tCat(cat.slug)}
+                    <span className="text-[12px] font-bold leading-tight text-foreground">{tCat(cat.slug)}</span>
                   </Link>
                 ))}
               </div>
             </div>
 
-            <div className="mt-2 border-t border-border/20 pt-2">
-              <p className="px-4 pb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">{t("language")}</p>
-              {LANGUAGES.map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => {
-                    if (locale !== lang.code) switchToLocale(lang.code);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none px-4 py-2 text-left text-[14px] font-semibold transition-all ${locale === lang.code
-                      ? "bg-primary/5 text-primary"
-                      : "bg-transparent text-foreground hover:bg-secondary/5"
-                    }`}
-                >
-                  <span className="text-base">{lang.flag}</span>
-                  <span>{lang.label}</span>
-                  {locale === lang.code && (
-                    <svg className="ml-auto h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </button>
-              ))}
+            {/* Bottom: Main CTA */}
+            <div className="mt-6 flex flex-col gap-2">
+              <Link
+                href="/produkte"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-[14px] font-bold text-white no-underline shadow-lg shadow-primary/20 transition-all active:scale-95"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span>{t("allProducts")}</span>
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+              <div className="h-8 shrink-0" /> {/* Safe area spacer */}
             </div>
           </nav>
         </div>

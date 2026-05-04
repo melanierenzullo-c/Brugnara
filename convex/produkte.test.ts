@@ -265,5 +265,88 @@ describe("produkte + files auth", () => {
       t.mutation(api.produkte.remove, { id: produktId })
     ).rejects.toThrowError(/Not authenticated/i);
   });
+
+  it("rejects duplicate names in other languages", async () => {
+    const t = convexTest(schema, modules);
+
+    process.env.INITIAL_ADMIN_EMAIL = "admin@example.com";
+    const asAdmin = t.withIdentity({
+      subject: "sub_admin",
+      email: "admin@example.com",
+      name: "Admin",
+    });
+    await asAdmin.mutation(api.bootstrap.bootstrapInitialAdmin, {});
+
+    const kategorieId = await t.run(async (ctx) => {
+      return await ctx.db.insert("kategorien", {
+        name: "K",
+        nameIt: "K",
+        nameEn: "K",
+        slug: "k",
+      });
+    });
+
+    const storageId = await t.run(async (ctx) => {
+      const blob = new Blob([new Uint8Array([1])], { type: "image/png" });
+      return await ctx.storage.store(blob);
+    });
+
+    await asAdmin.mutation(api.produkte.create, {
+      name: "Hammer",
+      beschreibung: "DE",
+      foto: storageId,
+      nameIt: "Martello",
+      beschreibungIt: "IT",
+      nameEn: "Hammer EN",
+      beschreibungEn: "EN",
+      kategorieId,
+      slug: "hammer",
+    });
+
+    // Duplicate DE
+    await expect(
+      asAdmin.mutation(api.produkte.create, {
+        name: "hammer",
+        beschreibung: "DE2",
+        foto: storageId,
+        nameIt: "M2",
+        beschreibungIt: "IT2",
+        nameEn: "EN2",
+        beschreibungEn: "EN2",
+        kategorieId,
+        slug: "hammer2",
+      })
+    ).rejects.toThrowError(/deutschen Namen existiert bereits/i);
+
+    // Duplicate IT
+    await expect(
+      asAdmin.mutation(api.produkte.create, {
+        name: "H2",
+        beschreibung: "DE2",
+        foto: storageId,
+        nameIt: "martello",
+        beschreibungIt: "IT2",
+        nameEn: "EN2",
+        beschreibungEn: "EN2",
+        kategorieId,
+        slug: "hammer3",
+      })
+    ).rejects.toThrowError(/italienischen Namen existiert bereits/i);
+
+    // Duplicate EN
+    await expect(
+      asAdmin.mutation(api.produkte.create, {
+        name: "H3",
+        beschreibung: "DE3",
+        foto: storageId,
+        nameIt: "M3",
+        beschreibungIt: "IT3",
+        nameEn: "hammer en",
+        beschreibungEn: "EN3",
+        kategorieId,
+        slug: "hammer4",
+      })
+    ).rejects.toThrowError(/englischen Namen existiert bereits/i);
+  });
 });
 

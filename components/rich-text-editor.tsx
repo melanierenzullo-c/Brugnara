@@ -43,6 +43,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         openOnClick: false,
         HTMLAttributes: {
           class: "text-primary underline cursor-pointer",
+          target: "_blank",
+          rel: "noopener noreferrer",
         },
       }),
       TextAlign.configure({
@@ -81,7 +83,14 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+
+    // Add protocol if missing
+    let finalUrl = url;
+    if (!/^https?:\/\//i.test(finalUrl) && !/^mailto:/i.test(finalUrl) && !/^tel:/i.test(finalUrl)) {
+      finalUrl = `https://${finalUrl}`;
+    }
+
+    editor.chain().focus().extendMarkRange("link").setLink({ href: finalUrl }).run();
   }, [editor]);
 
   if (!editor) return null;

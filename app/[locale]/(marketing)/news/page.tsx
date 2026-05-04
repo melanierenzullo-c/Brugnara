@@ -126,21 +126,21 @@ export default function NewsPage() {
                   >
                     <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-                    <div className="flex flex-col sm:flex-row">
+                    <div className="flex flex-col">
                       {item.imageUrl && (
-                        <div className="relative w-full sm:w-72 shrink-0 aspect-[4/3] self-start overflow-hidden rounded-t-[1.5rem] sm:rounded-tr-none sm:rounded-l-[1.5rem]">
+                        <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] overflow-hidden rounded-t-[1.5rem]">
                           <Image
                             src={item.imageUrl}
                             alt={title}
                             fill
-                            sizes="(max-width: 640px) 100vw, 288px"
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            sizes="(max-width: 1024px) 100vw, 1152px"
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                         </div>
                       )}
 
-                      <div className="flex-1 p-8 sm:p-10">
-                        <div className="flex items-center gap-3 mb-4 text-xs text-muted-foreground">
+                      <div className="p-8 sm:p-12">
+                        <div className="flex items-center gap-3 mb-6 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
                           <time dateTime={new Date(item.createdAt).toISOString()}>
                             {new Date(item.createdAt).toLocaleDateString(locale === "it" ? "it-IT" : "de-DE", {
                               day: "2-digit",
@@ -149,14 +149,11 @@ export default function NewsPage() {
                             })}
                           </time>
                         </div>
-                        <h2 className="mb-4 text-2xl font-black text-foreground">{title}</h2>
-                        <div className="news-content text-[17px] leading-relaxed text-muted-foreground font-medium">
-                          {content.length > 200 ? (
-                            <p>{plainText.slice(0, 200)}...</p>
-                          ) : (
-                            <div dangerouslySetInnerHTML={{ __html: content }} />
-                          )}
-                        </div>
+                        <h2 className="mb-6 text-3xl sm:text-4xl font-black text-foreground tracking-tight leading-[1.1]">{title}</h2>
+                        <div 
+                          className="prose-content text-[17px] sm:text-[19px] max-w-3xl"
+                          dangerouslySetInnerHTML={{ __html: content }} 
+                        />
                       </div>
                     </div>
                   </article>
@@ -166,29 +163,6 @@ export default function NewsPage() {
           )}
         </div>
       </div>
-      <style jsx global>{`
-        .news-content a {
-          color: var(--primary);
-          text-decoration: underline;
-        }
-        .news-content ul {
-          list-style-type: disc;
-          padding-left: 1.25rem;
-          margin: 0.5rem 0;
-        }
-        .news-content ol {
-          list-style-type: decimal;
-          padding-left: 1.25rem;
-          margin: 0.5rem 0;
-        }
-        .news-content h1, .news-content h2 {
-          font-size: 1.1rem;
-          font-weight: bold;
-          margin-top: 1rem;
-          margin-bottom: 0.5rem;
-          color: var(--foreground);
-        }
-      `}</style>
     </div>
   );
 }

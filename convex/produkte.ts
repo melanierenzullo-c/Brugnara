@@ -58,15 +58,20 @@ export const update = mutation({
     if (!existing) throw new ConvexError("Produkt nicht gefunden");
 
     const allProducts = await ctx.db.query("produkte").collect();
+
     const normalizedName = normalizeText(args.name);
-    const duplicateName = allProducts.find(
-      (p) =>
-        p._id !== args.id &&
-        !p.archiviertAm &&
-        normalizeText(p.name) === normalizedName
-    );
-    if (duplicateName) {
-      throw new ConvexError("Ein Produkt mit diesem Namen existiert bereits");
+    if (allProducts.some((p) => p._id !== args.id && !p.archiviertAm && normalizeText(p.name) === normalizedName)) {
+      throw new ConvexError("Ein Produkt mit diesem deutschen Namen existiert bereits");
+    }
+
+    const normalizedNameIt = normalizeText(args.nameIt);
+    if (allProducts.some((p) => p._id !== args.id && !p.archiviertAm && normalizeText(p.nameIt) === normalizedNameIt)) {
+      throw new ConvexError("Ein Produkt mit diesem italienischen Namen existiert bereits");
+    }
+
+    const normalizedNameEn = normalizeText(args.nameEn);
+    if (normalizedNameEn && allProducts.some((p) => p._id !== args.id && !p.archiviertAm && p.nameEn && normalizeText(p.nameEn) === normalizedNameEn)) {
+      throw new ConvexError("Ein Produkt mit diesem englischen Namen existiert bereits");
     }
 
     const slug = args.slug.trim();
@@ -377,14 +382,20 @@ export const create = mutation({
     const user = await requireEmployeeOrAdmin(ctx);
 
     const allProducts = await ctx.db.query("produkte").collect();
+
     const normalizedName = normalizeText(args.name);
-    const duplicateName = allProducts.find(
-      (p) =>
-        !p.archiviertAm &&
-        normalizeText(p.name) === normalizedName
-    );
-    if (duplicateName) {
-      throw new ConvexError("Ein Produkt mit diesem Namen existiert bereits");
+    if (allProducts.some((p) => !p.archiviertAm && normalizeText(p.name) === normalizedName)) {
+      throw new ConvexError("Ein Produkt mit diesem deutschen Namen existiert bereits");
+    }
+
+    const normalizedNameIt = normalizeText(args.nameIt);
+    if (allProducts.some((p) => !p.archiviertAm && normalizeText(p.nameIt) === normalizedNameIt)) {
+      throw new ConvexError("Ein Produkt mit diesem italienischen Namen existiert bereits");
+    }
+
+    const normalizedNameEn = normalizeText(args.nameEn);
+    if (normalizedNameEn && allProducts.some((p) => !p.archiviertAm && p.nameEn && normalizeText(p.nameEn) === normalizedNameEn)) {
+      throw new ConvexError("Ein Produkt mit diesem englischen Namen existiert bereits");
     }
 
     const slug = args.slug.trim();

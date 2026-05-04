@@ -224,12 +224,20 @@ export const create = mutation({
     const user = await requireEmployeeOrAdmin(ctx);
 
     const allNews = await ctx.db.query("news").collect();
+
     const normalizedTitel = normalizeText(args.titel);
-    const duplicateTitel = allNews.find(
-      (n) => !n.archiviertAm && normalizeText(n.titel) === normalizedTitel
-    );
-    if (duplicateTitel) {
-      throw new ConvexError("Ein News-Beitrag mit diesem Titel existiert bereits");
+    if (allNews.some((n) => !n.archiviertAm && normalizeText(n.titel) === normalizedTitel)) {
+      throw new ConvexError("Ein News-Beitrag mit diesem deutschen Titel existiert bereits");
+    }
+
+    const normalizedTitelIt = normalizeText(args.titelIt);
+    if (allNews.some((n) => !n.archiviertAm && normalizeText(n.titelIt) === normalizedTitelIt)) {
+      throw new ConvexError("Ein News-Beitrag mit diesem italienischen Titel existiert bereits");
+    }
+
+    const normalizedTitelEn = normalizeText(args.titelEn);
+    if (normalizedTitelEn && allNews.some((n) => !n.archiviertAm && n.titelEn && normalizeText(n.titelEn) === normalizedTitelEn)) {
+      throw new ConvexError("Ein News-Beitrag mit diesem englischen Titel existiert bereits");
     }
 
     const id = await ctx.db.insert("news", {
@@ -274,15 +282,20 @@ export const update = mutation({
     if (!existing) throw new ConvexError("News-Beitrag nicht gefunden");
 
     const allNews = await ctx.db.query("news").collect();
+
     const normalizedTitel = normalizeText(args.titel);
-    const duplicateTitel = allNews.find(
-      (n) =>
-        n._id !== args.id &&
-        !n.archiviertAm &&
-        normalizeText(n.titel) === normalizedTitel
-    );
-    if (duplicateTitel) {
-      throw new ConvexError("Ein News-Beitrag mit diesem Titel existiert bereits");
+    if (allNews.some((n) => n._id !== args.id && !n.archiviertAm && normalizeText(n.titel) === normalizedTitel)) {
+      throw new ConvexError("Ein News-Beitrag mit diesem deutschen Titel existiert bereits");
+    }
+
+    const normalizedTitelIt = normalizeText(args.titelIt);
+    if (allNews.some((n) => n._id !== args.id && !n.archiviertAm && normalizeText(n.titelIt) === normalizedTitelIt)) {
+      throw new ConvexError("Ein News-Beitrag mit diesem italienischen Titel existiert bereits");
+    }
+
+    const normalizedTitelEn = normalizeText(args.titelEn);
+    if (normalizedTitelEn && allNews.some((n) => n._id !== args.id && !n.archiviertAm && n.titelEn && normalizeText(n.titelEn) === normalizedTitelEn)) {
+      throw new ConvexError("Ein News-Beitrag mit diesem englischen Titel existiert bereits");
     }
 
     await ctx.db.patch(args.id, {

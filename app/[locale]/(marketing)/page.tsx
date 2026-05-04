@@ -188,7 +188,7 @@ export default function HomePage() {
               </h2>
             </div>
 
-            <div ref={newsRef} className="space-y-6">
+            <div ref={newsRef} className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {newsItems.slice(0, 3).map((item) => {
                 const title = locale === "it" ? item.titelIt : item.titel;
                 const content = locale === "it" ? item.inhaltIt : item.inhalt;
@@ -196,32 +196,34 @@ export default function HomePage() {
                   <article
                     key={item._id}
                     data-card
-                    className="group premium-card bg-white"
+                    className="group premium-card bg-white flex flex-col"
                   >
                     <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                    <div className="flex flex-col sm:flex-row">
-                      {item.imageUrl && (
-                        <div className="relative w-full sm:w-64 shrink-0 aspect-[16/10] sm:aspect-auto sm:min-h-[200px] overflow-hidden rounded-t-[1.5rem] sm:rounded-tr-none sm:rounded-l-[1.5rem]">
-                          <Image
-                            src={item.imageUrl}
-                            alt={title}
-                            fill
-                            sizes="(max-width: 640px) 100vw, 256px"
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1 p-8">
-                        <p className="mb-2 text-xs text-muted-foreground">
-                          <time dateTime={new Date(item.createdAt).toISOString()}>
-                            {new Date(item.createdAt).toLocaleDateString(locale === "it" ? "it-IT" : "de-DE", {
-                              day: "2-digit", month: "long", year: "numeric",
-                            })}
-                          </time>
-                        </p>
-                        <h4 className="mb-3 text-xl font-black text-foreground">{title}</h4>
-                        <p className="text-[15px] leading-relaxed text-muted-foreground line-clamp-3">{content}</p>
+                    
+                    {item.imageUrl && (
+                      <div className="relative w-full aspect-[16/10] overflow-hidden rounded-t-[1.5rem]">
+                        <Image
+                          src={item.imageUrl}
+                          alt={title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
                       </div>
+                    )}
+                    <div className="flex-1 p-8">
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                        <time dateTime={new Date(item.createdAt).toISOString()}>
+                          {new Date(item.createdAt).toLocaleDateString(locale === "it" ? "it-IT" : "de-DE", {
+                            day: "2-digit", month: "long", year: "numeric",
+                          })}
+                        </time>
+                      </p>
+                      <h4 className="mb-3 text-xl font-black text-foreground tracking-tight leading-tight group-hover:text-primary transition-colors">{title}</h4>
+                      <div 
+                        className="prose-content text-[15px] line-clamp-3 [&_p]:mb-0"
+                        dangerouslySetInnerHTML={{ __html: content }}
+                      />
                     </div>
                   </article>
                 );
