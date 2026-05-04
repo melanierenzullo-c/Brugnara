@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 const PRODUCT_CATEGORIES = [
   { slug: "eisenwaren", image: "/images/home/eisenwaren/1.jpg" },
   { slug: "haushaltsartikel", image: "/images/home/haushalt/1.jpg" },
-  { slug: "werkzeug", image: "/images/home/werkzeug/1.jpg" },
+  { slug: "werkzeug", image: "/images/home/werkzeug/1.1.jpg" },
   { slug: "elektrogeraete", image: "/images/home/elektrogeraete/1.jpg" },
   { slug: "gartengeraete", image: "/images/home/gartengeraete/1.jpg" },
   { slug: "oefen-herde", image: "/images/home/herde/1.jpg" },
@@ -224,18 +224,18 @@ export function MarketingNavigation() {
         </div>
 
         {/* Mobile drawer */}
-        <div className={`overflow-hidden transition-all duration-500 lg:hidden ${mobileMenuOpen ? "max-h-[800px] translate-y-2 opacity-100" : "max-h-0 -translate-y-4 opacity-0"}`}>
-          <nav className="mx-4 mt-2 flex flex-col gap-1 rounded-3xl bg-white/95 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-xl px-4 py-4 dark:bg-black/95">
-            <Link href="/" className="rounded-2xl px-4 py-3 text-[15px] font-semibold text-foreground no-underline transition-all hover:bg-primary/5 active:scale-95" onClick={() => setMobileMenuOpen(false)}>{t("home")}</Link>
+        <div className={`overflow-hidden transition-all duration-500 lg:hidden ${mobileMenuOpen ? "max-h-[calc(90vh-100px)] translate-y-2 opacity-100" : "max-h-0 -translate-y-4 opacity-0"}`}>
+          <nav className="mx-4 mt-2 flex flex-col gap-1 rounded-3xl bg-white/95 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-xl px-4 py-3 dark:bg-black/95 overflow-y-auto">
+            <Link href="/" className="rounded-2xl px-4 py-2 text-[15px] font-semibold text-foreground no-underline transition-all hover:bg-primary/5 active:scale-95" onClick={() => setMobileMenuOpen(false)}>{t("home")}</Link>
 
-            <div className="mt-2 space-y-1">
-              <p className="px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">{t("produkte")}</p>
+            <div className="mt-1 space-y-1">
+              <p className="px-4 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">{t("produkte")}</p>
               <div className="grid grid-cols-1 gap-1">
                 {PRODUCT_CATEGORIES.map((cat) => (
                   <Link
                     key={cat.slug}
                     href={{ pathname: "/produkte/[slug]", params: { slug: cat.slug } }}
-                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-[14px] font-medium text-foreground no-underline transition-all hover:bg-primary/5 active:scale-95"
+                    className="flex items-center gap-3 rounded-2xl px-4 py-2 text-[14px] font-medium text-foreground no-underline transition-all hover:bg-primary/5 active:scale-95"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-muted/30">
@@ -253,8 +253,8 @@ export function MarketingNavigation() {
               </div>
             </div>
 
-            <div className="mt-4 border-t border-border/20 pt-4">
-              <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">{t("language")}</p>
+            <div className="mt-2 border-t border-border/20 pt-2">
+              <p className="px-4 pb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">{t("language")}</p>
               {LANGUAGES.map((lang) => (
                 <button
                   key={lang.code}
@@ -262,7 +262,7 @@ export function MarketingNavigation() {
                     if (locale !== lang.code) switchToLocale(lang.code);
                     setMobileMenuOpen(false);
                   }}
-                  className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none px-4 py-3 text-left text-[14px] font-semibold transition-all ${locale === lang.code
+                  className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-none px-4 py-2 text-left text-[14px] font-semibold transition-all ${locale === lang.code
                       ? "bg-primary/5 text-primary"
                       : "bg-transparent text-foreground hover:bg-secondary/5"
                     }`}

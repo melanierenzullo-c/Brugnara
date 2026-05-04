@@ -50,7 +50,7 @@ export function MarketingFooter() {
               </p>
               <ul className="space-y-3">
                 <li>
-                  <a href="https://maps.google.com/?q=Romstraße+31/A,+Meran" target="_blank" rel="noopener noreferrer"
+                  <a href="https://www.google.com/maps/place/Brugnara+Ferramenta+-+Eisenhandlung/@46.6652351,11.161177,17z/data=!3m1!4b1!4m6!3m5!1s0x4782bc01d9160a9f:0x2b9e2e2cb07996df!8m2!3d46.6652351!4d11.161177!16s%2Fg%2F1tx_56n_?entry=ttu" target="_blank" rel="noopener noreferrer"
                     className="text-[15px] text-[#264D68] transition-colors hover:text-[#1F2937]">
                     {t("adresse")}
                   </a>

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 type FormState = "idle" | "sending" | "success" | "error";
 
 export default function KontaktPage() {
   const t = useTranslations("Contact");
+  const locale = useLocale();
   const [form, setForm] = useState({ name: "", email: "", telefon: "", betreff: "", nachricht: "" });
   const [state, setState] = useState<FormState>("idle");
 
@@ -22,6 +23,8 @@ export default function KontaktPage() {
     setState("success");
     setForm({ name: "", email: "", telefon: "", betreff: "", nachricht: "" });
   };
+
+  const mapUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2735.753825835676!2d11.15858811272652!3d46.66523877103444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4782bc01d9160a9f%3A0x2b9e2e2cb07996df!2sBrugnara%20Ferramenta%20-%20Eisenhandlung!5e0!3m2!1s${locale}!2sit!4v1714841600000!5m2!1s${locale}!2sit`;
 
   return (
     <div className="bg-white py-16">
@@ -246,7 +249,7 @@ export default function KontaktPage() {
           <div className="overflow-hidden rounded-[2rem] border border-border/50 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.05)]">
             <iframe
               title="M. Brugnara GmbH – Meran"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2735.5!2d11.1598!3d46.6713!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47829d3c7c3b9b1b%3A0x0!2sRomstra%C3%9Fe+31%2FA%2C+39012+Meran%2C+BZ!5e0!3m2!1sde!2sit!4v1"
+              src={mapUrl}
               width="100%"
               height="400"
               style={{ border: 0 }}

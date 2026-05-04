@@ -36,12 +36,16 @@ export default function ProdukteOverviewPage() {
 
   const suchergebnisse = isSearching && alleProdukte
     ? alleProdukte.filter((p) => {
-        const q = searchQuery.trim().toLowerCase();
-        return (
-          p.name.toLowerCase().includes(q) ||
-          p.nameIt.toLowerCase().includes(q)
-        );
-      })
+      const q = searchQuery.trim().toLowerCase();
+      return (
+        p.name.toLowerCase().includes(q) ||
+        p.nameIt.toLowerCase().includes(q) ||
+        p.beschreibung.toLowerCase().includes(q) ||
+        p.beschreibungIt.toLowerCase().includes(q) ||
+        p.kategorieName.toLowerCase().includes(q) ||
+        p.kategorieNameIt.toLowerCase().includes(q)
+      );
+    })
     : [];
 
   useEffect(() => {
@@ -112,18 +116,7 @@ export default function ProdukteOverviewPage() {
             {t("heroSubtitle")}
           </p>
         </div>
-        
       </section>
-       {/* Search field */}
-          <div className="relative max-w-xl mx-auto mb-12 -mt-20 z-20">
-            <Search className="absolute left-4 top-1/4 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("searchPlaceholder")}
-              className="pl-10 h-12 rounded-full border-border/60 bg-white/80 backdrop-blur-sm"
-            />
-          </div>
 
       {/* ═══ Categories Grid / Search Results ═══ */}
       <section className="relative py-16 sm:py-28 overflow-hidden bg-background">
@@ -131,7 +124,15 @@ export default function ProdukteOverviewPage() {
 
         <div className="mx-auto max-w-7xl px-6">
           {/* Search field */}
-         
+          <div className="relative max-w-xl mx-auto mb-12">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              className="pl-10 h-12 rounded-full border-border/60 bg-white/80 backdrop-blur-sm"
+            />
+          </div>
 
           {isSearching ? (
             /* ── Search results ── */
@@ -177,13 +178,16 @@ export default function ProdukteOverviewPage() {
                               </div>
                             )}
                           </div>
-                          <div className="px-4 py-6">
+                          <div className="px-4 py-8">
                             <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-primary/70">
                               {katName}
                             </span>
-                            <h4 className="text-xl font-bold text-foreground">
+                            <h4 className="mb-3 text-xl font-bold text-foreground">
                               {productName}
                             </h4>
+                            <p className="text-[15px] leading-relaxed text-muted-foreground font-medium line-clamp-3">
+                              {locale === "it" ? produkt.beschreibungIt : produkt.beschreibung}
+                            </p>
                           </div>
                         </div>
                       );

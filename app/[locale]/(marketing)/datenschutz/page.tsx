@@ -1,9 +1,29 @@
-"use client";
+import fs from "fs";
+import path from "path";
+import { getTranslations } from "next-intl/server";
 
-import { useTranslations } from "next-intl";
+interface Props {
+  params: Promise<{ locale: string }>;
+}
 
-export default function DatenschutzPage() {
-  const t = useTranslations("Datenschutz");
+export default async function DatenschutzPage({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations("Datenschutz");
+
+  // Get the modification date of this file
+  const filePath = path.join(process.cwd(), "app/[locale]/(marketing)/datenschutz/page.tsx");
+  let formattedDate = "";
+  try {
+    const stats = fs.statSync(filePath);
+    formattedDate = new Intl.DateTimeFormat(locale, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(stats.mtime);
+  } catch (e) {
+    console.error("Could not read file stats for Datenschutz page:", e);
+    formattedDate = "–";
+  }
 
   return (
     <div className="min-h-screen bg-[#fafbff]">
@@ -84,7 +104,7 @@ export default function DatenschutzPage() {
           </div>
 
           <div className="mt-12 pt-8 border-t border-border/50 text-sm italic opacity-60">
-            {t("lastUpdated")}
+            {t("lastUpdated", { date: formattedDate })}
           </div>
         </div>
       </div>
