@@ -14,16 +14,17 @@ import type { Locale } from "@/i18n/routing";
 
 /** All product categories with their representative images */
 const PRODUCT_CATEGORIES = [
-  { slug: "eisenwaren", image: "/images/home/eisenwaren/1.jpg" },
-  { slug: "haushaltsartikel", image: "/images/home/haushalt/1.jpg" },
+  { slug: "eisenwaren", image: "/images/home/eisenwaren/2.jpg" },
+  { slug: "haushaltsartikel", image: "/images/home/haushalt/4.5.jpg" },
   { slug: "oefen-herde", image: "/images/home/herde/1.jpg" },
   { slug: "gartengeraete", image: "/images/home/gartengeraete/1.jpg" },
   { slug: "elektrogeraete", image: "/images/home/elektrogeraete/1.jpg" },
-  { slug: "werkzeug", image: "/images/home/werkzeug/1.jpg" },
+  { slug: "werkzeug", image: "/images/home/werkzeug/4.jpg" },
 ] as const;
 
 export default function ProdukteOverviewPage() {
   const t = useTranslations("ProductsOverview");
+  const tHome = useTranslations("Home");
   const tCat = useTranslations("ProductCategories");
   const locale = useLocale() as Locale;
   const heroRef = useRef<HTMLDivElement>(null);
@@ -232,11 +233,11 @@ export default function ProdukteOverviewPage() {
 
                     <div className="flex items-center justify-between px-4 py-6">
                       <div className="flex flex-col">
-                        <h2 className="text-xl font-bold text-foreground">
+                        <h3 className="text-xl font-bold text-foreground">
                           {tCat(cat.slug)}
-                        </h2>
+                        </h3>
                         <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                          {t("viewCollection")}
+                          {tHome("entdecken")}
                         </span>
                       </div>
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10 text-primary transition-all duration-500 group-hover:bg-primary group-hover:text-white">

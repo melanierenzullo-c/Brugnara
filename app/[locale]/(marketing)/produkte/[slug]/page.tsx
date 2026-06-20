@@ -124,20 +124,23 @@ export default function ProduktePage({ params }: ProductPageProps) {
                         src={produkt.imageUrl}
                         alt={productName || 'Produktbild'}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="object-contain"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-4xl font-black text-primary/10">
                         {productName ? productName.substring(0, 1).toUpperCase() : 'P'}
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                   </div>
                   <div className="px-4 py-8">
+                    <span className="inline-block mb-2 text-xs font-bold uppercase tracking-widest text-primary/70">
+                      {categoryName}
+                    </span>
                     <h4 className="mb-3 text-xl font-bold text-foreground">
                       {productName}
                     </h4>
-                    <p className="text-[15px] leading-relaxed text-muted-foreground font-medium">
+                    <p className="text-[15px] leading-relaxed text-muted-foreground font-medium line-clamp-3">
                       {locale === "it" ? produkt.beschreibungIt : produkt.beschreibung}
                     </p>
                   </div>

@@ -27,9 +27,9 @@ export default function KontaktPage() {
   const mapUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2735.753825835676!2d11.15858811272652!3d46.66523877103444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4782bc01d9160a9f%3A0x2b9e2e2cb07996df!2sBrugnara%20Ferramenta%20-%20Eisenhandlung!5e0!3m2!1s${locale}!2sit!4v1714841600000!5m2!1s${locale}!2sit`;
 
   return (
-    <div className="bg-white py-16">
+    <div className="bg-white">
       {/* ═══ Header ═══ */}
-      <section className="relative overflow-hidden bg-[#F6F7FB] pt-32 pb-20">
+      <section className="relative overflow-hidden bg-[#F6F7FB] pt-1 sm:pt-38 pb-20">
         
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
          
