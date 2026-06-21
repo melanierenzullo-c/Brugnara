@@ -91,29 +91,13 @@ export default function ProdukteOverviewPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ═══ Hero Banner ═══ */}
-      <section
-        ref={heroRef}
-        className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-20 sm:pt-32 sm:pb-28"
-      >
-        <div className="absolute inset-0 z-0">
-          <div className="absolute -left-[5%] -top-[5%] h-[40%] w-[40%] rounded-full bg-primary/10 blur-[100px] animate-pulse" />
-          <div className="absolute -right-[5%] -bottom-[5%] h-[30%] w-[30%] rounded-full bg-secondary/20 blur-[80px] animate-pulse [animation-delay:1s]" />
-        </div>
-
-        <div className="absolute inset-0 z-0 opacity-[0.03]" />
-
-        <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
-          <h1
-            data-animate
-            className="mb-6 text-4xl font-black tracking-tighter text-blue-950 sm:text-6xl"
-          >
+      {/* ═══ Header ═══ */}
+      <section className="relative overflow-hidden bg-[#F6F7FB] pt-1 sm:pt-38 pb-20">
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+          <h1 className="mb-4 text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient leading-snug">
             {t("heroTitle")}
           </h1>
-          <p
-            data-animate
-            className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground font-medium"
-          >
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             {t("heroSubtitle")}
           </p>
         </div>

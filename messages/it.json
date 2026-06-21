@@ -40,6 +40,7 @@
   },
   "Products": {
     "title": "Prodotti della categoria {category}",
+    "categorySubtitle": "Scoprite il nostro vasto assortimento di alta qualità in questa categoria. Consulenza esperta e prodotti di qualità.",
     "noProducts": "Nessun prodotto in questa categoria.",
     "loading": "Caricamento...",
     "breadcrumbHome": "Home",
@@ -100,6 +101,7 @@
   "Impressum": {
     "badge": "Note legali",
     "title": "Colofone",
+    "subtitle": "Tutte le informazioni legali importanti e i dati di contatto dell'azienda.",
     "companyLabel": "Azienda",
     "companyName": "M. Brugnara Srl",
     "companyAddress": "Via Roma 31/A, Merano",

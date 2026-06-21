@@ -40,6 +40,7 @@
   },
   "Products": {
     "title": "Products in category {category}",
+    "categorySubtitle": "Discover our high-quality range in this category. Expert advice, premium quality.",
     "noProducts": "No products available in this category.",
     "loading": "Loading...",
     "breadcrumbHome": "Home",
@@ -98,6 +99,7 @@
   "Impressum": {
     "badge": "Legal",
     "title": "Legal Notice",
+    "subtitle": "All important legal information and company contact details.",
     "companyLabel": "Company",
     "companyName": "M. Brugnara GmbH",
     "companyAddress": "Via Roma 31/A, Merano",
@@ -171,6 +173,7 @@
     "toProducts": "To the products",
     "news": "News",
     "datenschutz": "Privacy Policy",
+    "cookies": "Cookies",
     "admin": "Admin",
     "city": "Merano",
     "mondayToFriday": "Mon–Fri",

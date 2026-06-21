@@ -40,6 +40,7 @@
   },
   "Products": {
     "title": "Produkte der Kategorie {category}",
+    "categorySubtitle": "Entdecken Sie unser hochwertiges Sortiment",
     "noProducts": "Keine Produkte in dieser Kategorie vorhanden.",
     "loading": "Laden...",
     "breadcrumbHome": "Home",
@@ -100,6 +101,7 @@
   "Impressum": {
     "badge": "Rechtliches",
     "title": "Impressum",
+    "subtitle": "Alle wichtigen rechtlichen Informationen und Kontaktdaten zum Unternehmen.",
     "companyLabel": "Unternehmen",
     "companyName": "M. Brugnara GmbH",
     "companyAddress": "Romstraße 31/A, Meran",

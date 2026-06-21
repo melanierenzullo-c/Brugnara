@@ -75,28 +75,20 @@ export default function ProduktePage({ params }: ProductPageProps) {
   return (
     <div className="min-h-screen bg-[#F4F6F9]">
       {/* ═══ Category hero banner ═══ */}
-      <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-background pt-24 pb-16">
+      <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-[#F6F7FB] pt-24 pb-16">
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 z-0 opacity-[0.03]"  />
 
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
-          {/* Breadcrumb */}
-          <nav className="mb-8 flex items-center gap-3 text-[12px] font-bold uppercase tracking-widest text-muted-foreground/60">
-            <Link href="/" className="transition-colors hover:text-primary">
-              {t("breadcrumbHome")}
-            </Link>
-            <span className="opacity-30">/</span>
-            <Link href="/produkte" className="transition-colors hover:text-primary">
-              {t("breadcrumbProdukte")}
-            </Link>
-            <span className="opacity-30">/</span>
-            <span className="text-primary">{categoryName}</span>
-          </nav>
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-6 text-center">
+         
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <h1 className="text-4xl sm:text-5xl font-medium text-foreground tracking-tight">
-  {categoryName}
-</h1>
+          <div className="flex flex-col items-center justify-center gap-4">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-foreground tracking-tight text-gradient leading-snug">
+              {categoryName}
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-xl">
+              {t("categorySubtitle")}
+            </p>
           </div>
         </div>
       </section>

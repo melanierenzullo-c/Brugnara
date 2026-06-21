@@ -63,24 +63,15 @@ export default function NewsPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="min-h-screen bg-white">
-        {/* ═══ Category hero banner ═══ */}
-        <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-[#F6F7FB] pt-24 pb-16">
-          <div className="absolute inset-0 z-0 opacity-[0.03]" />
-
-          <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
-            <nav className="mb-8 flex items-center gap-3 text-[12px] font-bold uppercase tracking-widest text-muted-foreground/60">
-              <Link href="/" className="transition-colors hover:text-primary">
-                {t("Home")}
-              </Link>
-              <span className="opacity-30">/</span>
-              <Link href="/produkte" className="transition-colors hover:text-primary">
-                {t("News")}
-              </Link>
-            </nav>
-
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <h1 className="text-4xl sm:text-5xl font-medium text-foreground tracking-tight">{t("title")}</h1>
-            </div>
+        {/* ═══ Header ═══ */}
+        <section className="relative overflow-hidden bg-[#F6F7FB] pt-1 sm:pt-38 pb-20">
+          <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+            <h1 className="mb-4 text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient leading-snug">
+              {t("title")}
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              {t("subtitle")}
+            </p>
           </div>
         </section>
 
