@@ -1,4 +1,8 @@
 import type { MetadataRoute } from "next";
+import { fetchQuery } from "convex/nextjs";
+
+import { api } from "@/convex/_generated/api";
+import { newsSlug } from "@/lib/news";
 
 const BASE_URL = "https://brugnara.bz.it";
 
@@ -11,7 +15,7 @@ const CATEGORY_SLUGS = [
   "werkzeug",
 ] as const;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -102,5 +106,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   }));
 
-  return [...staticRoutes, ...categoryRoutes];
+  /* News-Detailseiten – ohne Convex-Verbindung bleibt die Sitemap statisch */
+  let newsRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const items = await fetchQuery(api.news.listPublic, {});
+    newsRoutes = items.map((item) => ({
+      url: `${BASE_URL}/news/${newsSlug(item, "de")}`,
+      lastModified: new Date(item.createdAt),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+      alternates: {
+        languages: {
+          de: `${BASE_URL}/news/${newsSlug(item, "de")}`,
+          it: `${BASE_URL}/it/novita/${newsSlug(item, "it")}`,
+          en: `${BASE_URL}/en/news/${newsSlug(item, "en")}`,
+        },
+      },
+    }));
+  } catch {
+    // ponytail: Sitemap ohne Beiträge ausliefern ist besser als ein 500er
+  }
+
+  return [...staticRoutes, ...categoryRoutes, ...newsRoutes];
 }

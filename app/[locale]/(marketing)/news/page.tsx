@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 
 import { api } from "@/convex/_generated/api";
 import type { Locale } from "@/i18n/routing";
+import { excerpt, formatNewsDate, newsSlug, newsText } from "@/lib/news";
 
 export default function NewsPage() {
   const t = useTranslations("News");
@@ -26,9 +27,8 @@ export default function NewsPage() {
   const filteredNews = isSearching && newsItems
     ? newsItems.filter((item) => {
         const q = searchQuery.trim().toLowerCase();
-        return (
-          item.titel.toLowerCase().includes(q) ||
-          item.titelIt.toLowerCase().includes(q)
+        return [item.titel, item.titelIt, item.titelEn].some((titel) =>
+          titel?.toLowerCase().includes(q)
         );
       })
     : newsItems;
@@ -55,10 +55,6 @@ export default function NewsPage() {
 
     return () => { ScrollTrigger.getAll().forEach((st) => st.kill()); };
   }, [newsItems]);
-
-  const stripHtml = (html: string) => {
-    return html.replace(/<[^>]*>?/gm, " ");
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,7 +90,7 @@ export default function NewsPage() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
-              Laden…
+              {t("loading")}
             </div>
           ) : filteredNews.length === 0 ? (
             <div className="py-20 text-center">
@@ -103,51 +99,51 @@ export default function NewsPage() {
               </p>
             </div>
           ) : (
-            <div ref={gridRef} className="space-y-8">
+            <div ref={gridRef} className="grid gap-8 sm:grid-cols-2">
               {filteredNews.map((item) => {
-                const title = locale === "it" ? item.titelIt : item.titel;
-                const content = locale === "it" ? item.inhaltIt : item.inhalt;
-                const plainText = stripHtml(content);
+                const { title, content } = newsText(item, locale);
 
                 return (
-                  <article
+                  <Link
                     key={item._id}
+                    href={{ pathname: "/news/[slug]", params: { slug: newsSlug(item, locale) } }}
                     data-card
-                    className="group premium-card bg-white"
+                    className="group premium-card bg-white flex flex-col"
                   >
                     <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-                    <div className="flex flex-col">
-                      {item.imageUrl && (
-                        <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] overflow-hidden rounded-t-[1.5rem]">
-                          <Image
-                            src={item.imageUrl}
-                            alt={title}
-                            fill
-                            sizes="(max-width: 1024px) 100vw, 1152px"
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                        </div>
-                      )}
-
-                      <div className="p-8 sm:p-12">
-                        <div className="flex items-center gap-3 mb-6 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
-                          <time dateTime={new Date(item.createdAt).toISOString()}>
-                            {new Date(item.createdAt).toLocaleDateString(locale === "it" ? "it-IT" : "de-DE", {
-                              day: "2-digit",
-                              month: "long",
-                              year: "numeric",
-                            })}
-                          </time>
-                        </div>
-                        <h2 className="mb-6 text-3xl sm:text-4xl font-black text-foreground tracking-tight leading-[1.1]">{title}</h2>
-                        <div 
-                          className="prose-content text-[17px] sm:text-[19px] max-w-3xl"
-                          dangerouslySetInnerHTML={{ __html: content }} 
+                    {item.imageUrl && (
+                      <div className="relative w-full aspect-[16/10] overflow-hidden rounded-t-[1.5rem]">
+                        <Image
+                          src={item.imageUrl}
+                          alt={title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 576px"
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                       </div>
+                    )}
+
+                    <div className="flex-1 p-8">
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                        <time dateTime={new Date(item.createdAt).toISOString()}>
+                          {formatNewsDate(item.createdAt, locale)}
+                        </time>
+                      </p>
+                      <h2 className="mb-3 text-2xl font-black text-foreground tracking-tight leading-tight transition-colors group-hover:text-primary">
+                        {title}
+                      </h2>
+                      <p className="text-[15px] leading-relaxed text-muted-foreground line-clamp-3">
+                        {excerpt(content)}
+                      </p>
+                      <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-primary">
+                        {t("readMore")}
+                        <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </span>
                     </div>
-                  </article>
+                  </Link>
                 );
               })}
             </div>

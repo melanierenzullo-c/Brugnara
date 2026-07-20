@@ -161,7 +161,11 @@
     "breadcrumbProdukte": "Prodotti",
     "News": "Notizie",
     "searchPlaceholder": "Cerca notizie…",
-    "searchNoResults": "Nessuna notizia trovata."
+    "searchNoResults": "Nessuna notizia trovata.",
+    "loading": "Caricamento…",
+    "readMore": "Continua a leggere",
+    "backToNews": "Torna alle notizie",
+    "notFound": "Questo articolo non esiste (più)."
   },
   "Footer": {
     "kontakt": "Contatto",

@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect } from "react";
 
+import { normalizeUrl } from "@/lib/url";
+
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -41,8 +43,13 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       Underline,
       Link.configure({
         openOnClick: false,
+        protocols: ["http", "https", "mailto", "tel"],
+        // zweite Schranke: greift auch bei Einfügen/Auto-Link
+        validate: (url) => normalizeUrl(url) !== null,
         HTMLAttributes: {
           class: "text-primary underline cursor-pointer",
+          // ponytail: öffnet auch interne Links im neuen Tab – stört niemanden,
+          // solange fast nur extern verlinkt wird
           target: "_blank",
           rel: "noopener noreferrer",
         },
@@ -79,15 +86,17 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     const url = window.prompt("URL eingeben", previousUrl);
 
     if (url === null) return;
-    if (url === "") {
+    if (url.trim() === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
 
-    // Add protocol if missing
-    let finalUrl = url;
-    if (!/^https?:\/\//i.test(finalUrl) && !/^mailto:/i.test(finalUrl) && !/^tel:/i.test(finalUrl)) {
-      finalUrl = `https://${finalUrl}`;
+    const finalUrl = normalizeUrl(url);
+    if (!finalUrl) {
+      window.alert(
+        "Diese Adresse ist nicht erlaubt. Nur Web-Links (https://…), E-Mail (mailto:…) und Telefon (tel:…)."
+      );
+      return;
     }
 
     editor.chain().focus().extendMarkRange("link").setLink({ href: finalUrl }).run();

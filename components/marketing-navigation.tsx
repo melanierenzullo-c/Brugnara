@@ -43,8 +43,14 @@ export function MarketingNavigation() {
 
   const switchToLocale = (newLocale: string) => {
     if (params?.slug) {
+      // ponytail: Slug bleibt in der alten Sprache – die News-Detailseite
+      // findet den Beitrag trotzdem (newsSlugs matcht über alle Sprachen).
+      const isNews = pathname.startsWith("/news");
       router.replace(
-        { pathname: "/produkte/[slug]", params: { slug: params.slug as string } },
+        {
+          pathname: isNews ? "/news/[slug]" : "/produkte/[slug]",
+          params: { slug: params.slug as string },
+        },
         { locale: newLocale }
       );
     } else {

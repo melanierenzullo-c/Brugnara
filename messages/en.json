@@ -159,7 +159,12 @@
     "breadcrumbProdukte": "Products",
     "News": "News",
     "breadcrumbNews": "News",
-    "searchPlaceholder": "Search news… " 
+    "searchPlaceholder": "Search news…",
+    "searchNoResults": "No news found.",
+    "loading": "Loading…",
+    "readMore": "Read more",
+    "backToNews": "Back to news",
+    "notFound": "This article no longer exists."
   },
   "Footer": {
     "kontakt": "Contact",
