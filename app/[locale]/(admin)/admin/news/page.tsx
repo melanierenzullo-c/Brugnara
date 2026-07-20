@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageCropper } from "@/components/image-cropper";
 import { RichTextEditor } from "@/components/rich-text-editor";
+import { excerpt } from "@/lib/news";
 
 /* ─────────────────── shared types ─────────────────── */
 
@@ -532,11 +533,8 @@ export default function AdminNewsPage() {
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredNewsItems = newsItems?.filter((n) => {
     if (!normalizedQuery) return true;
-    return (
-      n.titel.toLowerCase().includes(normalizedQuery) ||
-      n.titelIt.toLowerCase().includes(normalizedQuery) ||
-      n.inhalt.toLowerCase().includes(normalizedQuery) ||
-      n.inhaltIt.toLowerCase().includes(normalizedQuery)
+    return [n.titel, n.titelIt, n.titelEn, n.inhalt, n.inhaltIt, n.inhaltEn].some(
+      (feld) => feld?.toLowerCase().includes(normalizedQuery)
     );
   });
 
@@ -625,7 +623,7 @@ export default function AdminNewsPage() {
               <p className="mt-0.5 text-sm text-slate-500">
                 {isEditing
                   ? "Ändere die Daten und speichere."
-                  : "Füge einen neuen Beitrag in Deutsch und Italienisch hinzu."}
+                  : "Füge einen neuen Beitrag in Deutsch, Italienisch und Englisch hinzu."}
               </p>
             </div>
             {(titel.trim() || inhalt.trim()) && (
@@ -750,9 +748,9 @@ export default function AdminNewsPage() {
                 {/* Language reminder */}
                 <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <p className="text-xs font-bold text-primary">Zweisprachig</p>
+                    <p className="text-xs font-bold text-primary">Dreisprachig</p>
                   </div>
-                  <p className="text-xs text-primary/80 leading-relaxed">Mit den <strong>DE / IT</strong>-Tabs zwischen den Sprachen wechseln.</p>
+                  <p className="text-xs text-primary/80 leading-relaxed">Mit den <strong>DE / IT / EN</strong>-Tabs zwischen den Sprachen wechseln.</p>
                 </div>
               </div>
             </div>
@@ -815,7 +813,7 @@ export default function AdminNewsPage() {
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-foreground truncate">{n.titel}</p>
-                        <p className="text-xs text-slate-400 truncate max-w-[400px]">{n.inhalt}</p>
+                        <p className="text-xs text-slate-400 truncate max-w-[400px]">{excerpt(n.inhalt, 120)}</p>
                         <p className="mt-1 text-[11px] text-slate-300">
                           {new Date(n.createdAt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}
                         </p>

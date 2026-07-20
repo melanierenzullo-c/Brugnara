@@ -10,6 +10,7 @@ import { useQuery } from "convex/react";
 
 import { api } from "@/convex/_generated/api";
 import type { Locale } from "@/i18n/routing";
+import { excerpt, formatNewsDate, newsSlug, newsText } from "@/lib/news";
 
 const PRODUCT_CATEGORIES = [
   { slug: "eisenwaren", image: "/images/home/eisenwaren/2.jpg" },
@@ -190,11 +191,11 @@ export default function HomePage() {
 
             <div ref={newsRef} className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {newsItems.slice(0, 3).map((item) => {
-                const title = locale === "it" ? item.titelIt : item.titel;
-                const content = locale === "it" ? item.inhaltIt : item.inhalt;
+                const { title, content } = newsText(item, locale);
                 return (
-                  <article
+                  <Link
                     key={item._id}
+                    href={{ pathname: "/news/[slug]", params: { slug: newsSlug(item, locale) } }}
                     data-card
                     className="group premium-card bg-white flex flex-col"
                   >
@@ -214,18 +215,15 @@ export default function HomePage() {
                     <div className="flex-1 p-8">
                       <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
                         <time dateTime={new Date(item.createdAt).toISOString()}>
-                          {new Date(item.createdAt).toLocaleDateString(locale === "it" ? "it-IT" : "de-DE", {
-                            day: "2-digit", month: "long", year: "numeric",
-                          })}
+                          {formatNewsDate(item.createdAt, locale)}
                         </time>
                       </p>
                       <h4 className="mb-3 text-xl font-black text-foreground tracking-tight leading-tight group-hover:text-primary transition-colors">{title}</h4>
-                      <div 
-                        className="prose-content text-[15px] line-clamp-3 [&_p]:mb-0"
-                        dangerouslySetInnerHTML={{ __html: content }}
-                      />
+                      <p className="text-[15px] leading-relaxed text-muted-foreground line-clamp-3">
+                        {excerpt(content)}
+                      </p>
                     </div>
-                  </article>
+                  </Link>
                 );
               })}
             </div>

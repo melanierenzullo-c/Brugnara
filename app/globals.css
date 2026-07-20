@@ -198,6 +198,27 @@
   .prose-content strong, .prose-content b {
     @apply font-bold text-foreground;
   }
+  .prose-content em, .prose-content i {
+    @apply italic;
+  }
+  .prose-content u {
+    @apply underline underline-offset-4;
+  }
+  .prose-content blockquote {
+    @apply border-l-4 border-primary/30 pl-4 italic my-4;
+  }
+  .prose-content code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 text-[0.9em] font-mono text-foreground;
+  }
+  .prose-content pre {
+    @apply rounded-xl bg-slate-100 p-4 mb-4 overflow-x-auto;
+  }
+  .prose-content pre code {
+    @apply bg-transparent p-0;
+  }
+  .prose-content hr {
+    @apply my-8 border-border;
+  }
 }
 
 @keyframes fadeIn {

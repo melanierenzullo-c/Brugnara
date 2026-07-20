@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ q: text.trim(), source: "de", target }),
+      // format: "html" -> Tags und Links überleben die Übersetzung
+      body: JSON.stringify({ q: text.trim(), source: "de", target, format: "html" }),
     });
   } catch {
     return NextResponse.json(

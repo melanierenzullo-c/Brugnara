@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    include: ["convex/**/*.test.ts"],
+    include: ["convex/**/*.test.ts", "lib/**/*.test.ts"],
     environment: "edge-runtime",
     coverage: {
       provider: "v8",

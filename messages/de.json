@@ -161,7 +161,11 @@
     "breadcrumbProdukte": "Produkte",
     "News": "News",
     "searchPlaceholder": "News suchen…",
-    "searchNoResults": "Keine News gefunden."
+    "searchNoResults": "Keine News gefunden.",
+    "loading": "Laden…",
+    "readMore": "Weiterlesen",
+    "backToNews": "Zurück zu den News",
+    "notFound": "Dieser Beitrag existiert nicht (mehr)."
   },
   "Footer": {
     "kontakt": "Kontakt",

@@ -24,7 +24,10 @@ export default function KontaktPage() {
     setForm({ name: "", email: "", telefon: "", betreff: "", nachricht: "" });
   };
 
-  const mapUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2735.753825835676!2d11.15858811272652!3d46.66523877103444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4782bc01d9160a9f%3A0x2b9e2e2cb07996df!2sBrugnara%20Ferramenta%20-%20Eisenhandlung!5e0!3m2!1s${locale}!2sit!4v1714841600000!5m2!1s${locale}!2sit`;
+  // ponytail: klassischer Embed statt pb-URL – nur der respektiert hl= (Sprache)
+  const mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
+    "Brugnara Ferramenta - Eisenhandlung, Vahrn"
+  )}&z=16&hl=${locale}&output=embed`;
 
   return (
     <div className="bg-white">
