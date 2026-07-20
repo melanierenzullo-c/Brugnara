@@ -90,7 +90,7 @@ export default function ProdukteOverviewPage() {
   }, [isSearching]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* ═══ Header ═══ */}
       <section className="relative overflow-hidden bg-[#F6F7FB] pt-1 sm:pt-38 pb-20">
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
@@ -104,9 +104,7 @@ export default function ProdukteOverviewPage() {
       </section>
 
       {/* ═══ Categories Grid / Search Results ═══ */}
-      <section className="relative py-16 sm:py-28 overflow-hidden bg-background">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-2/3 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-
+      <section className="relative py-16 sm:py-28 overflow-hidden bg-white">
         <div className="mx-auto max-w-7xl px-6">
           {/* Search field */}
           <div className="relative max-w-xl mx-auto mb-12">

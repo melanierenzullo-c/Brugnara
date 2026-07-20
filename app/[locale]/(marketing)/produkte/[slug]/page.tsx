@@ -73,9 +73,9 @@ export default function ProduktePage({ params }: ProductPageProps) {
   }, [produkte]);
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9]">
+    <div className="min-h-screen bg-white">
       {/* ═══ Category hero banner ═══ */}
-      <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-[#F6F7FB] pt-24 pb-16">
+      <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-[#F6F7FB] pt-1 sm:pt-38 pb-20">
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 z-0 opacity-[0.03]"  />
 
@@ -94,7 +94,6 @@ export default function ProduktePage({ params }: ProductPageProps) {
       </section>
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20 pb-40">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-border to-transparent" />
         {produkte === undefined ? (
           /* Loading state */
           <p className="py-20 text-center text-lg text-[#6B7280]">
