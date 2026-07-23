@@ -32,7 +32,7 @@ export default function KontaktPage() {
   return (
     <div className="bg-white">
       {/* ═══ Header ═══ */}
-      <section className="relative overflow-hidden bg-[#F6F7FB] pt-1 sm:pt-38 pb-20">
+      <section className="relative overflow-hidden bg-[#F6F7FB] pt-24 sm:pt-38 pb-20">
         
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
          

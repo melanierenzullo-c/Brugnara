@@ -8,7 +8,7 @@ export default function ImpressumPage() {
   return (
     <div className="min-h-screen bg-[#fafbff]">
       {/* ═══ Header ═══ */}
-      <section className="relative overflow-hidden bg-[#F6F7FB] pt-1 sm:pt-38 pb-20">
+      <section className="relative overflow-hidden bg-[#F6F7FB] pt-24 sm:pt-38 pb-20">
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <h1 className="mb-4 text-4xl font-black tracking-tight text-foreground sm:text-6xl text-gradient leading-snug">
             {t("title")}

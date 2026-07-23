@@ -59,7 +59,7 @@ export default function NewsDetailPage({
               date={formatNewsDate(item.createdAt, locale)}
               {...newsText(item, locale)}
             />
-            <div className="mt-16 border-t border-border/60 pt-8">{backLink}</div>
+            
           </>
         )}
       </div>

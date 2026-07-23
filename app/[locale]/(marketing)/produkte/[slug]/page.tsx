@@ -75,7 +75,7 @@ export default function ProduktePage({ params }: ProductPageProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* ═══ Category hero banner ═══ */}
-      <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-[#F6F7FB] pt-1 sm:pt-38 pb-20">
+      <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden bg-[#F6F7FB] pt-24 sm:pt-38 pb-20">
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 z-0 opacity-[0.03]"  />
 
