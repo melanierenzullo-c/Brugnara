@@ -86,7 +86,7 @@
     "messageLabel": "Nachricht",
     "messagePlaceholder": "Ihre Nachricht an uns…",
     "required": "*",
-    "privacyConsent": "Mit dem Absenden stimmen Sie unserer",
+    "privacyConsent": "Ich stimme der",
     "privacyLink": "Datenschutzerklärung",
     "privacyConsentEnd": "zu.",
     "submitButton": "Nachricht absenden",

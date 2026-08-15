@@ -84,7 +84,7 @@
     "messageLabel": "Message",
     "messagePlaceholder": "Your message to us…",
     "required": "*",
-    "privacyConsent": "By submitting you agree to our",
+    "privacyConsent": "I agree to the",
     "privacyLink": "Privacy Policy",
     "privacyConsentEnd": ".",
     "submitButton": "Send Message",

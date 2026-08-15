@@ -214,11 +214,20 @@ export default function KontaktPage() {
                   />
                 </div>
 
-                <p className="text-xs text-muted-foreground">
-                  {t("privacyConsent")}{" "}
-                  <Link href="/datenschutz" className="text-primary hover:underline">{t("privacyLink")}</Link>{" "}
-                  {t("privacyConsentEnd")}
-                </p>
+                <div className="flex items-start gap-3">
+                  <input
+                    id="contact-privacy-consent"
+                    name="privacyConsent"
+                    type="checkbox"
+                    required
+                    className="mt-0.5 size-4 shrink-0 accent-primary"
+                  />
+                  <label htmlFor="contact-privacy-consent" className="text-xs text-muted-foreground">
+                    {t("privacyConsent")}{" "}
+                    <Link href="/datenschutz" className="text-primary hover:underline">{t("privacyLink")}</Link>{" "}
+                    {t("privacyConsentEnd")}
+                  </label>
+                </div>
 
                 <button
                   type="submit"

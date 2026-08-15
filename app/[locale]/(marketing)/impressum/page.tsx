@@ -6,7 +6,7 @@ export default function ImpressumPage() {
   const t = useTranslations("Impressum");
 
   return (
-    <div className="min-h-screen bg-[#fafbff]">
+    <div className="min-h-screen bg-white">
       {/* ═══ Header ═══ */}
       <section className="relative overflow-hidden bg-[#F6F7FB] pt-24 sm:pt-38 pb-20">
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
@@ -20,8 +20,8 @@ export default function ImpressumPage() {
       </section>
 
       {/* ═══ Content ═══ */}
-      <div className="mx-auto max-w-4xl px-6 pb-32">
-        <div className="rounded-[2.5rem] bg-white border border-border/50 p-8 sm:p-12 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.05)]">
+      <div className="mx-auto max-w-4xl px-6 pt-12 pb-16">
+        <div className="rounded-[2rem] border border-border/50 bg-white p-8 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.05)] sm:p-10">
           <h2 className="mb-10 flex items-center gap-3 text-2xl font-black text-foreground">
             <span className="p-2 rounded-xl bg-primary/10">📄</span>
             {t("title")}

@@ -21,7 +21,7 @@ export function MarketingFooter() {
         <div className="grid grid-cols-1 gap-14 py-16 lg:grid-cols-12 lg:gap-10">
 
           {/* Brand */}
-          <div className="flex flex-col gap-7 lg:col-span-4 items-center text-center lg:items-start lg:text-left">
+          <div className="flex flex-col items-center gap-7 text-center lg:col-span-4">
             
 
             
@@ -71,7 +71,7 @@ export function MarketingFooter() {
 
      
        {/* Öffnungszeiten */}
-<div className="lg:col-span-4 max-w-xs mx-auto lg:mx-0 lg:max-w-none text-center lg:text-left">
+<div className="mx-auto max-w-xs text-center lg:col-span-4">
   <p className="mb-5 text-[11px] font-black uppercase tracking-[0.25em] text-[#264D68]">
     {t("oeffnungszeiten")}
   </p>
